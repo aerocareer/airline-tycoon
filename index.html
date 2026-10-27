@@ -153,6 +153,8 @@
                     <div class="flex items-center space-x-2 text-xs text-slate-400 mt-0.5">
                         <span class="text-sky-400 font-medium">Joueur : <strong class="text-white" id="header-player-name">Ben</strong> (<span id="header-player-role" class="text-amber-400 font-bold">CEO</span>)</span>
                         <span>•</span>
+                        <span>Position : <strong class="text-emerald-400 font-mono" id="header-player-loc">CDG</strong></span>
+                        <span>•</span>
                         <span>Code Salon : <strong class="text-emerald-400 font-mono" id="header-company-code">BEAZ</strong></span>
                     </div>
                 </div>
@@ -226,7 +228,7 @@
             </div>
             <div class="p-3 border-t border-slate-800 bg-slate-950/40 rounded-xl text-xs text-slate-500 space-y-1">
                 <div class="flex justify-between"><span>Cloud Firestore:</span> <span class="text-emerald-400 font-mono">Connecté (Live)</span></div>
-                <div class="flex justify-between"><span>Version:</span> <span class="text-sky-400 font-mono">5.1.0 Cloud Sync</span></div>
+                <div class="flex justify-between"><span>Version:</span> <span class="text-sky-400 font-mono">5.8.0 Multi-Leg Routing</span></div>
             </div>
         </nav>
 
@@ -238,7 +240,7 @@
                 <div class="flex justify-between items-center">
                     <div>
                         <h2 class="text-2xl font-extrabold text-white tracking-tight">Tableau de Bord Général</h2>
-                        <p class="text-sm text-slate-400">Synchronisation cloud active en temps réel entre tous les appareils.</p>
+                        <p class="text-sm text-slate-400">Contrats géolocalisés avec escales et ravitaillement asynchrone.</p>
                     </div>
                 </div>
 
@@ -268,7 +270,7 @@
                 <div class="glass-card rounded-2xl p-5 shadow-xl space-y-4">
                     <h3 class="text-lg font-bold text-white flex items-center space-x-2">
                         <i class="fa-solid fa-sitemap text-sky-400"></i>
-                        <span>Organigramme de la Compagnie</span>
+                        <span>Organigramme & Positions en Temps Réel de l'Équipe</span>
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="executives-container"></div>
                     <div class="pt-2">
@@ -281,9 +283,9 @@
                     <div class="flex justify-between items-center">
                         <h3 class="text-lg font-bold text-white flex items-center space-x-2">
                             <i class="fa-solid fa-file-contract text-emerald-400"></i>
-                            <span>Marché Public des Contrats d'Affrètement (Disponibles)</span>
+                            <span>Marché Public des Contrats (Directs & avec Escales)</span>
                         </h3>
-                        <span class="text-xs bg-slate-800 text-emerald-400 font-mono px-2.5 py-1 rounded-lg border border-slate-700" id="available-contracts-badge">10 contrats</span>
+                        <span class="text-xs bg-slate-800 text-emerald-400 font-mono px-2.5 py-1 rounded-lg border border-slate-700" id="available-contracts-badge">20 contrats</span>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[500px] overflow-y-auto pr-1" id="available-contracts-container"></div>
                 </div>
@@ -503,14 +505,15 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-1 glass-card p-5 rounded-2xl shadow-xl space-y-4">
                         <h3 class="text-lg font-bold text-white flex items-center space-x-2">
-                            <i class="fa-solid fa-train-subway text-sky-400"></i><span>Relocalisation Pilote</span>
+                            <i class="fa-solid fa-train-subway text-sky-400"></i><span>Relocalisation Pilote / Joueur</span>
                         </h3>
                         <div class="space-y-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
+                            <p class="text-xs text-slate-400">Déplacez votre avatar dans une nouvelle ville pour générer de nouveaux contrats sur place.</p>
                             <div>
-                                <label class="block text-xs text-slate-400 mb-1">Hub de Destination</label>
+                                <label class="block text-xs text-slate-400 mb-1">Destination (OACI ou n'importe quel Hub/Aéroport)</label>
                                 <select id="pilot-relocate-select" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-sky-500"></select>
                             </div>
-                            <button onclick="app.relocatePilot()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-2 rounded-xl text-xs transition shadow cursor-pointer">Se Relocaliser (1 500 €)</button>
+                            <button onclick="app.relocatePlayer()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-2 rounded-xl text-xs transition shadow cursor-pointer">Se Relocaliser (1 500 €)</button>
                         </div>
                     </div>
                     <div class="lg:col-span-2 glass-card p-5 rounded-2xl shadow-xl space-y-4">
@@ -550,35 +553,6 @@
         </div>
     </div>
 
-    <div id="express-fuel-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
-            <h3 class="text-lg font-bold text-white flex items-center space-x-2"><i class="fa-solid fa-gas-pump text-amber-400"></i><span>Avitaillement d'Urgence Requis</span></h3>
-            <p class="text-xs text-slate-300">Il manque <strong id="express-needed-qty" class="text-amber-400 font-mono">0 Kg</strong> de kérosène au hub <strong id="express-hub-code" class="text-sky-400"></strong>.</p>
-            <div class="space-y-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
-                <select id="express-fuel-source" onchange="app.updateExpressCost()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-sky-500"></select>
-                <div class="text-xs text-slate-400 space-y-1 font-mono pt-2 border-t border-slate-800">
-                    <div class="flex justify-between"><span>Coût Total:</span> <strong class="text-emerald-400 text-sm font-bold" id="express-total-price">0 €</strong></div>
-                </div>
-            </div>
-            <div class="flex justify-end space-x-3 pt-2">
-                <button onclick="app.closeExpressFuelModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">Annuler</button>
-                <button onclick="app.confirmExpressFuel()" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow cursor-pointer">Avitailler & Lancer</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="loan-detail-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
-            <h3 class="text-lg font-bold text-white" id="inspect-loan-title">Détail Emprunt</h3>
-            <div class="space-y-2 text-xs text-slate-300 font-mono bg-slate-950 p-4 rounded-xl border border-slate-800">
-                <div class="flex justify-between"><span>Restant:</span> <strong class="text-emerald-400" id="inspect-loan-remaining">0 €</strong></div>
-                <div class="flex justify-between"><span>Mensualité:</span> <strong class="text-white" id="inspect-loan-installment">0 €</strong></div>
-                <div class="flex justify-between"><span>Ticks:</span> <strong class="text-amber-400" id="inspect-loan-ticks">0</strong></div>
-            </div>
-            <button onclick="app.closeLoanDetailModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold transition cursor-pointer">Fermer</button>
-        </div>
-    </div>
-
     <div id="loan-create-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
             <h3 class="text-lg font-bold text-white">Souscrire un Emprunt Bancaire</h3>
@@ -608,14 +582,12 @@
                 this.activeTab = 'dashboard';
                 this.fuelPurchaseQty = 10000;
                 this.currentFuelPrice = 1.85;
-                this.inspectedLoan = null;
-                this.pendingExpressPlaneId = null;
-                this.pendingExpressNeededFuel = 0;
                 this.landingPlaneId = null;
 
                 this.playerName = '';
                 this.companyCode = '';
                 this.playerRole = 'CEO';
+                this.playerLocation = 'CDG';
                 this._unsubscribeSync = null;
 
                 this.company = {
@@ -631,21 +603,21 @@
                 };
 
                 this.aircraftCatalog = [
-                    { type: 'Aviation Légère', name: 'Cessna 172 Skyhawk', capacity: 3, cargo: 0.3, range: 1185, fuelBurn: 35, price: 450000, allowLease: true },
-                    { type: 'Aviation Légère', name: 'Diamond DA62', capacity: 6, cargo: 0.5, range: 2380, fuelBurn: 55, price: 1200000, allowLease: true },
-                    { type: 'Turboprop', name: 'Cessna 208B Grand Caravan', capacity: 14, cargo: 1.2, range: 1600, fuelBurn: 200, price: 2100000, allowLease: true },
-                    { type: 'Turboprop', name: 'Daher TBM 930', capacity: 6, cargo: 0.5, range: 2100, fuelBurn: 250, price: 4100000, allowLease: true },
-                    { type: 'Turboprop', name: 'Beechcraft King Air 350i', capacity: 11, cargo: 1.5, range: 2800, fuelBurn: 380, price: 7500000, allowLease: true },
+                    { type: 'Aviation Légère', name: 'Cessna 172 Skyhawk', capacity: 3, cargo: 0.3, range: 550, fuelBurn: 35, price: 450000, allowLease: true },
+                    { type: 'Aviation Légère', name: 'Diamond DA62', capacity: 6, cargo: 0.5, range: 900, fuelBurn: 55, price: 1200000, allowLease: true },
+                    { type: 'Turboprop', name: 'Cessna 208B Grand Caravan', capacity: 14, cargo: 1.2, range: 1200, fuelBurn: 200, price: 2100000, allowLease: true },
+                    { type: 'Turboprop', name: 'Daher TBM 930', capacity: 6, cargo: 0.5, range: 1600, fuelBurn: 250, price: 4100000, allowLease: true },
+                    { type: 'Turboprop', name: 'Beechcraft King Air 350i', capacity: 11, cargo: 1.5, range: 2200, fuelBurn: 380, price: 7500000, allowLease: true },
                     { type: 'Régional', name: 'ATR 42-600', capacity: 48, cargo: 5.0, range: 1300, fuelBurn: 550, price: 21000000, allowLease: true },
                     { type: 'Régional', name: 'ATR 72-600', capacity: 72, cargo: 7.5, range: 1500, fuelBurn: 720, price: 26000000, allowLease: true },
-                    { type: 'Moyen-Porteur', name: 'Airbus A320neo', capacity: 180, cargo: 20.0, range: 6500, fuelBurn: 2100, price: 110000000, allowLease: false },
-                    { type: 'Moyen-Porteur', name: 'Boeing 737-800', capacity: 189, cargo: 20.0, range: 5400, fuelBurn: 2300, price: 100000000, allowLease: false },
-                    { type: 'Moyen-Porteur', name: 'Boeing 737 MAX 8', capacity: 210, cargo: 22.0, range: 6570, fuelBurn: 1900, price: 121000000, allowLease: false },
-                    { type: 'Long-Courrier', name: 'Airbus A350-900', capacity: 315, cargo: 45.0, range: 15000, fuelBurn: 4800, price: 317000000, allowLease: false },
-                    { type: 'Long-Courrier', name: 'Boeing 787-10 Dreamliner', capacity: 336, cargo: 50.0, range: 11910, fuelBurn: 5100, price: 338000000, allowLease: false },
-                    { type: 'Très Long Courrier', name: 'Airbus A380-800', capacity: 555, cargo: 65.0, range: 14800, fuelBurn: 10500, price: 445000000, allowLease: false },
-                    { type: 'Cargo Lourd', name: 'Boeing 777F', capacity: 0, cargo: 102.0, range: 9200, fuelBurn: 6800, price: 350000000, allowLease: false },
-                    { type: 'Supersonique', name: 'Concorde SST', capacity: 100, cargo: 5.0, range: 7250, fuelBurn: 22000, price: 600000000, allowLease: false }
+                    { type: 'Moyen-Porteur', name: 'Airbus A320neo', capacity: 180, cargo: 20.0, range: 6500, fuelBurn: 2100, price: 110000000, allowLease: true },
+                    { type: 'Moyen-Porteur', name: 'Boeing 737-800', capacity: 189, cargo: 20.0, range: 5400, fuelBurn: 2300, price: 100000000, allowLease: true },
+                    { type: 'Moyen-Porteur', name: 'Boeing 737 MAX 8', capacity: 210, cargo: 22.0, range: 6570, fuelBurn: 1900, price: 121000000, allowLease: true },
+                    { type: 'Long-Courrier', name: 'Airbus A350-900', capacity: 315, cargo: 45.0, range: 15000, fuelBurn: 4800, price: 317000000, allowLease: true },
+                    { type: 'Long-Courrier', name: 'Boeing 787-10 Dreamliner', capacity: 336, cargo: 50.0, range: 11910, fuelBurn: 5100, price: 338000000, allowLease: true },
+                    { type: 'Très Long Courrier', name: 'Airbus A380-800', capacity: 555, cargo: 65.0, range: 14800, fuelBurn: 10500, price: 445000000, allowLease: true },
+                    { type: 'Cargo Lourd', name: 'Boeing 777F', capacity: 0, cargo: 102.0, range: 9200, fuelBurn: 6800, price: 350000000, allowLease: true },
+                    { type: 'Supersonique', name: 'Concorde SST', capacity: 100, cargo: 5.0, range: 7250, fuelBurn: 22000, price: 600000000, allowLease: true }
                 ];
 
                 this.hub100List = [
@@ -760,21 +732,80 @@
                 }
             }
 
+            getAvailableOrigins() {
+                let origins = [];
+                if (this.company.hubs && this.company.hubs.length > 0) {
+                    origins = origins.concat(this.company.hubs);
+                }
+                if (this.fleet && this.fleet.length > 0) {
+                    this.fleet.forEach(p => {
+                        if (p.location && !origins.includes(p.location)) {
+                            origins.push(p.location);
+                        }
+                    });
+                }
+                if (this.team && this.team.length > 0) {
+                    this.team.forEach(m => {
+                        if (m.location && !origins.includes(m.location)) {
+                            origins.push(m.location);
+                        }
+                    });
+                }
+                if (origins.length === 0) {
+                    origins = ['CDG'];
+                }
+                return origins;
+            }
+
             generateInitialContracts() {
                 this.availableContracts = [];
-                for (let i = 0; i < 10; i++) {
-                    const origHub = this.hub100List[Math.floor(Math.random() * this.hub100List.length)];
+                const tierList = [
+                    { type: 'Aviation Légère', minPax: 2, minCargo: 0, mult: 1, label: 'Léger / Régional court' },
+                    { type: 'Turboprop', minPax: 10, minCargo: 1, mult: 1.8, label: 'Turbopropulseur Régional' },
+                    { type: 'Régional', minPax: 40, minCargo: 4, mult: 3.5, label: 'Ligne Régionale PAX' },
+                    { type: 'Moyen-Porteur', minPax: 150, minCargo: 15, mult: 8, label: 'Moyen-Porteur International' },
+                    { type: 'Long-Courrier', minPax: 300, minCargo: 40, mult: 20, label: 'Long-Courrier Transcontinental' },
+                    { type: 'Cargo Lourd', minPax: 0, minCargo: 80, mult: 25, label: 'Fret Lourd / Cargo' },
+                    { type: 'Supersonique', minPax: 80, minCargo: 4, mult: 35, label: 'Express VIP Supersonique' }
+                ];
+
+                const companyFactor = 1 + (this.company.hubs.length * 0.3) + (this.fleet.length * 0.15) + ((this.company.level || 1) * 0.2);
+                const activeOrigins = this.getAvailableOrigins();
+
+                for (let i = 0; i < 20; i++) {
+                    const origCode = activeOrigins[Math.floor(Math.random() * activeOrigins.length)];
                     let destHub = this.hub100List[Math.floor(Math.random() * this.hub100List.length)];
-                    while (destHub.code === origHub.code) {
+                    while (destHub.code === origCode) {
                         destHub = this.hub100List[Math.floor(Math.random() * this.hub100List.length)];
                     }
+
+                    const targetTier = tierList[Math.floor(Math.random() * Math.min(tierList.length, 2 + Math.floor(this.company.hubs.length / 2) + Math.floor(this.fleet.length / 3)))];
+                    const reward = Math.round((Math.random() * 80000 + 70000) * targetTier.mult * companyFactor);
+
+                    const hasTwoLegs = Math.random() < 0.3; // 30% de chance d'avoir une escale
+                    let routingTitle = `${targetTier.label} (${origCode} ➔ ${destHub.code})`;
+                    let stopover = '';
+
+                    if (hasTwoLegs) {
+                        let potentialStops = this.hub100List.filter(h => h.code !== origCode && h.code !== destHub.code);
+                        if (potentialStops.length > 0) {
+                            const stopHub = potentialStops[Math.floor(Math.random() * potentialStops.length)];
+                            stopover = stopHub.code;
+                            routingTitle = `${targetTier.label} (${origCode} ➔ ${stopover} [Escale] ➔ ${destHub.code})`;
+                        }
+                    }
+
                     this.availableContracts.push({
-                        id: Date.now() + i + Math.floor(Math.random() * 100),
-                        title: `Affrètement ${origHub.code} ➔ ${destHub.code}`,
-                        origin: origHub.code,
+                        id: Date.now() + i + Math.floor(Math.random() * 1000),
+                        title: routingTitle,
+                        origin: origCode,
                         destination: destHub.code,
-                        reward: Math.floor(Math.random() * 250000) + 90000,
-                        ticksLeft: Math.floor(Math.random() * 5) + 3,
+                        stopover: stopover,
+                        reward: reward,
+                        requiredType: targetTier.type,
+                        minPax: targetTier.minPax,
+                        minCargo: targetTier.minCargo,
+                        ticksLeft: Math.floor(Math.random() * 4) + 4,
                         selectedPlaneId: ''
                     });
                 }
@@ -792,6 +823,7 @@
 
                 this.playerName = pName;
                 this.companyCode = cCode;
+                this.playerLocation = 'CDG';
                 this.company = {
                     name: cName,
                     cash: 4000000,
@@ -809,7 +841,7 @@
                 this.passportStamps = [];
                 
                 this.team = [
-                    { id: Date.now(), name: pName, role: 'CEO', salary: 15000, exp: 100 }
+                    { id: Date.now(), name: pName, role: 'CEO', salary: 15000, exp: 100, location: 'CDG' }
                 ];
 
                 this.generateInitialContracts();
@@ -848,10 +880,11 @@
                 if (!member) {
                     const hasCLO = this.team.some(m => m.role === 'CLO');
                     const assignedRole = hasCLO ? 'Pilote' : 'CLO';
-                    member = { id: Date.now(), name: pName, role: assignedRole, salary: 8000, exp: 200 };
+                    member = { id: Date.now(), name: pName, role: assignedRole, salary: 8000, exp: 200, location: 'NCE' };
                     this.team.push(member);
                 }
                 this.playerRole = member.role;
+                this.playerLocation = member.location || 'CDG';
 
                 await this.saveCompanyData();
                 localStorage.setItem('aerocareer_player_name', this.playerName);
@@ -916,7 +949,10 @@
                 this.passportStamps = data.passportStamps || this.passportStamps;
 
                 const me = this.team.find(m => m.name === this.playerName);
-                if (me) this.playerRole = me.role;
+                if (me) {
+                    this.playerRole = me.role;
+                    this.playerLocation = me.location || 'CDG';
+                }
             }
 
             setupRealtimeSync() {
@@ -926,7 +962,6 @@
                 this._unsubscribeSync = onSnapshot(docRef, (docSnap) => {
                     if (docSnap.exists()) {
                         const remoteData = docSnap.data();
-                        // Évite d'écraser nos propres actions locales instantanément si l'état est identique
                         this.applyLoadedData(remoteData);
                         if (typeof this.renderAll === 'function') {
                             this.renderAll();
@@ -938,9 +973,9 @@
             init() {
                 document.getElementById('header-player-name').innerText = this.playerName;
                 document.getElementById('header-player-role').innerText = this.playerRole;
+                document.getElementById('header-player-loc').innerText = this.playerLocation;
                 document.getElementById('header-company-code').innerText = this.companyCode;
 
-                // ⚡ Activation de l'écoute en temps réel pour TOUS (créateur et invités)
                 this.setupRealtimeSync();
 
                 this.checkAutoTick();
@@ -993,19 +1028,52 @@
                 this.activeContracts = this.activeContracts.filter(c => c.ticksLeft > 0);
                 this.availableContracts = this.availableContracts.filter(c => c.ticksLeft > 0);
 
-                while (this.availableContracts.length < 10) {
-                    const origHub = this.hub100List[Math.floor(Math.random() * this.hub100List.length)];
+                const activeOrigins = this.getAvailableOrigins();
+                while (this.availableContracts.length < 20) {
+                    const origCode = activeOrigins[Math.floor(Math.random() * activeOrigins.length)];
                     let destHub = this.hub100List[Math.floor(Math.random() * this.hub100List.length)];
-                    while (destHub.code === origHub.code) {
+                    while (destHub.code === origCode) {
                         destHub = this.hub100List[Math.floor(Math.random() * this.hub100List.length)];
                     }
+
+                    const tierList = [
+                        { type: 'Aviation Légère', minPax: 2, minCargo: 0, mult: 1, label: 'Léger / Régional court' },
+                        { type: 'Turboprop', minPax: 10, minCargo: 1, mult: 1.8, label: 'Turbopropulseur Régional' },
+                        { type: 'Régional', minPax: 40, minCargo: 4, mult: 3.5, label: 'Ligne Régionale PAX' },
+                        { type: 'Moyen-Porteur', minPax: 150, minCargo: 15, mult: 8, label: 'Moyen-Porteur International' },
+                        { type: 'Long-Courrier', minPax: 300, minCargo: 40, mult: 20, label: 'Long-Courrier Transcontinental' },
+                        { type: 'Cargo Lourd', minPax: 0, minCargo: 80, mult: 25, label: 'Fret Lourd / Cargo' },
+                        { type: 'Supersonique', minPax: 80, minCargo: 4, mult: 35, label: 'Express VIP Supersonique' }
+                    ];
+
+                    const companyFactor = 1 + (this.company.hubs.length * 0.3) + (this.fleet.length * 0.15) + ((this.company.level || 1) * 0.2);
+                    const targetTier = tierList[Math.floor(Math.random() * Math.min(tierList.length, 2 + Math.floor(this.company.hubs.length / 2) + Math.floor(this.fleet.length / 3)))] ;
+                    const reward = Math.round((Math.random() * 80000 + 70000) * targetTier.mult * companyFactor);
+
+                    const hasTwoLegs = Math.random() < 0.3;
+                    let routingTitle = `${targetTier.label} (${origCode} ➔ ${destHub.code})`;
+                    let stopover = '';
+
+                    if (hasTwoLegs) {
+                        let potentialStops = this.hub100List.filter(h => h.code !== origCode && h.code !== destHub.code);
+                        if (potentialStops.length > 0) {
+                            const stopHub = potentialStops[Math.floor(Math.random() * potentialStops.length)];
+                            stopover = stopHub.code;
+                            routingTitle = `${targetTier.label} (${origCode} ➔ ${stopover} [Escale] ➔ ${destHub.code})`;
+                        }
+                    }
+
                     this.availableContracts.push({
                         id: Date.now() + Math.floor(Math.random() * 10000),
-                        title: `Affrètement ${origHub.code} ➔ ${destHub.code}`,
-                        origin: origHub.code,
+                        title: routingTitle,
+                        origin: origCode,
                         destination: destHub.code,
-                        reward: Math.floor(Math.random() * 250000) + 90000,
-                        ticksLeft: Math.floor(Math.random() * 4) + 3,
+                        stopover: stopover,
+                        reward: reward,
+                        requiredType: targetTier.type,
+                        minPax: targetTier.minPax,
+                        minCargo: targetTier.minCargo,
+                        ticksLeft: Math.floor(Math.random() * 4) + 4,
                         selectedPlaneId: ''
                     });
                 }
@@ -1025,7 +1093,7 @@
             }
 
             calculateResaleValue(plane) {
-                if (plane.isLeased) return 0;
+                if (plane.isLeased) return 0.2 * (plane.originalPrice || 1000000);
                 const base = plane.originalPrice || 1000000;
                 const hours = plane.flightHours || 0;
                 const depreciationFactor = Math.max(0.12, 0.85 * Math.pow(0.992, hours));
@@ -1127,6 +1195,7 @@
                 document.getElementById('company-cash').innerText = this.formatMoney(this.company.cash);
                 document.getElementById('company-rep').innerText = this.company.reputation + '%';
                 document.getElementById('company-tick').innerText = this.company.tickCount;
+                document.getElementById('header-player-loc').innerText = this.playerLocation;
 
                 let totalFleetArgus = 0;
                 this.fleet.forEach(p => totalFleetArgus += this.calculateResaleValue(p));
@@ -1155,7 +1224,7 @@
                                 </div>
                                 <div>
                                     <div class="text-xs font-bold uppercase tracking-wider ${textCol}">${roleKey}</div>
-                                    <div class="font-bold text-white text-base">${exec.name}</div>
+                                    <div class="font-bold text-white text-base">${exec.name} <span class="text-xs text-emerald-400 font-mono">[📍 ${exec.location || 'CDG'}]</span></div>
                                     <div class="text-xs text-slate-400">Salaire: ${this.formatMoney(exec.salary)}/tick</div>
                                 </div>
                             </div>
@@ -1174,7 +1243,10 @@
                         <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex items-center justify-between">
                             <div class="flex items-center space-x-2">
                                 <i class="fa-solid fa-user-pilot text-slate-400 text-xs"></i>
-                                <span class="font-bold text-slate-200 text-xs">${pilot.name}</span>
+                                <div>
+                                    <div class="font-bold text-slate-200 text-xs">${pilot.name}</div>
+                                    <div class="text-[10px] text-emerald-400 font-mono">📍 ${pilot.location || 'CDG'}</div>
+                                </div>
                             </div>
                             <span class="text-[10px] bg-slate-800 text-sky-400 px-2 py-0.5 rounded font-mono">${pilot.exp} h</span>
                         </div>
@@ -1188,19 +1260,23 @@
                     const parkedPlanes = this.fleet.filter(p => p.status === 'Parked');
                     let planeOptions = '<option value="">-- Choisir un appareil --</option>';
                     parkedPlanes.forEach(p => {
+                        const acDef = this.aircraftCatalog.find(a => a.name === p.name);
+                        const isCompatible = acDef && acDef.capacity >= contract.minPax && acDef.cargo >= contract.minCargo;
+                        const badgeCompat = isCompatible ? '✅' : '⚠️';
                         const selected = contract.selectedPlaneId == p.id ? 'selected' : '';
-                        planeOptions += `<option value="${p.id}" ${selected}>${p.registration} (${p.name}) - [${p.location}]</option>`;
+                        planeOptions += `<option value="${p.id}" ${selected}>${badgeCompat} ${p.registration} (${p.name}) - [${p.location}]</option>`;
                     });
 
                     contractsContainer.innerHTML += `
                         <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between space-y-3 h-full">
                             <div>
                                 <div class="flex justify-between items-center">
-                                    <span class="bg-slate-900 text-sky-400 px-2.5 py-1 rounded-lg border border-slate-800 text-xs font-mono font-bold">${contract.origin} ➔ ${contract.destination}</span>
+                                    <span class="bg-slate-900 text-sky-400 px-2.5 py-1 rounded-lg border border-slate-800 text-xs font-mono font-bold">${contract.stopover ? '🗺️ Avec Escale' : '📍 Vol Direct'}</span>
                                     <span class="text-xs text-amber-400 font-semibold font-mono">Exp: ${contract.ticksLeft} tick(s)</span>
                                 </div>
                                 <h4 class="font-bold text-white text-sm mt-3">${contract.title}</h4>
-                                <div class="text-xs text-slate-400 mt-1">Prime: <strong class="text-emerald-400 font-mono text-sm">${this.formatMoney(contract.reward)}</strong></div>
+                                <div class="text-[11px] text-slate-400 mt-1">Requis : Min ${contract.minPax} Pax | Min ${contract.minCargo}t Fret</div>
+                                <div class="text-xs text-slate-300 mt-1">Prime : <strong class="text-emerald-400 font-mono text-sm">${this.formatMoney(contract.reward)}</strong></div>
                             </div>
                             <div class="space-y-2 pt-2 border-t border-slate-800">
                                 <select onchange="app.updateContractSelection(${contract.id}, this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200">${planeOptions}</select>
@@ -1212,14 +1288,16 @@
 
                 const fleetBody = document.getElementById('fleet-table-body');
                 fleetBody.innerHTML = '';
+                if (this.fleet.length === 0) {
+                    fleetBody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-500 text-xs">Votre flotte est vide. Rendez-vous dans le bureau du CFO pour acheter ou louer votre premier avion.</td></tr>`;
+                }
+
                 this.fleet.forEach(plane => {
                     const statusClass = plane.status === 'En vol' ? 'bg-sky-950 text-sky-400 border-sky-800' : 'bg-emerald-950 text-emerald-400 border-emerald-800';
                     const resaleVal = this.calculateResaleValue(plane);
                     const valDisplay = plane.isLeased ? `<div class="text-xs font-mono text-amber-400 font-bold">${this.formatMoney(plane.leaseFee)}/tick</div>` : `<div class="text-xs font-mono text-emerald-400 font-bold">${this.formatMoney(resaleVal)}</div>`;
 
-                    const reqFuel = this.getRequiredFuelForFlight(plane);
                     const currentHubFuel = this.company.fuelReservesByHub[plane.location] || 0;
-                    const hasEnoughFuel = currentHubFuel >= reqFuel;
 
                     const flightBtn = plane.status === 'En vol'
                         ? `<button onclick="app.openDebriefModal(${plane.id})" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer">Atterrir</button>`
@@ -1227,8 +1305,14 @@
 
                     fleetBody.innerHTML += `
                         <tr class="hover:bg-slate-900/40 transition">
-                            <td class="py-3 px-3"><div class="font-bold text-white">${plane.registration}</div><div class="text-xs text-sky-400">${plane.name}</div></td>
-                            <td class="py-3 px-3"><div class="text-xs font-bold text-white">${plane.location}</div><div class="text-[10px] text-slate-400">Stock Hub: ${currentHubFuel.toLocaleString()} Kg</div></td>
+                            <td class="py-3 px-3">
+                                <div class="font-bold text-white flex items-center space-x-2">
+                                    <span>${plane.registration}</span>
+                                    ${plane.isLeased ? '<span class="text-[9px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-1.5 py-0.5 rounded uppercase font-mono font-bold">Leasing</span>' : ''}
+                                </div>
+                                <div class="text-xs text-sky-400">${plane.name}</div>
+                            </td>
+                            <td class="py-3 px-3"><div class="text-xs font-bold text-white">📍 ${plane.location}</div><div class="text-[10px] text-slate-400">Stock Hub: ${currentHubFuel.toLocaleString()} Kg</div></td>
                             <td class="py-3 px-3"><div class="text-xs text-amber-400 font-bold">${plane.flightHours || 0} h</div></td>
                             <td class="py-3 px-3">${valDisplay}</td>
                             <td class="py-3 px-3"><span class="px-2.5 py-1 rounded-full text-xs font-bold border ${statusClass}">${plane.status}</span></td>
@@ -1249,6 +1333,7 @@
                                 <option value="CLO" ${member.role === 'CLO' ? 'selected' : ''}>Logisticien (CLO)</option>
                                 <option value="Pilote" ${member.role === 'Pilote' ? 'selected' : ''}>Pilote</option>
                             </select>
+                            <div class="text-[10px] text-emerald-400 font-mono pt-1">Position actuelle : 📍 ${member.location || 'CDG'}</div>
                         </div>
                     `;
                 });
@@ -1260,14 +1345,22 @@
                 const catalogContainer = document.getElementById('aircraft-catalog-container');
                 catalogContainer.innerHTML = '';
                 this.aircraftCatalog.forEach(ac => {
+                    const leaseFee = Math.round(ac.price * 0.02);
+                    const leaseBtn = ac.allowLease
+                        ? `<button onclick="app.leaseAircraft('${ac.name}')" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 rounded-lg text-xs cursor-pointer text-center">Louer (${this.formatMoney(leaseFee)}/tick)</button>`
+                        : '';
+
                     catalogContainer.innerHTML += `
                         <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between space-y-3">
                             <div>
-                                <h4 class="font-bold text-white text-base">${ac.name}</h4>
-                                <div class="text-xs text-slate-400 mt-1">Prix: <strong class="text-emerald-400 font-mono">${this.formatMoney(ac.price)}</strong></div>
+                                <span class="bg-sky-950 text-sky-400 text-[10px] font-bold px-2 py-0.5 rounded border border-sky-800">${ac.type}</span>
+                                <h4 class="font-bold text-white text-base mt-2">${ac.name}</h4>
+                                <div class="text-xs text-slate-400 mt-1">Capacité: ${ac.capacity} Pax | Fret: ${ac.cargo}t</div>
+                                <div class="text-xs text-slate-400">Prix Neuf: <strong class="text-emerald-400 font-mono">${this.formatMoney(ac.price)}</strong></div>
                             </div>
-                            <div class="flex space-x-2">
-                                <button onclick="app.buyAircraft('${ac.name}')" class="flex-1 bg-sky-600 hover:bg-sky-500 text-white font-bold py-1.5 rounded-lg text-xs cursor-pointer">Acheter</button>
+                            <div class="flex space-x-2 pt-2 border-t border-slate-800">
+                                <button onclick="app.buyAircraft('${ac.name}')" class="flex-1 bg-sky-600 hover:bg-sky-500 text-white font-bold py-1.5 rounded-lg text-xs cursor-pointer text-center">Acheter Cash</button>
+                                ${leaseBtn}
                             </div>
                         </div>
                     `;
@@ -1296,7 +1389,7 @@
                     const stock = this.company.fuelReservesByHub[hCode] || 0;
                     hubInvContainer.innerHTML += `
                         <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
-                            <span class="font-bold text-sky-400">${hCode}</span>
+                            <span class="font-bold text-sky-400">📍 ${hCode}</span>
                             <span class="text-emerald-400 font-mono">${stock.toLocaleString()} Kg</span>
                         </div>
                     `;
@@ -1304,8 +1397,8 @@
 
                 const relocateSelect = document.getElementById('pilot-relocate-select');
                 relocateSelect.innerHTML = '';
-                this.company.hubs.forEach(hCode => {
-                    relocateSelect.innerHTML += `<option value="${hCode}">${hCode}</option>`;
+                this.hub100List.forEach(hub => {
+                    relocateSelect.innerHTML += `<option value="${hub.code}">${hub.code} - ${hub.city} (${hub.country})</option>`;
                 });
 
                 this.saveCompanyData();
@@ -1343,28 +1436,42 @@
                     return;
                 }
                 const plane = this.fleet.find(p => p.id == c.selectedPlaneId);
-                if (plane) plane.assignedContractId = c.id;
+                if (!plane) return;
+
+                const acDef = this.aircraftCatalog.find(a => a.name === plane.name);
+                if (!acDef || acDef.capacity < c.minPax || acDef.cargo < c.minCargo) {
+                    this.showToast(`Cet appareil (${plane.name}) n'a pas la capacité requise pour ce contrat !`, "error");
+                    return;
+                }
+
+                plane.assignedContractId = c.id;
                 this.availableContracts = this.availableContracts.filter(item => item.id !== contractId);
                 this.activeContracts.push(c);
-                this.showToast("Contrat accepté !", "success");
+                this.showToast("Contrat accepté et assigné avec succès !", "success");
                 this.renderAll();
             }
 
             startFlight(planeId) {
                 const p = this.fleet.find(item => item.id === planeId);
                 if (!p) return;
+                const contract = this.activeContracts.find(c => c.id === p.assignedContractId);
+                
+                // Si le contrat a une escale non effectuée, la destination de cette première étape est l'escale. Sinon c'est la destination finale.
+                let targetDest = contract ? (contract.stopover ? contract.stopover : contract.destination) : p.location;
+
                 const reqFuel = this.getRequiredFuelForFlight(p);
                 const currentHubStock = this.company.fuelReservesByHub[p.location] || 0;
 
                 if (currentHubStock < reqFuel) {
-                    this.showToast("Kérosène insuffisant au Hub pour lancer le vol !", "error");
+                    this.showToast(`Kérosène insuffisant au Hub (${p.location}) pour lancer le vol !`, "error");
                     return;
                 }
 
                 this.company.fuelReservesByHub[p.location] -= reqFuel;
                 p.fuelOnBoard = reqFuel;
                 p.status = 'En vol';
-                this.showToast(`Vol ${p.registration} lancé !`, "success");
+                p.currentLegTarget = targetDest;
+                this.showToast(`Vol ${p.registration} vers ${targetDest} lancé !`, "success");
                 this.renderAll();
             }
 
@@ -1373,7 +1480,7 @@
                 if (!p) return;
                 this.landingPlaneId = planeId;
                 const contract = this.activeContracts.find(c => c.id === p.assignedContractId);
-                const destHub = contract ? contract.destination : p.location;
+                const destHub = p.currentLegTarget || (contract ? (contract.stopover ? contract.stopover : contract.destination) : p.location);
 
                 document.getElementById('debrief-plane-reg').innerText = p.registration;
                 document.getElementById('debrief-dest-hub').innerText = destHub;
@@ -1392,18 +1499,29 @@
                 if (!p) return;
                 const fuelRemaining = parseInt(document.getElementById('debrief-fuel-remaining').value) || 0;
                 const contract = this.activeContracts.find(c => c.id === p.assignedContractId);
-                const destHub = contract ? contract.destination : p.location;
+                const targetDest = p.currentLegTarget || (contract ? contract.destination : p.location);
 
-                if (contract) {
-                    this.company.cash += contract.reward;
-                    this.showToast(`Contrat réussi ! +${this.formatMoney(contract.reward)}`, 'success');
-                    this.activeContracts = this.activeContracts.filter(c => c.id !== contract.id);
-                }
-
-                p.location = destHub;
+                p.location = targetDest;
                 p.fuelOnBoard = fuelRemaining;
                 p.status = 'Parked';
-                p.assignedContractId = '';
+                delete p.currentLegTarget;
+
+                if (contract) {
+                    // Vérifie si on vient d'arriver à l'escale
+                    if (contract.stopover && targetDest === contract.stopover) {
+                        const oldStop = contract.stopover;
+                        contract.origin = oldStop;
+                        contract.stopover = ''; // Escale validée, prochaine étape = destination finale directe
+                        contract.title = contract.title.replace(`➔ ${oldStop} [Escale] ➔`, `(Escale ${oldStop} validée) ➔`);
+                        this.showToast(`Escale à ${oldStop} réussie ! Ravitaillez l'appareil et repartez quand vous voulez.`, 'success');
+                    } else {
+                        // Arrivée à destination finale !
+                        this.company.cash += contract.reward;
+                        this.showToast(`Contrat entièrement réussi ! +${this.formatMoney(contract.reward)}`, 'success');
+                        this.activeContracts = this.activeContracts.filter(c => c.id !== contract.id);
+                        p.assignedContractId = '';
+                    }
+                }
 
                 this.closeDebriefModal();
                 this.renderAll();
@@ -1420,23 +1538,39 @@
                 const name = nameInput.value.trim();
                 if (!name || this.company.cash < 50000) return;
                 this.company.cash -= 50000;
-                this.team.push({ id: Date.now(), name: name, role: 'Pilote', salary: 8000, exp: 100 });
+                this.team.push({ id: Date.now(), name: name, role: 'Pilote', salary: 8000, exp: 100, location: 'CDG' });
                 nameInput.value = '';
                 this.renderAll();
             }
 
             buyHub(code) {
                 const hub = this.hub100List.find(h => h.code === code);
-                if (!hub || this.company.cash < hub.price) return;
+                if (!hub) {
+                    this.showToast("Hub introuvable.", "error");
+                    return;
+                }
+                if (this.company.cash < hub.price) {
+                    this.showToast("Trésorerie insuffisante pour acheter ce Hub !", "error");
+                    return;
+                }
                 this.company.cash -= hub.price;
                 this.company.hubs.push(hub.code);
                 this.company.fuelReservesByHub[hub.code] = 50000;
+                this.showToast(`Hub ${hub.city} (${hub.code}) acquis avec succès !`, "success");
                 this.renderAll();
             }
 
             buyAircraft(acName) {
                 const ac = this.aircraftCatalog.find(a => a.name === acName);
-                if (!ac || this.company.cash < ac.price || this.company.hubs.length === 0) return;
+                if (!ac) return;
+                if (this.company.hubs.length === 0) {
+                    this.showToast("Vous devez posséder au moins un Hub pour stationner un appareil !", "error");
+                    return;
+                }
+                if (this.company.cash < ac.price) {
+                    this.showToast("Trésorerie insuffisante pour acquérir cet appareil neuf.", "error");
+                    return;
+                }
                 this.company.cash -= ac.price;
                 const reg = 'F-' + Math.random().toString(36).substring(2, 6).toUpperCase();
                 this.fleet.push({
@@ -1450,8 +1584,42 @@
                     assignedContractId: '',
                     flightHours: 0,
                     originalPrice: ac.price,
-                    isLeased: false
+                    isLeased: false,
+                    leaseFee: 0
                 });
+                this.showToast(`Appareil ${ac.name} (${reg}) acheté neuf avec succès !`, "success");
+                this.renderAll();
+            }
+
+            leaseAircraft(acName) {
+                const ac = this.aircraftCatalog.find(a => a.name === acName);
+                if (!ac || !ac.allowLease) return;
+                if (this.company.hubs.length === 0) {
+                    this.showToast("Vous devez posséder au moins un Hub pour prendre un appareil en leasing !", "error");
+                    return;
+                }
+                const leaseFee = Math.round(ac.price * 0.02);
+                if (this.company.cash < leaseFee) {
+                    this.showToast("Trésorerie insuffisante pour régler la 1ère mensualité de leasing.", "error");
+                    return;
+                }
+                this.company.cash -= leaseFee;
+                const reg = 'F-L' + Math.random().toString(36).substring(2, 5).toUpperCase();
+                this.fleet.push({
+                    id: Date.now(),
+                    registration: reg,
+                    name: ac.name,
+                    capacity: ac.capacity,
+                    location: this.company.hubs[0],
+                    fuelOnBoard: 0,
+                    status: 'Parked',
+                    assignedContractId: '',
+                    flightHours: 0,
+                    originalPrice: ac.price,
+                    isLeased: true,
+                    leaseFee: leaseFee
+                });
+                this.showToast(`Appareil ${ac.name} (${reg}) pris en leasing (${this.formatMoney(leaseFee)}/tick) !`, "success");
                 this.renderAll();
             }
 
@@ -1478,9 +1646,21 @@
                 this.renderAll();
             }
 
-            relocatePilot() {
-                if (this.company.cash < 1500) return;
+            relocatePlayer() {
+                const dest = document.getElementById('pilot-relocate-select').value;
+                if (!dest || this.company.cash < 1500) {
+                    this.showToast("Trésorerie insuffisante (1 500 € requis) ou destination invalide.", "error");
+                    return;
+                }
                 this.company.cash -= 1500;
+                this.playerLocation = dest;
+                
+                const me = this.team.find(m => m.name === this.playerName);
+                if (me) {
+                    me.location = dest;
+                }
+
+                this.showToast(`Relocalisé avec succès à ${dest} ! De nouveaux contrats vont apparaître ici.`, "success");
                 this.renderAll();
             }
 
@@ -1509,11 +1689,6 @@
                 });
                 this.closeLoanModal();
                 this.renderAll();
-            }
-
-            closeLoanDetailModal() {
-                document.getElementById('loan-detail-modal').classList.add('hidden');
-                document.getElementById('loan-detail-modal').classList.remove('flex');
             }
         }
 
