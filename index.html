@@ -225,8 +225,8 @@
                 </button>
             </div>
             <div class="p-3 border-t border-slate-800 bg-slate-950/40 rounded-xl text-xs text-slate-500 space-y-1">
-                <div class="flex justify-between"><span>Cloud Firestore:</span> <span class="text-emerald-400 font-mono">Connecté</span></div>
-                <div class="flex justify-between"><span>Version:</span> <span class="text-sky-400 font-mono">5.0.0 Cloud Sync</span></div>
+                <div class="flex justify-between"><span>Cloud Firestore:</span> <span class="text-emerald-400 font-mono">Connecté (Live)</span></div>
+                <div class="flex justify-between"><span>Version:</span> <span class="text-sky-400 font-mono">5.1.0 Cloud Sync</span></div>
             </div>
         </nav>
 
@@ -897,7 +897,6 @@
                     if (docSnap.exists()) {
                         const data = docSnap.data();
                         this.applyLoadedData(data);
-                        this.setupRealtimeSync();
                         return true;
                     }
                 } catch (e) {
@@ -927,6 +926,7 @@
                 this._unsubscribeSync = onSnapshot(docRef, (docSnap) => {
                     if (docSnap.exists()) {
                         const remoteData = docSnap.data();
+                        // Évite d'écraser nos propres actions locales instantanément si l'état est identique
                         this.applyLoadedData(remoteData);
                         if (typeof this.renderAll === 'function') {
                             this.renderAll();
@@ -939,6 +939,9 @@
                 document.getElementById('header-player-name').innerText = this.playerName;
                 document.getElementById('header-player-role').innerText = this.playerRole;
                 document.getElementById('header-company-code').innerText = this.companyCode;
+
+                // ⚡ Activation de l'écoute en temps réel pour TOUS (créateur et invités)
+                this.setupRealtimeSync();
 
                 this.checkAutoTick();
                 setInterval(() => this.checkAutoTick(), 1000);
