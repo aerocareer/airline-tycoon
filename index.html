@@ -10,6 +10,30 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts Inter & JetBrains Mono -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FIREBASE SDK MODULAR -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCc58cgTBvWVvxVaLU0GlLJYuskJxDB8Bg",
+            authDomain: "airline-tycoon-98d36.firebaseapp.com",
+            projectId: "airline-tycoon-98d36",
+            storageBucket: "airline-tycoon-98d36.firebasestorage.app",
+            messagingSenderId: "39138865639",
+            appId: "1:39138865639:web:a3c27efe56cbf5847a5862"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.db = db;
+        window.FirebaseSDK = { doc, setDoc, getDoc, onSnapshot, deleteDoc };
+        window.isFirebaseReady = true;
+        if (window.onFirebaseReady) window.onFirebaseReady();
+    </script>
+
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -58,7 +82,7 @@
                     <i class="fa-solid fa-plane-departure text-2xl"></i>
                 </div>
                 <h2 class="text-2xl font-extrabold text-white">AeroCareer Airline Tycoon</h2>
-                <p class="text-xs text-slate-400">Connectez-vous à votre compagnie ou créez un nouveau salon coopératif.</p>
+                <p class="text-xs text-slate-400">Connectez-vous à votre compagnie cloud ou créez un nouveau salon coopératif.</p>
             </div>
 
             <!-- TABS CHOIX -->
@@ -87,7 +111,7 @@
                     <span class="text-[10px] text-slate-500 mt-1 block">Ce code unique intègre la date, l'heure et une clé aléatoire. Donnez-le à vos amis !</span>
                 </div>
                 <button onclick="app.submitCreateCompany()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 rounded-xl text-xs transition shadow-lg cursor-pointer">
-                    Créer la Compagnie & Devenir PDG (CEO)
+                    Créer la Compagnie Cloud & Devenir PDG (CEO)
                 </button>
             </div>
 
@@ -102,16 +126,14 @@
                     <input type="text" id="join-company-code" placeholder="Ex: BEAZ-20261027-1202-X8F" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-sky-500 font-mono font-bold text-emerald-400 uppercase">
                 </div>
                 <button onclick="app.submitJoinCompany()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs transition shadow-lg cursor-pointer">
-                    Rejoindre la Compagnie
+                    Rejoindre la Compagnie sur le Cloud
                 </button>
             </div>
 
             <!-- SECTION GÉRER / SUPPRIMER DES ENTREPRISES -->
             <div id="auth-form-manage" class="space-y-4 text-xs hidden-tab">
-                <p class="text-slate-400 text-xs">Voici la liste de toutes les entreprises enregistrées sur ton navigateur. Tu peux les supprimer pour faire du ménage ou recommencer à zéro :</p>
-                <div class="space-y-2 max-h-56 overflow-y-auto pr-1" id="saved-companies-list-container">
-                    <!-- Rempli dynamiquement -->
-                </div>
+                <p class="text-slate-400 text-xs">Voici la liste de vos sessions enregistrées sur cet appareil :</p>
+                <div class="space-y-2 max-h-56 overflow-y-auto pr-1" id="saved-companies-list-container"></div>
             </div>
         </div>
     </div>
@@ -126,12 +148,12 @@
                 <div>
                     <h1 class="font-extrabold text-lg tracking-wide text-white flex items-center space-x-2">
                         <span id="company-name-header">AeroCareer Airlines</span>
-                        <span class="text-[10px] bg-sky-500/10 text-sky-400 border border-sky-500/20 px-2 py-0.5 rounded-full uppercase font-mono tracking-wider font-semibold">MSFS 2024</span>
+                        <span class="text-[10px] bg-sky-500/10 text-sky-400 border border-sky-500/20 px-2 py-0.5 rounded-full uppercase font-mono tracking-wider font-semibold">Cloud Sync</span>
                     </h1>
                     <div class="flex items-center space-x-2 text-xs text-slate-400 mt-0.5">
                         <span class="text-sky-400 font-medium">Joueur : <strong class="text-white" id="header-player-name">Ben</strong> (<span id="header-player-role" class="text-amber-400 font-bold">CEO</span>)</span>
                         <span>•</span>
-                        <span>Code Salon : <strong class="text-emerald-400 font-mono" id="header-company-code">BEAZ-20261027-1202</strong></span>
+                        <span>Code Salon : <strong class="text-emerald-400 font-mono" id="header-company-code">BEAZ</strong></span>
                     </div>
                 </div>
             </div>
@@ -139,7 +161,6 @@
 
         <!-- FINANCIAL & TIME BAR -->
         <div class="flex items-center space-x-4 text-sm">
-            <!-- Trésorerie -->
             <div class="bg-slate-950/90 px-3.5 py-1.5 rounded-xl border border-slate-800 flex items-center space-x-3 shadow-inner">
                 <div class="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
                     <i class="fa-solid fa-wallet text-xs"></i>
@@ -150,7 +171,6 @@
                 </div>
             </div>
 
-            <!-- Réputation -->
             <div class="bg-slate-950/90 px-3.5 py-1.5 rounded-xl border border-slate-800 flex items-center space-x-3 shadow-inner">
                 <div class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
                     <i class="fa-solid fa-star text-xs"></i>
@@ -161,7 +181,6 @@
                 </div>
             </div>
 
-            <!-- Simulation Tick (Auto à Minuit) -->
             <div class="bg-slate-950/90 px-4 py-1.5 rounded-xl border border-slate-800 flex items-center space-x-4 shadow-inner">
                 <div>
                     <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Cycle Simulation (Auto à Minuit)</div>
@@ -169,12 +188,11 @@
                         <i class="fa-solid fa-clock text-sky-400"></i>
                         <span>Tick #<span id="company-tick">1</span></span>
                         <span class="text-slate-500">•</span>
-                        <span class="text-amber-400" id="midnight-countdown" title="Temps restant avant le prochain tick automatique à minuit">00h 00m 00s</span>
+                        <span class="text-amber-400" id="midnight-countdown">00h 00m 00s</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Bouton Déconnexion / Changer Salon -->
             <button onclick="app.logout()" title="Changer de profil ou de compagnie" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer flex items-center space-x-1.5">
                 <i class="fa-solid fa-right-from-bracket"></i>
                 <span>Quitter</span>
@@ -184,72 +202,46 @@
 
     <!-- MAIN WORKSPACE LAYOUT -->
     <div class="flex-1 flex overflow-hidden">
-        
-        <!-- SIDEBAR NAVIGATION TABS -->
         <nav class="w-64 bg-slate-900/90 border-r border-slate-800 flex flex-col justify-between shrink-0 select-none p-3 space-y-1">
             <div class="space-y-1">
                 <div class="px-3 py-2 text-[10px] uppercase font-bold text-slate-500 tracking-wider">Navigation Principale</div>
-                
-                <!-- TAB 1: DASHBOARD -->
                 <button onclick="app.switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl border border-sky-500/50 bg-sky-600/20 text-sky-400 font-semibold text-sm transition cursor-pointer">
-                    <i class="fa-solid fa-chart-pie w-5 text-center"></i>
-                    <span>Tableau de Bord</span>
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i><span>Tableau de Bord</span>
                 </button>
-
-                <!-- TAB 2: PARC FLOTTE -->
                 <button onclick="app.switchTab('fleet')" id="nav-fleet" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-sm transition cursor-pointer">
-                    <i class="fa-solid fa-plane w-5 text-center"></i>
-                    <span>Parc Flotte</span>
+                    <i class="fa-solid fa-plane w-5 text-center"></i><span>Parc Flotte</span>
                 </button>
-
-                <!-- TAB 3: BUREAU DU CEO -->
                 <button onclick="app.switchTab('ceo')" id="nav-ceo" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-sm transition cursor-pointer">
-                    <i class="fa-solid fa-building-user w-5 text-center"></i>
-                    <span>Bureau du PDG (CEO)</span>
+                    <i class="fa-solid fa-building-user w-5 text-center"></i><span>Bureau du PDG (CEO)</span>
                 </button>
-
-                <!-- TAB 4: BUREAU DU CFO -->
                 <button onclick="app.switchTab('cfo')" id="nav-cfo" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-sm transition cursor-pointer">
-                    <i class="fa-solid fa-vault w-5 text-center"></i>
-                    <span>Bureau du Trésorier (CFO)</span>
+                    <i class="fa-solid fa-vault w-5 text-center"></i><span>Bureau du Trésorier (CFO)</span>
                 </button>
-
-                <!-- TAB 5: TERMINAL CLO -->
                 <button onclick="app.switchTab('clo')" id="nav-clo" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-sm transition cursor-pointer">
-                    <i class="fa-solid fa-boxes-packing w-5 text-center"></i>
-                    <span>Terminal Logistique (CLO)</span>
+                    <i class="fa-solid fa-boxes-packing w-5 text-center"></i><span>Terminal Logistique (CLO)</span>
                 </button>
-
-                <!-- TAB 6: ESPACE PERSO PILOTE -->
                 <button onclick="app.switchTab('pilot')" id="nav-pilot" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-sm transition cursor-pointer">
-                    <i class="fa-solid fa-id-card w-5 text-center"></i>
-                    <span>Carnet & Passport Pilote</span>
+                    <i class="fa-solid fa-id-card w-5 text-center"></i><span>Carnet & Passport Pilote</span>
                 </button>
             </div>
-
-            <!-- FOOTER SIDEBAR -->
             <div class="p-3 border-t border-slate-800 bg-slate-950/40 rounded-xl text-xs text-slate-500 space-y-1">
-                <div class="flex justify-between"><span>Serveur MSFS:</span> <span class="text-slate-300 font-mono">En ligne</span></div>
-                <div class="flex justify-between"><span>Version:</span> <span class="text-sky-400 font-mono">4.2.0 Euros Edition</span></div>
+                <div class="flex justify-between"><span>Cloud Firestore:</span> <span class="text-emerald-400 font-mono">Connecté</span></div>
+                <div class="flex justify-between"><span>Version:</span> <span class="text-sky-400 font-mono">5.0.0 Cloud Sync</span></div>
             </div>
         </nav>
 
-        <!-- MAIN CONTENT VIEW AREA -->
         <main class="flex-1 bg-slate-950 overflow-y-auto p-6 relative">
-
-            <!-- TOAST NOTIFICATIONS CONTAINER -->
             <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-2 max-w-sm pointer-events-none"></div>
 
-            <!-- ================= TAB 1: TABLEAU DE BORD ================= -->
+            <!-- TAB 1: DASHBOARD -->
             <div id="tab-dashboard" class="space-y-6">
                 <div class="flex justify-between items-center">
                     <div>
                         <h2 class="text-2xl font-extrabold text-white tracking-tight">Tableau de Bord Général</h2>
-                        <p class="text-sm text-slate-400">Vue synthétique de l'activité, de la valeur de l'entreprise et des contrats d'affrètement publics.</p>
+                        <p class="text-sm text-slate-400">Synchronisation cloud active en temps réel entre tous les appareils.</p>
                     </div>
                 </div>
 
-                <!-- Strategic Metrics Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div class="glass-card p-4 rounded-2xl">
                         <div class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Valeur de la Flotte (Argus)</div>
@@ -273,22 +265,18 @@
                     </div>
                 </div>
 
-                <!-- Organigramme Visuel de la Compagnie -->
                 <div class="glass-card rounded-2xl p-5 shadow-xl space-y-4">
                     <h3 class="text-lg font-bold text-white flex items-center space-x-2">
                         <i class="fa-solid fa-sitemap text-sky-400"></i>
                         <span>Organigramme de la Compagnie</span>
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="executives-container"></div>
-
-                    <!-- Equipe Pilotes -->
                     <div class="pt-2">
                         <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Corps des Commandants & Pilotes (<span id="pilots-list-count">0</span>)</h4>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="pilots-grid-container"></div>
                     </div>
                 </div>
 
-                <!-- Available Public Contracts -->
                 <div class="glass-card rounded-2xl p-5 shadow-xl space-y-4">
                     <div class="flex justify-between items-center">
                         <h3 class="text-lg font-bold text-white flex items-center space-x-2">
@@ -301,19 +289,17 @@
                 </div>
             </div>
 
-            <!-- ================= TAB 2: PARC FLOTTE ================= -->
+            <!-- TAB 2: PARC FLOTTE -->
             <div id="tab-fleet" class="space-y-6 hidden-tab">
                 <div class="flex justify-between items-center">
                     <div>
                         <h2 class="text-2xl font-extrabold text-white tracking-tight">Parc Flotte & Revente Secondhand</h2>
-                        <p class="text-sm text-slate-400">Gestion complète de vos avions, vérification du kérosène au Hub et affectations.</p>
+                        <p class="text-sm text-slate-400">Gestion complète de vos avions en cloud.</p>
                     </div>
                     <button onclick="app.switchTab('cfo')" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow flex items-center space-x-2 cursor-pointer">
-                        <i class="fa-solid fa-cart-plus"></i>
-                        <span>Acheter/Louer un Avion (Bureau CFO)</span>
+                        <i class="fa-solid fa-cart-plus"></i><span>Acheter/Louer un Avion (Bureau CFO)</span>
                     </button>
                 </div>
-
                 <div class="glass-card rounded-2xl p-5 shadow-xl">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-sm">
@@ -333,56 +319,39 @@
                 </div>
             </div>
 
-            <!-- ================= TAB 3: BUREAU DU PDG (CEO) ================= -->
+            <!-- TAB 3: BUREAU DU PDG (CEO) -->
             <div id="tab-ceo" class="space-y-6 hidden-tab">
                 <div class="flex justify-between items-center">
                     <div>
                         <h2 class="text-2xl font-extrabold text-white tracking-tight">Bureau du PDG (CEO) & Stratégie</h2>
-                        <p class="text-sm text-slate-400">Expansion du réseau mondial avec la totalité des 100 Hubs internationaux.</p>
+                        <p class="text-sm text-slate-400">Expansion du réseau mondial des 100 Hubs internationaux.</p>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Left: Role Management & Team -->
                     <div class="lg:col-span-1 glass-card p-5 rounded-2xl shadow-xl space-y-4">
                         <h3 class="text-lg font-bold text-white flex items-center space-x-2">
-                            <i class="fa-solid fa-users-gear text-sky-400"></i>
-                            <span>Gestion des Postes & Équipe</span>
+                            <i class="fa-solid fa-users-gear text-sky-400"></i><span>Gestion des Postes & Équipe</span>
                         </h3>
-                        <p class="text-xs text-slate-400">Règle d'entreprise : Rôles exécutifs uniques (1 CEO, 1 CFO, 1 CLO). <strong>Pilotes illimités !</strong></p>
-
+                        <p class="text-xs text-slate-400">Rôles exécutifs uniques (1 CEO, 1 CFO, 1 CLO). Pilotes illimités !</p>
                         <div class="space-y-3" id="team-management-container"></div>
-
-                        <!-- Recrutement de Pilotes -->
                         <div class="pt-3 border-t border-slate-800 space-y-2">
                             <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Recruter un nouveau Pilote</h4>
                             <input type="text" id="new-pilot-name" placeholder="Nom du Pilote..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-sky-500">
-                            <button onclick="app.hirePilot()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-2 rounded-xl text-xs transition shadow cursor-pointer">
-                                Recruter le Pilote (50 000 €)
-                            </button>
+                            <button onclick="app.hirePilot()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-2 rounded-xl text-xs transition shadow cursor-pointer">Recruter le Pilote (50 000 €)</button>
                         </div>
-
-                        <!-- Hedging Carburant par le CEO -->
                         <div class="pt-3 border-t border-slate-800 space-y-3">
                             <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Couverture Kérosène (Fuel Hedging)</h4>
-                            <p class="text-xs text-slate-400">Verrouillez le prix mondial à 1.50 €/Kg pour vous protéger des crises.</p>
-                            <button onclick="app.toggleFuelHedge()" id="hedge-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs transition shadow cursor-pointer">
-                                Activer Hedging (200 000 €)
-                            </button>
+                            <p class="text-xs text-slate-400">Verrouillez le prix mondial à 1.50 €/Kg.</p>
+                            <button onclick="app.toggleFuelHedge()" id="hedge-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs transition shadow cursor-pointer">Activer Hedging (200 000 €)</button>
                         </div>
                     </div>
-
-                    <!-- Right: Hub Marketplace (100 Hubs) -->
                     <div class="lg:col-span-2 glass-card p-5 rounded-2xl shadow-xl space-y-4">
                         <div class="flex justify-between items-center">
                             <h3 class="text-lg font-bold text-white flex items-center space-x-2">
-                                <i class="fa-solid fa-earth-americas text-sky-400"></i>
-                                <span>Marché Mondial des 100 Hubs Internationaux</span>
+                                <i class="fa-solid fa-earth-americas text-sky-400"></i><span>Marché Mondial des 100 Hubs</span>
                             </h3>
                             <span class="text-xs bg-slate-800 text-sky-400 font-mono px-2.5 py-1 rounded-lg border border-slate-700" id="hubs-acquired-count">0 Hub Acquis</span>
                         </div>
-
-                        <!-- Filter Controls -->
                         <div class="flex flex-col sm:flex-row gap-3">
                             <input type="text" id="hub-search-input" oninput="app.renderHubs()" placeholder="Rechercher par OACI, Ville ou Pays..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-sky-500">
                             <select id="hub-region-select" onchange="app.renderHubs()" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-sky-500">
@@ -396,23 +365,19 @@
                                 <option value="Afrique">Afrique</option>
                             </select>
                         </div>
-
-                        <!-- Hubs Grid -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[500px] overflow-y-auto pr-1" id="hubs-grid-container"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- ================= TAB 4: BUREAU DU TRÉSORIER (CFO) ================= -->
+            <!-- TAB 4: BUREAU DU TRÉSORIER (CFO) -->
             <div id="tab-cfo" class="space-y-6 hidden-tab">
                 <div class="flex justify-between items-center">
                     <div>
                         <h2 class="text-2xl font-extrabold text-white tracking-tight">Bureau du Trésorier (CFO) & Bilan Comptable</h2>
-                        <p class="text-sm text-slate-400">Supervision financière, bilan comptable complet, acquisitions/leasing d'appareils et gestion de la dette.</p>
+                        <p class="text-sm text-slate-400">Supervision financière et bilan comptable en temps réel.</p>
                     </div>
                 </div>
-
-                <!-- SECTION COMPTABILITÉ & BILAN FINANCIER -->
                 <div class="glass-card p-5 rounded-2xl shadow-xl space-y-6 border border-emerald-500/20">
                     <div class="flex justify-between items-center border-b border-slate-800 pb-4">
                         <div class="flex items-center space-x-3">
@@ -429,179 +394,82 @@
                             <div class="text-lg font-extrabold text-emerald-400" id="cfo-total-assets">0 €</div>
                         </div>
                     </div>
-
-                    <!-- TABLEAU COMPARATIF ACTIF VS PASSIF -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
                             <div class="flex justify-between items-center border-b border-slate-800 pb-2">
                                 <span class="font-extrabold text-sky-400 text-sm uppercase tracking-wider flex items-center space-x-2">
-                                    <i class="fa-solid fa-circle-arrow-down text-sky-400"></i>
-                                    <span>Actif (Patrimoine Possédé)</span>
+                                    <i class="fa-solid fa-circle-arrow-down text-sky-400"></i><span>Actif (Patrimoine)</span>
                                 </span>
-                                <span class="text-xs text-slate-400">Valorisation Argus / Cumul</span>
                             </div>
-
                             <div class="space-y-2 text-xs font-mono">
-                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900">
-                                    <span class="text-slate-300 flex items-center space-x-2">
-                                        <i class="fa-solid fa-wallet text-emerald-400 w-4"></i>
-                                        <span>Trésorerie / Disponibilité Cash</span>
-                                    </span>
-                                    <strong class="text-emerald-400" id="asset-cash">0 €</strong>
-                                </div>
-                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900">
-                                    <span class="text-slate-300 flex items-center space-x-2">
-                                        <i class="fa-solid fa-plane text-sky-400 w-4"></i>
-                                        <span>Parc Aérien (Revente Argus)</span>
-                                    </span>
-                                    <strong class="text-slate-100" id="asset-fleet">0 €</strong>
-                                </div>
-                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900">
-                                    <span class="text-slate-300 flex items-center space-x-2">
-                                        <i class="fa-solid fa-gas-pump text-amber-400 w-4"></i>
-                                        <span>Stocks Kérosène (Valorisation Spot)</span>
-                                    </span>
-                                    <strong class="text-slate-100" id="asset-fuel">0 €</strong>
-                                </div>
-                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900">
-                                    <span class="text-slate-300 flex items-center space-x-2">
-                                        <i class="fa-solid fa-building-columns text-indigo-400 w-4"></i>
-                                        <span>Immobilisations Hubs & Terminiaux</span>
-                                    </span>
-                                    <strong class="text-slate-100" id="asset-hubs">0 €</strong>
-                                </div>
+                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Trésorerie / Cash</span><strong class="text-emerald-400" id="asset-cash">0 €</strong></div>
+                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Parc Aérien (Argus)</span><strong class="text-slate-100" id="asset-fleet">0 €</strong></div>
+                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Stocks Kérosène</span><strong class="text-slate-100" id="asset-fuel">0 €</strong></div>
+                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Immobilisations Hubs</span><strong class="text-slate-100" id="asset-hubs">0 €</strong></div>
                             </div>
-
                             <div class="pt-2 border-t-2 border-slate-800 flex justify-between items-center text-sm font-bold">
-                                <span class="text-slate-200 uppercase">Total Actif</span>
-                                <span class="text-sky-400 font-mono text-base" id="total-asset-val">0 €</span>
+                                <span class="text-slate-200 uppercase">Total Actif</span><span class="text-sky-400 font-mono text-base" id="total-asset-val">0 €</span>
                             </div>
                         </div>
-
                         <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
                             <div class="flex justify-between items-center border-b border-slate-800 pb-2">
                                 <span class="font-extrabold text-amber-400 text-sm uppercase tracking-wider flex items-center space-x-2">
-                                    <i class="fa-solid fa-circle-arrow-up text-amber-400"></i>
-                                    <span>Passif (Capitaux & Dettes)</span>
+                                    <i class="fa-solid fa-circle-arrow-up text-amber-400"></i><span>Passif (Dettes & Capitaux)</span>
                                 </span>
-                                <span class="text-xs text-slate-400">Structure de Financement</span>
                             </div>
-
                             <div class="space-y-2 text-xs font-mono">
-                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900">
-                                    <span class="text-slate-300 flex items-center space-x-2">
-                                        <i class="fa-solid fa-vault text-amber-400 w-4"></i>
-                                        <span>Capital Social d'Origine</span>
-                                    </span>
-                                    <strong class="text-slate-100">4.000.000 €</strong>
-                                </div>
-                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900">
-                                    <span class="text-slate-300 flex items-center space-x-2">
-                                        <i class="fa-solid fa-building-columns text-rose-400 w-4"></i>
-                                        <span>Dettes Bancaires Restantes</span>
-                                    </span>
-                                    <strong class="text-rose-400" id="liability-loans">0 €</strong>
-                                </div>
-                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900">
-                                    <span class="text-slate-300 flex items-center space-x-2">
-                                        <i class="fa-solid fa-chart-line text-emerald-400 w-4"></i>
-                                        <span>Résultat Net Cumulé / Plus-Value</span>
-                                    </span>
-                                    <strong class="text-emerald-400" id="liability-equity">0 €</strong>
-                                </div>
-                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900">
-                                    <span class="text-slate-300 flex items-center space-x-2">
-                                        <i class="fa-solid fa-users text-sky-400 w-4"></i>
-                                        <span>Charges du Prochain Tick (Salaires & Leasings)</span>
-                                    </span>
-                                    <strong class="text-slate-400" id="liability-salaries">0 €</strong>
-                                </div>
+                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Capital Social</span><strong class="text-slate-100">4 000 000 €</strong></div>
+                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Dettes Bancaires</span><strong class="text-rose-400" id="liability-loans">0 €</strong></div>
+                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Résultat Net Cumulé</span><strong class="text-emerald-400" id="liability-equity">0 €</strong></div>
+                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Charges Prochain Tick</span><strong class="text-slate-400" id="liability-salaries">0 €</strong></div>
                             </div>
-
                             <div class="pt-2 border-t-2 border-slate-800 flex justify-between items-center text-sm font-bold">
-                                <span class="text-slate-200 uppercase">Total Passif</span>
-                                <span class="text-amber-400 font-mono text-base" id="total-liability-val">0 €</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
-                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 flex items-center space-x-3">
-                            <i class="fa-solid fa-shield-halved text-emerald-400 text-xl"></i>
-                            <div>
-                                <div class="text-[10px] text-slate-400 uppercase font-semibold">Taux d'Endettement</div>
-                                <div class="text-sm font-bold font-mono text-white" id="debt-ratio-val">0%</div>
-                            </div>
-                        </div>
-                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 flex items-center space-x-3">
-                            <i class="fa-solid fa-scale-balanced text-sky-400 text-xl"></i>
-                            <div>
-                                <div class="text-[10px] text-slate-400 uppercase font-semibold">Fonds de Roulement (FRNG)</div>
-                                <div class="text-sm font-bold font-mono text-white" id="working-capital-val">0 €</div>
-                            </div>
-                        </div>
-                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 flex items-center space-x-3">
-                            <i class="fa-solid fa-money-bill-transfer text-amber-400 text-xl"></i>
-                            <div>
-                                <div class="text-[10px] text-slate-400 uppercase font-semibold">Flux Prévisionnel / Tick</div>
-                                <div class="text-sm font-bold font-mono text-emerald-400" id="forecast-cashflow-val">+0 €</div>
+                                <span class="text-slate-200 uppercase">Total Passif</span><span class="text-amber-400 font-mono text-base" id="total-liability-val">0 €</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Aircraft Purchase & Leasing Catalog -->
                 <div class="glass-card p-5 rounded-2xl shadow-xl space-y-4">
                     <h3 class="text-lg font-bold text-white flex items-center space-x-2">
-                        <i class="fa-solid fa-plane-circle-check text-sky-400"></i>
-                        <span>Catalogue Complet des Appareils (Achat Cash & Leasing)</span>
+                        <i class="fa-solid fa-plane-circle-check text-sky-400"></i><span>Catalogue Appareils (Achat Cash & Leasing)</span>
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[520px] overflow-y-auto pr-1" id="aircraft-catalog-container"></div>
                 </div>
 
-                <!-- Bank Loans Section -->
                 <div class="glass-card p-5 rounded-2xl shadow-xl space-y-4">
                     <div class="flex justify-between items-center">
                         <h3 class="text-lg font-bold text-white flex items-center space-x-2">
-                            <i class="fa-solid fa-building-columns text-emerald-400"></i>
-                            <span>Emprunts Bancaires & Financement (1 Tick = 24h)</span>
+                            <i class="fa-solid fa-building-columns text-emerald-400"></i><span>Emprunts Bancaires</span>
                         </h3>
                         <button onclick="app.openLoanModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold shadow transition cursor-pointer">Contracter un Emprunt</button>
                     </div>
-
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="active-loans-container"></div>
                 </div>
             </div>
 
-            <!-- ================= TAB 5: TERMINAL LOGISTIQUE (CLO) ================= -->
+            <!-- TAB 5: TERMINAL LOGISTIQUE (CLO) -->
             <div id="tab-clo" class="space-y-6 hidden-tab">
                 <div class="flex justify-between items-center">
                     <div>
                         <h2 class="text-2xl font-extrabold text-white tracking-tight">Terminal Logistique (CLO)</h2>
-                        <p class="text-sm text-slate-400">Ravitaillement carburant au prix spot et gestion des stocks distincts par hub (en Kg).</p>
+                        <p class="text-sm text-slate-400">Ravitaillement carburant et gestion des stocks par hub.</p>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Fuel Replenishment -->
                     <div class="glass-card p-5 rounded-2xl shadow-xl space-y-4">
                         <h3 class="text-lg font-bold text-white flex items-center space-x-2">
-                            <i class="fa-solid fa-gas-pump text-sky-400"></i>
-                            <span>Ravitaillement Kérosène (Prix Spot du Marché)</span>
+                            <i class="fa-solid fa-gas-pump text-sky-400"></i><span>Ravitaillement Kérosène (Prix Spot)</span>
                         </h3>
-                        <p class="text-xs text-slate-400">Sélectionnez le hub de destination du carburant et le volume en Kg.</p>
-
                         <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-4">
                             <div class="flex justify-between items-center">
                                 <span class="text-xs text-slate-300">Prix Spot Actuel:</span>
                                 <span class="text-sky-400 font-bold font-mono text-sm" id="fuel-spot-price">1.85 € / Kg</span>
                             </div>
-
                             <div class="space-y-1">
-                                <label class="block text-xs text-slate-400">Hub Cible de Ravitaillement:</label>
+                                <label class="block text-xs text-slate-400">Hub Cible:</label>
                                 <select id="fuel-target-hub-select" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-sky-500"></select>
                             </div>
-
                             <div class="space-y-2">
                                 <div class="flex justify-between text-xs text-slate-400">
                                     <span>Masse à commander:</span>
@@ -609,180 +477,131 @@
                                 </div>
                                 <input type="range" id="fuel-qty-slider" min="1000" max="100000" step="1000" value="10000" oninput="app.updateFuelSlider(this.value)" class="w-full accent-sky-500 cursor-pointer">
                             </div>
-
                             <div class="flex items-center justify-between pt-2 border-t border-slate-800">
                                 <span class="text-xs text-slate-300">Coût Total: <strong class="text-emerald-400 font-mono text-sm" id="fuel-total-cost">18 500 €</strong></span>
                                 <button onclick="app.buyFuelSpot()" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow cursor-pointer">Remplir les Cuves</button>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Hub Fuel Inventory Overview -->
                     <div class="glass-card p-5 rounded-2xl shadow-xl space-y-4">
                         <h3 class="text-lg font-bold text-white flex items-center space-x-2">
-                            <i class="fa-solid fa-warehouse text-indigo-400"></i>
-                            <span>Stocks de Kérosène par Hub Possédé (Kg)</span>
+                            <i class="fa-solid fa-warehouse text-indigo-400"></i><span>Stocks de Kérosène par Hub (Kg)</span>
                         </h3>
-                        <p class="text-xs text-slate-400">Suivi en temps réel des capacités et des masses de carburant stockées dans chaque hub.</p>
                         <div class="space-y-3 max-h-[320px] overflow-y-auto pr-1" id="hub-fuel-inventory-container"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- ================= TAB 6: CARNET & PASSPORT PILOTE ================= -->
+            <!-- TAB 6: CARNET & PASSPORT PILOTE -->
             <div id="tab-pilot" class="space-y-6 hidden-tab">
                 <div class="flex justify-between items-center">
                     <div>
-                        <h2 class="text-2xl font-extrabold text-white tracking-tight">Carnet de Vol & Passeport Pilote</h2>
-                        <p class="text-sm text-slate-400">Relocalisation personnelle et passeport OACI.</p>
+                        <h2 class="text-2xl font-extrabold text-white tracking-tight">Carnet de Vol & Passeport</h2>
+                        <p class="text-sm text-slate-400">Relocalisation personnelle et tampons OACI.</p>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-1 glass-card p-5 rounded-2xl shadow-xl space-y-4">
                         <h3 class="text-lg font-bold text-white flex items-center space-x-2">
-                            <i class="fa-solid fa-train-subway text-sky-400"></i>
-                            <span>Relocalisation Pilote (Déplacement)</span>
+                            <i class="fa-solid fa-train-subway text-sky-400"></i><span>Relocalisation Pilote</span>
                         </h3>
-                        <p class="text-xs text-slate-400">Achetez un billet de train ou de vol commercial pour vous rendre dans un autre hub.</p>
-
                         <div class="space-y-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
                             <div>
                                 <label class="block text-xs text-slate-400 mb-1">Hub de Destination</label>
                                 <select id="pilot-relocate-select" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-sky-500"></select>
                             </div>
-                            <button onclick="app.relocatePilot()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-2 rounded-xl text-xs transition shadow cursor-pointer">
-                                Se Relocaliser (1 500 €)
-                            </button>
+                            <button onclick="app.relocatePilot()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-2 rounded-xl text-xs transition shadow cursor-pointer">Se Relocaliser (1 500 €)</button>
                         </div>
                     </div>
-
                     <div class="lg:col-span-2 glass-card p-5 rounded-2xl shadow-xl space-y-4">
                         <h3 class="text-lg font-bold text-white flex items-center space-x-2">
-                            <i class="fa-solid fa-passport text-amber-400"></i>
-                            <span>Tampons Passeport OACI</span>
+                            <i class="fa-solid fa-passport text-amber-400"></i><span>Tampons Passeport OACI</span>
                         </h3>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="passport-container"></div>
                     </div>
                 </div>
             </div>
-
         </main>
     </div>
 
-    <!-- MODAL DE DÉBRIEFING DE FIN DE VOL -->
+    <!-- MODALS -->
     <div id="flight-debrief-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
-            <h3 class="text-lg font-bold text-white flex items-center space-x-2">
-                <i class="fa-solid fa-plane-arrival text-sky-400"></i>
-                <span>Débriefing de Fin de Vol</span>
-            </h3>
-            <p class="text-xs text-slate-300">
-                Enregistrez les masses de kérosène pour l'appareil <strong id="debrief-plane-reg" class="text-sky-400"></strong> à l'arrivée à <strong id="debrief-dest-hub" class="text-emerald-400"></strong>.
-            </p>
-
+            <h3 class="text-lg font-bold text-white flex items-center space-x-2"><i class="fa-solid fa-plane-arrival text-sky-400"></i><span>Débriefing de Fin de Vol</span></h3>
+            <p class="text-xs text-slate-300">Enregistrez les masses pour <strong id="debrief-plane-reg" class="text-sky-400"></strong> à l'arrivée à <strong id="debrief-dest-hub" class="text-emerald-400"></strong>.</p>
             <div class="space-y-3 bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs">
                 <div>
                     <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Carburant Réel Utilisé (Kg) :</label>
                     <input type="number" id="debrief-fuel-used" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-sky-500">
                 </div>
                 <div>
-                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Carburant Restant dans les Réservoirs (Kg) :</label>
+                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Carburant Restant (Kg) :</label>
                     <input type="number" id="debrief-fuel-remaining" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-sky-500">
                 </div>
                 <div class="flex items-center space-x-2 pt-2 border-t border-slate-800">
                     <input type="checkbox" id="debrief-reintegrate" checked class="w-4 h-4 accent-sky-500 rounded cursor-pointer">
-                    <label for="debrief-reintegrate" class="text-slate-300 cursor-pointer">Réintégrer le carburant restant dans les stocks du Hub d'arrivée (si possédé)</label>
+                    <label for="debrief-reintegrate" class="text-slate-300 cursor-pointer">Réintégrer le carburant restant dans les stocks du Hub d'arrivée</label>
                 </div>
             </div>
-
             <div class="flex justify-end space-x-3 pt-2">
                 <button onclick="app.closeDebriefModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">Annuler</button>
-                <button onclick="app.confirmLandingDebrief()" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow cursor-pointer">Valider le Débriefing & Atterrir</button>
+                <button onclick="app.confirmLandingDebrief()" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow cursor-pointer">Valider</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL AVITAILLEMENT EXPRESS / TRANSFERT URGENCE -->
     <div id="express-fuel-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
-            <h3 class="text-lg font-bold text-white flex items-center space-x-2">
-                <i class="fa-solid fa-gas-pump text-amber-400"></i>
-                <span>Avitaillement d'Urgence Requis</span>
-            </h3>
-            <p class="text-xs text-slate-300">
-                Le stock de votre hub actuel (<strong id="express-hub-code" class="text-sky-400">CDG</strong>) est insuffisant. 
-                Il vous manque <strong id="express-needed-qty" class="text-amber-400 font-mono">0 Kg</strong> de kérosène pour démarrer ce vol.
-            </p>
-
+            <h3 class="text-lg font-bold text-white flex items-center space-x-2"><i class="fa-solid fa-gas-pump text-amber-400"></i><span>Avitaillement d'Urgence Requis</span></h3>
+            <p class="text-xs text-slate-300">Il manque <strong id="express-needed-qty" class="text-amber-400 font-mono">0 Kg</strong> de kérosène au hub <strong id="express-hub-code" class="text-sky-400"></strong>.</p>
             <div class="space-y-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
-                <div>
-                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Source d'approvisionnement :</label>
-                    <select id="express-fuel-source" onchange="app.updateExpressCost()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-sky-500"></select>
-                </div>
-
+                <select id="express-fuel-source" onchange="app.updateExpressCost()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-sky-500"></select>
                 <div class="text-xs text-slate-400 space-y-1 font-mono pt-2 border-t border-slate-800">
-                    <div class="flex justify-between"><span>Majoration Transport:</span> <strong class="text-amber-400">+30% Logistique</strong></div>
-                    <div class="flex justify-between"><span>Coût Total Prélevé:</span> <strong class="text-emerald-400 text-sm font-bold" id="express-total-price">0 €</strong></div>
+                    <div class="flex justify-between"><span>Coût Total:</span> <strong class="text-emerald-400 text-sm font-bold" id="express-total-price">0 €</strong></div>
                 </div>
             </div>
-
             <div class="flex justify-end space-x-3 pt-2">
                 <button onclick="app.closeExpressFuelModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">Annuler</button>
-                <button onclick="app.confirmExpressFuel()" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow cursor-pointer">Avitailler & Lancer Vol</button>
+                <button onclick="app.confirmExpressFuel()" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow cursor-pointer">Avitailler & Lancer</button>
             </div>
         </div>
     </div>
 
-    <!-- LOAN INSPECTION MODAL -->
     <div id="loan-detail-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
-            <h3 class="text-lg font-bold text-white flex items-center space-x-2">
-                <i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i>
-                <span id="inspect-loan-title">Détail Emprunt</span>
-            </h3>
+            <h3 class="text-lg font-bold text-white" id="inspect-loan-title">Détail Emprunt</h3>
             <div class="space-y-2 text-xs text-slate-300 font-mono bg-slate-950 p-4 rounded-xl border border-slate-800">
-                <div class="flex justify-between"><span>Capital Restant:</span> <strong class="text-emerald-400" id="inspect-loan-remaining">0 €</strong></div>
-                <div class="flex justify-between"><span>Mensualité par Tick:</span> <strong class="text-white" id="inspect-loan-installment">0 €</strong></div>
-                <div class="flex justify-between"><span>Ticks Restants:</span> <strong class="text-amber-400" id="inspect-loan-ticks">0</strong></div>
-                <div class="flex justify-between"><span>Taux d'Intérêt Global:</span> <strong class="text-sky-400" id="inspect-loan-rate">10.0%</strong></div>
+                <div class="flex justify-between"><span>Restant:</span> <strong class="text-emerald-400" id="inspect-loan-remaining">0 €</strong></div>
+                <div class="flex justify-between"><span>Mensualité:</span> <strong class="text-white" id="inspect-loan-installment">0 €</strong></div>
+                <div class="flex justify-between"><span>Ticks:</span> <strong class="text-amber-400" id="inspect-loan-ticks">0</strong></div>
             </div>
             <button onclick="app.closeLoanDetailModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 py-2 rounded-xl text-xs font-bold transition cursor-pointer">Fermer</button>
         </div>
     </div>
 
-    <!-- CREATE LOAN MODAL -->
     <div id="loan-create-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
             <h3 class="text-lg font-bold text-white">Souscrire un Emprunt Bancaire</h3>
-            <p class="text-xs text-slate-400">Choisissez le montant et la durée (terme). Plus la durée est longue, plus le taux d'intérêt global est élevé.</p>
             <div class="space-y-3">
-                <div>
-                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Montant de l'emprunt</label>
-                    <select id="loan-amount-select" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-sky-500">
-                        <option value="500000">500 000 €</option>
-                        <option value="2000000">2 000 000 €</option>
-                        <option value="10000000">10 000 000 €</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Durée & Terme (Taux progressif)</label>
-                    <select id="loan-term-select" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-sky-500">
-                        <option value="5">Court terme — 5 Ticks (Taux : 5%)</option>
-                        <option value="10" selected>Moyen terme — 10 Ticks (Taux : 12%)</option>
-                        <option value="20">Long terme — 20 Ticks (Taux : 25%)</option>
-                        <option value="30">Très long terme — 30 Ticks (Taux : 40%)</option>
-                    </select>
-                </div>
+                <select id="loan-amount-select" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">
+                    <option value="500000">500 000 €</option>
+                    <option value="2000000">2 000 000 €</option>
+                    <option value="10000000">10 000 000 €</option>
+                </select>
+                <select id="loan-term-select" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">
+                    <option value="5">Court terme — 5 Ticks (5%)</option>
+                    <option value="10" selected>Moyen terme — 10 Ticks (12%)</option>
+                    <option value="20">Long terme — 20 Ticks (25%)</option>
+                </select>
             </div>
             <div class="flex justify-end space-x-3 pt-2">
-                <button onclick="app.closeLoanModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">Annuler</button>
-                <button onclick="app.confirmLoan()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow cursor-pointer">Valider l'Emprunt</button>
+                <button onclick="app.closeLoanModal()" class="bg-slate-800 text-slate-300 px-4 py-2 rounded-xl text-xs font-semibold">Annuler</button>
+                <button onclick="app.confirmLoan()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold">Valider</button>
             </div>
         </div>
     </div>
 
-    <!-- APP CONTROLLER SCRIPT (VANILLA JS) -->
+    <!-- APP CONTROLLER SCRIPT (FIREBASE CLOUD SYNC) -->
     <script>
         class AirlineTycoonApp {
             constructor() {
@@ -797,6 +616,7 @@
                 this.playerName = '';
                 this.companyCode = '';
                 this.playerRole = 'CEO';
+                this._unsubscribeSync = null;
 
                 this.company = {
                     name: 'AeroCareer Airlines',
@@ -860,9 +680,8 @@
                 const day = String(now.getDate()).padStart(2, '0');
                 const hours = String(now.getHours()).padStart(2, '0');
                 const minutes = String(now.getMinutes()).padStart(2, '0');
-                const seconds = String(now.getSeconds()).padStart(2, '0');
                 const randomSuffix = Math.random().toString(36).substring(2, 5).toUpperCase();
-                return `${cleanName}-${year}${month}${day}-${hours}${minutes}${seconds}-${randomSuffix}`;
+                return `${cleanName}-${year}${month}${day}-${hours}${minutes}-${randomSuffix}`;
             }
 
             onCompanyNameInput() {
@@ -884,22 +703,24 @@
                 document.getElementById('create-company-code').value = this._baseGeneratedCodeTime;
             }
 
-            checkStoredAuth() {
+            async checkStoredAuth() {
                 const savedPlayer = localStorage.getItem('aerocareer_player_name');
                 const savedCode = localStorage.getItem('aerocareer_company_code');
 
                 if (savedPlayer && savedCode) {
                     this.playerName = savedPlayer;
                     this.companyCode = savedCode;
-                    this.loadCompanyData();
-                    document.getElementById('auth-modal').classList.add('hidden');
-                    document.getElementById('auth-modal').classList.remove('flex');
-                    this.init();
-                } else {
-                    document.getElementById('auth-modal').classList.remove('hidden');
-                    document.getElementById('auth-modal').classList.add('flex');
-                    this.generateNewCode();
+                    const loaded = await this.loadCompanyData();
+                    if (loaded) {
+                        document.getElementById('auth-modal').classList.add('hidden');
+                        document.getElementById('auth-modal').classList.remove('flex');
+                        this.init();
+                        return;
+                    }
                 }
+                document.getElementById('auth-modal').classList.remove('hidden');
+                document.getElementById('auth-modal').classList.add('flex');
+                this.generateNewCode();
             }
 
             switchAuthMode(mode) {
@@ -923,46 +744,19 @@
             renderSavedCompaniesList() {
                 const container = document.getElementById('saved-companies-list-container');
                 container.innerHTML = '';
-
-                let savesFound = 0;
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    if (key && key.startsWith('aerocareer_save_')) {
-                        savesFound++;
-                        const code = key.replace('aerocareer_save_', '');
-                        let compName = 'Entreprise Inconnue';
-                        try {
-                            const data = JSON.parse(localStorage.getItem(key));
-                            if (data && data.company && data.company.name) {
-                                compName = data.company.name;
-                            }
-                        } catch(e) {}
-
-                        container.innerHTML += `
-                            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex items-center justify-between">
-                                <div>
-                                    <div class="font-bold text-white text-xs">${compName}</div>
-                                    <div class="font-mono text-[10px] text-sky-400">${code}</div>
-                                </div>
-                                <button onclick="app.deleteCompanySave('${code}')" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer flex items-center space-x-1">
-                                    <i class="fa-solid fa-trash"></i>
-                                    <span>Supprimer</span>
-                                </button>
+                const savedPlayer = localStorage.getItem('aerocareer_player_name');
+                const savedCode = localStorage.getItem('aerocareer_company_code');
+                if (savedCode) {
+                    container.innerHTML = `
+                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex items-center justify-between">
+                            <div>
+                                <div class="font-bold text-white text-xs">${savedPlayer} (${savedCode})</div>
                             </div>
-                        `;
-                    }
-                }
-
-                if (savesFound === 0) {
-                    container.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs">Aucune entreprise enregistrée sur cet appareil.</div>`;
-                }
-            }
-
-            deleteCompanySave(code) {
-                if (confirm(`Es-tu sûr de vouloir supprimer définitivement la compagnie avec le code : ${code} ?`)) {
-                    localStorage.removeItem('aerocareer_save_' + code);
-                    this.showToast(`Entreprise ${code} supprimée avec succès.`, 'success');
-                    this.renderSavedCompaniesList();
+                            <button onclick="app.logout()" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer">Se Déconnecter</button>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs">Aucune session active sur cet appareil.</div>`;
                 }
             }
 
@@ -986,7 +780,7 @@
                 }
             }
 
-            submitCreateCompany() {
+            async submitCreateCompany() {
                 const pName = document.getElementById('create-player-name').value.trim();
                 const cName = document.getElementById('create-company-name').value.trim();
                 const cCode = document.getElementById('create-company-code').value.trim().toLowerCase();
@@ -1019,20 +813,20 @@
                 ];
 
                 this.generateInitialContracts();
-
                 this.playerRole = 'CEO';
-                this.saveCompanyData();
+
+                await this.saveCompanyData();
 
                 localStorage.setItem('aerocareer_player_name', this.playerName);
                 localStorage.setItem('aerocareer_company_code', this.companyCode);
 
                 document.getElementById('auth-modal').classList.add('hidden');
                 document.getElementById('auth-modal').classList.remove('flex');
-                this.showToast(`Compagnie "${cName}" créée de zéro avec 4 000 000 € ! Code : ${cCode}`, 'success');
+                this.showToast(`Compagnie "${cName}" créée sur le Cloud ! Code : ${cCode}`, 'success');
                 this.init();
             }
 
-            submitJoinCompany() {
+            async submitJoinCompany() {
                 const pName = document.getElementById('join-player-name').value.trim();
                 const cCode = document.getElementById('join-company-code').value.trim().toLowerCase();
 
@@ -1041,15 +835,14 @@
                     return;
                 }
 
-                const savedState = localStorage.getItem('aerocareer_save_' + cCode);
-                if (!savedState) {
-                    this.showToast("Aucune compagnie trouvée avec ce code unique. Vérifiez la saisie !", "error");
-                    return;
-                }
-
                 this.playerName = pName;
                 this.companyCode = cCode;
-                this.loadCompanyData();
+
+                const loaded = await this.loadCompanyData();
+                if (!loaded) {
+                    this.showToast("Aucune compagnie trouvée sur le Cloud avec ce code unique !", "error");
+                    return;
+                }
 
                 let member = this.team.find(m => m.name === pName);
                 if (!member) {
@@ -1060,7 +853,7 @@
                 }
                 this.playerRole = member.role;
 
-                this.saveCompanyData();
+                await this.saveCompanyData();
                 localStorage.setItem('aerocareer_player_name', this.playerName);
                 localStorage.setItem('aerocareer_company_code', this.companyCode);
 
@@ -1076,8 +869,8 @@
                 location.reload();
             }
 
-            saveCompanyData() {
-                if (!this.companyCode) return;
+            async saveCompanyData() {
+                if (!this.companyCode || !window.db) return;
                 const state = {
                     company: this.company,
                     fleet: this.fleet,
@@ -1085,32 +878,61 @@
                     activeContracts: this.activeContracts,
                     availableContracts: this.availableContracts,
                     activeLoans: this.activeLoans,
-                    passportStamps: this.passportStamps
+                    passportStamps: this.passportStamps,
+                    lastUpdated: Date.now()
                 };
-                localStorage.setItem('aerocareer_save_' + this.companyCode, JSON.stringify(state));
+                try {
+                    const { doc, setDoc } = window.FirebaseSDK;
+                    await setDoc(doc(window.db, "companies", this.companyCode), state);
+                } catch (e) {
+                    console.error("Erreur sauvegarde cloud:", e);
+                }
             }
 
-            loadCompanyData() {
-                if (!this.companyCode) return;
-                const raw = localStorage.getItem('aerocareer_save_' + this.companyCode);
-                if (raw) {
-                    try {
-                        const data = JSON.parse(raw);
-                        this.company = data.company || this.company;
-                        if (!this.company.lastTickDate) this.company.lastTickDate = new Date().toDateString();
-                        this.fleet = data.fleet || this.fleet;
-                        this.team = data.team || this.team;
-                        this.activeContracts = data.activeContracts || this.activeContracts;
-                        this.availableContracts = data.availableContracts || this.availableContracts;
-                        this.activeLoans = data.activeLoans || this.activeLoans;
-                        this.passportStamps = data.passportStamps || this.passportStamps;
-
-                        const me = this.team.find(m => m.name === this.playerName);
-                        if (me) this.playerRole = me.role;
-                    } catch (e) {
-                        console.error("Erreur chargement save", e);
+            async loadCompanyData() {
+                if (!this.companyCode || !window.db) return false;
+                try {
+                    const { doc, getDoc } = window.FirebaseSDK;
+                    const docSnap = await getDoc(doc(window.db, "companies", this.companyCode));
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        this.applyLoadedData(data);
+                        this.setupRealtimeSync();
+                        return true;
                     }
+                } catch (e) {
+                    console.error("Erreur chargement cloud:", e);
                 }
+                return false;
+            }
+
+            applyLoadedData(data) {
+                this.company = data.company || this.company;
+                if (!this.company.lastTickDate) this.company.lastTickDate = new Date().toDateString();
+                this.fleet = data.fleet || this.fleet;
+                this.team = data.team || this.team;
+                this.activeContracts = data.activeContracts || this.activeContracts;
+                this.availableContracts = data.availableContracts || this.availableContracts;
+                this.activeLoans = data.activeLoans || this.activeLoans;
+                this.passportStamps = data.passportStamps || this.passportStamps;
+
+                const me = this.team.find(m => m.name === this.playerName);
+                if (me) this.playerRole = me.role;
+            }
+
+            setupRealtimeSync() {
+                if (this._unsubscribeSync || !window.db) return;
+                const { doc, onSnapshot } = window.FirebaseSDK;
+                const docRef = doc(window.db, "companies", this.companyCode);
+                this._unsubscribeSync = onSnapshot(docRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        const remoteData = docSnap.data();
+                        this.applyLoadedData(remoteData);
+                        if (typeof this.renderAll === 'function') {
+                            this.renderAll();
+                        }
+                    }
+                });
             }
 
             init() {
@@ -1120,7 +942,6 @@
 
                 this.checkAutoTick();
                 setInterval(() => this.checkAutoTick(), 1000);
-
                 this.renderAll();
             }
 
@@ -1133,7 +954,6 @@
                     this.advanceTick();
                 }
 
-                // Update countdown display until midnight
                 const midnight = new Date();
                 midnight.setHours(24, 0, 0, 0);
                 const diff = midnight - now;
@@ -1167,10 +987,6 @@
                 this.activeContracts.forEach(c => c.ticksLeft--);
                 this.availableContracts.forEach(c => c.ticksLeft--);
 
-                const expiredActive = this.activeContracts.filter(c => c.ticksLeft <= 0);
-                if (expiredActive.length > 0) {
-                    this.showToast(`${expiredActive.length} contrat(s) actif(s) ont expiré !`, 'info');
-                }
                 this.activeContracts = this.activeContracts.filter(c => c.ticksLeft > 0);
                 this.availableContracts = this.availableContracts.filter(c => c.ticksLeft > 0);
 
@@ -1197,7 +1013,7 @@
 
                 this.company.cash -= totalExpenses;
 
-                this.showToast(`Minuit dépassé ! Passage au Tick #${this.company.tickCount}. Salaires & Leasings prélevés (${this.formatMoney(totalExpenses)}).`, 'info');
+                this.showToast(`Minuit dépassé ! Tick #${this.company.tickCount}. Salaires & Leasings prélevés (${this.formatMoney(totalExpenses)}).`, 'info');
                 this.renderAll();
             }
 
@@ -1281,14 +1097,12 @@
                 });
 
                 const totalAssets = cashAsset + fleetAsset + fuelAsset + hubsAsset;
-
                 let loansLiability = 0;
                 this.activeLoans.forEach(l => loansLiability += l.remainingAmount);
 
                 const salariesPerTick = this.team.reduce((acc, m) => acc + m.salary, 0);
                 const leasePerTick = this.fleet.reduce((acc, p) => acc + (p.isLeased ? p.leaseFee : 0), 0);
                 const totalFixedCharges = salariesPerTick + leasePerTick;
-
                 const initialCapital = 4000000;
                 const equityCumulative = totalAssets - loansLiability - initialCapital;
 
@@ -1303,22 +1117,6 @@
                 document.getElementById('liability-salaries').innerText = this.formatMoney(totalFixedCharges);
                 document.getElementById('total-liability-val').innerText = this.formatMoney(totalAssets);
                 document.getElementById('cfo-total-assets').innerText = this.formatMoney(totalAssets);
-
-                const debtRatio = totalAssets > 0 ? Math.round((loansLiability / totalAssets) * 100) : 0;
-                document.getElementById('debt-ratio-val').innerText = debtRatio + '%';
-
-                const workingCapital = cashAsset + fuelAsset - totalFixedCharges;
-                document.getElementById('working-capital-val').innerText = this.formatMoney(workingCapital);
-
-                let expectedRevenues = 0;
-                this.activeContracts.forEach(c => expectedRevenues += c.reward);
-                let totalLoanInstallments = 0;
-                this.activeLoans.forEach(l => totalLoanInstallments += l.installment);
-                const forecastNet = expectedRevenues - totalFixedCharges - totalLoanInstallments;
-
-                const forecastEl = document.getElementById('forecast-cashflow-val');
-                forecastEl.innerText = (forecastNet >= 0 ? '+' : '') + this.formatMoney(forecastNet);
-                forecastEl.className = forecastNet >= 0 ? 'text-sm font-bold font-mono text-emerald-400' : 'text-sm font-bold font-mono text-rose-400';
             }
 
             renderAll() {
@@ -1353,18 +1151,14 @@
                                     <i class="fa-solid ${icon} text-lg"></i>
                                 </div>
                                 <div>
-                                    <div class="text-xs font-bold uppercase tracking-wider ${textCol}">${roleKey === 'CEO' ? 'PDG (CEO)' : (roleKey === 'CFO' ? 'Trésorier (CFO)' : 'Logisticien (CLO)')}</div>
+                                    <div class="text-xs font-bold uppercase tracking-wider ${textCol}">${roleKey}</div>
                                     <div class="font-bold text-white text-base">${exec.name}</div>
                                     <div class="text-xs text-slate-400">Salaire: ${this.formatMoney(exec.salary)}/tick</div>
                                 </div>
                             </div>
                         `;
                     } else {
-                        execContainer.innerHTML += `
-                            <div class="bg-slate-950 p-4 rounded-xl border border-dashed border-slate-800 flex items-center justify-between text-slate-500 text-xs">
-                                <span>Poste de ${roleKey} vacant</span>
-                            </div>
-                        `;
+                        execContainer.innerHTML += `<div class="bg-slate-950 p-4 rounded-xl border border-dashed border-slate-800 flex items-center justify-between text-slate-500 text-xs"><span>Poste de ${roleKey} vacant</span></div>`;
                     }
                 });
 
@@ -1372,37 +1166,27 @@
                 const pilotsGrid = document.getElementById('pilots-grid-container');
                 pilotsGrid.innerHTML = '';
                 const pilotsList = this.team.filter(m => m.role === 'Pilote');
-                if (pilotsList.length === 0) {
-                    pilotsGrid.innerHTML = `<div class="col-span-full text-xs text-slate-500 italic">Aucun pilote recruté pour l'instant. Allez dans le Bureau du CEO pour recruter.</div>`;
-                } else {
-                    pilotsList.forEach(pilot => {
-                        pilotsGrid.innerHTML += `
-                            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 flex items-center justify-between">
-                                <div class="flex items-center space-x-2">
-                                    <i class="fa-solid fa-user-pilot text-slate-400 text-xs"></i>
-                                    <span class="font-bold text-slate-200 text-xs">${pilot.name}</span>
-                                </div>
-                                <span class="text-[10px] bg-slate-800 text-sky-400 px-2 py-0.5 rounded font-mono">${pilot.exp} h</span>
+                pilotsList.forEach(pilot => {
+                    pilotsGrid.innerHTML += `
+                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <i class="fa-solid fa-user-pilot text-slate-400 text-xs"></i>
+                                <span class="font-bold text-slate-200 text-xs">${pilot.name}</span>
                             </div>
-                        `;
-                    });
-                }
+                            <span class="text-[10px] bg-slate-800 text-sky-400 px-2 py-0.5 rounded font-mono">${pilot.exp} h</span>
+                        </div>
+                    `;
+                });
 
                 document.getElementById('available-contracts-badge').innerText = this.availableContracts.length + ' contrats';
                 const contractsContainer = document.getElementById('available-contracts-container');
                 contractsContainer.innerHTML = '';
-                
-                if (this.availableContracts.length === 0) {
-                    contractsContainer.innerHTML = `<div class="col-span-full text-center py-6 text-slate-500 text-xs">Aucun contrat disponible pour le moment. Le marché s'actualisera automatiquement à minuit.</div>`;
-                }
-
                 this.availableContracts.forEach(contract => {
                     const parkedPlanes = this.fleet.filter(p => p.status === 'Parked');
                     let planeOptions = '<option value="">-- Choisir un appareil --</option>';
                     parkedPlanes.forEach(p => {
                         const selected = contract.selectedPlaneId == p.id ? 'selected' : '';
-                        const tag = p.isLeased ? ' [Leasing]' : '';
-                        planeOptions += `<option value="${p.id}" ${selected}>${p.registration} (${p.name}${tag}) - [${p.location}]</option>`;
+                        planeOptions += `<option value="${p.id}" ${selected}>${p.registration} (${p.name}) - [${p.location}]</option>`;
                     });
 
                     contractsContainer.innerHTML += `
@@ -1410,22 +1194,14 @@
                             <div>
                                 <div class="flex justify-between items-center">
                                     <span class="bg-slate-900 text-sky-400 px-2.5 py-1 rounded-lg border border-slate-800 text-xs font-mono font-bold">${contract.origin} ➔ ${contract.destination}</span>
-                                    <span class="text-xs text-amber-400 font-semibold font-mono">Expiration: ${contract.ticksLeft} tick(s)</span>
+                                    <span class="text-xs text-amber-400 font-semibold font-mono">Exp: ${contract.ticksLeft} tick(s)</span>
                                 </div>
                                 <h4 class="font-bold text-white text-sm mt-3">${contract.title}</h4>
-                                <div class="text-xs text-slate-400 mt-1">
-                                    Prime accordée: <strong class="text-emerald-400 font-mono text-sm">${this.formatMoney(contract.reward)}</strong>
-                                </div>
+                                <div class="text-xs text-slate-400 mt-1">Prime: <strong class="text-emerald-400 font-mono text-sm">${this.formatMoney(contract.reward)}</strong></div>
                             </div>
-                            <div class="space-y-2 pt-2 border-t border-slate-800/80">
-                                <label class="block text-[10px] uppercase font-bold text-slate-400">Assigner un avion disponible:</label>
-                                <select onchange="app.updateContractSelection(${contract.id}, this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-sky-500">
-                                    ${planeOptions}
-                                </select>
-                                <button onclick="app.acceptContractWithPlane(${contract.id})" class="w-full bg-emerald-600 hover:bg-emerald-500 font-bold text-white py-2 rounded-xl text-xs transition shadow flex items-center justify-center space-x-1 cursor-pointer">
-                                    <i class="fa-solid fa-check"></i>
-                                    <span>Valider & Accepter</span>
-                                </button>
+                            <div class="space-y-2 pt-2 border-t border-slate-800">
+                                <select onchange="app.updateContractSelection(${contract.id}, this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200">${planeOptions}</select>
+                                <button onclick="app.acceptContractWithPlane(${contract.id})" class="w-full bg-emerald-600 hover:bg-emerald-500 font-bold text-white py-2 rounded-xl text-xs transition shadow cursor-pointer">Valider & Accepter</button>
                             </div>
                         </div>
                     `;
@@ -1433,66 +1209,27 @@
 
                 const fleetBody = document.getElementById('fleet-table-body');
                 fleetBody.innerHTML = '';
-                if (this.fleet.length === 0) {
-                    fleetBody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-500 text-xs">Votre flotte est vide. Rendez-vous dans le bureau du CFO pour acheter ou louer votre premier avion.</td></tr>`;
-                }
-
                 this.fleet.forEach(plane => {
                     const statusClass = plane.status === 'En vol' ? 'bg-sky-950 text-sky-400 border-sky-800' : 'bg-emerald-950 text-emerald-400 border-emerald-800';
                     const resaleVal = this.calculateResaleValue(plane);
-                    const valDisplay = plane.isLeased 
-                        ? `<div class="text-xs font-mono text-amber-400 font-extrabold">${this.formatMoney(plane.leaseFee)} / tick</div><div class="text-[10px] text-amber-500 font-semibold">Location / Leasing</div>`
-                        : `<div class="text-xs font-mono text-emerald-400 font-extrabold">${this.formatMoney(resaleVal)}</div><div class="text-[10px] text-slate-400">Prix argus marché</div>`;
+                    const valDisplay = plane.isLeased ? `<div class="text-xs font-mono text-amber-400 font-bold">${this.formatMoney(plane.leaseFee)}/tick</div>` : `<div class="text-xs font-mono text-emerald-400 font-bold">${this.formatMoney(resaleVal)}</div>`;
 
                     const reqFuel = this.getRequiredFuelForFlight(plane);
                     const currentHubFuel = this.company.fuelReservesByHub[plane.location] || 0;
                     const hasEnoughFuel = currentHubFuel >= reqFuel;
 
-                    const fuelBadge = plane.status === 'En vol'
-                        ? `<span class="text-[10px] text-sky-400 bg-sky-950/60 border border-sky-800 px-2 py-0.5 rounded-md font-mono flex items-center space-x-1"><i class="fa-solid fa-plane-in-flight"></i> <span>Carburant embarqué: ${(plane.fuelOnBoard || 0).toLocaleString()} Kg</span></span>`
-                        : (hasEnoughFuel 
-                            ? `<span class="text-[10px] text-emerald-400 bg-emerald-950/60 border border-emerald-800 px-2 py-0.5 rounded-md font-mono flex items-center space-x-1"><i class="fa-solid fa-gas-pump"></i> <span>Hub Ok (${currentHubFuel.toLocaleString()} Kg)</span></span>`
-                            : `<span class="text-[10px] text-rose-400 bg-rose-950/60 border border-rose-800 px-2 py-0.5 rounded-md font-mono flex items-center space-x-1"><i class="fa-solid fa-triangle-exclamation"></i> <span>Kérosène Hub Insuffisant (${currentHubFuel.toLocaleString()} / ${reqFuel.toLocaleString()} Kg)</span></span>`);
-
                     const flightBtn = plane.status === 'En vol'
-                        ? `<button onclick="app.openDebriefModal(${plane.id})" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow cursor-pointer">Atterrir</button>`
-                        : `<button onclick="app.startFlight(${plane.id})" ${!plane.assignedPilot || !plane.assignedContractId ? 'disabled' : ''} class="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow cursor-pointer">Lancer Vol</button>`;
-
-                    const actionBtn = plane.isLeased
-                        ? `<button onclick="app.returnLeasedAircraft(${plane.id})" ${plane.status === 'En vol' ? 'disabled' : ''} class="bg-amber-600 hover:bg-amber-500 disabled:opacity-40 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow cursor-pointer">Rendre Leasing</button>`
-                        : `<button onclick="app.sellAircraft(${plane.id})" ${plane.status === 'En vol' ? 'disabled' : ''} class="bg-rose-600 hover:bg-rose-500 disabled:opacity-40 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow cursor-pointer">Vendre (${this.formatMoney(resaleVal)})</button>`;
+                        ? `<button onclick="app.openDebriefModal(${plane.id})" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer">Atterrir</button>`
+                        : `<button onclick="app.startFlight(${plane.id})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer">Lancer Vol</button>`;
 
                     fleetBody.innerHTML += `
                         <tr class="hover:bg-slate-900/40 transition">
-                            <td class="py-3 px-3">
-                                <div class="font-bold text-white text-base flex items-center space-x-2">
-                                    <span>${plane.registration}</span>
-                                    ${plane.isLeased ? '<span class="text-[9px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-1.5 py-0.5 rounded uppercase font-mono font-bold">Leasing</span>' : ''}
-                                </div>
-                                <div class="text-xs text-sky-400 font-medium">${plane.name}</div>
-                            </td>
-                            <td class="py-3 px-3 space-y-1">
-                                <div class="text-xs font-bold text-white font-mono flex items-center space-x-1.5">
-                                    <i class="fa-solid fa-location-dot text-sky-400"></i>
-                                    <span>${plane.location} (${this.getHubCity(plane.location)})</span>
-                                </div>
-                                <div>${fuelBadge}</div>
-                            </td>
-                            <td class="py-3 px-3">
-                                <div class="text-xs text-mono text-amber-400 font-bold">${plane.flightHours || 0} heures</div>
-                                <div class="text-[10px] text-slate-400">Usure opérationnelle</div>
-                            </td>
-                            <td class="py-3 px-3">
-                                ${valDisplay}
-                            </td>
-                            <td class="py-3 px-3">
-                                <span class="px-2.5 py-1 rounded-full text-xs font-bold border ${statusClass}">${plane.status}</span>
-                                <div class="text-[11px] text-slate-300 mt-1">Pilote: <span class="text-sky-400 font-semibold">${plane.assignedPilot || 'Aucun'}</span></div>
-                            </td>
-                            <td class="py-3 px-3 text-right space-x-2">
-                                ${flightBtn}
-                                ${actionBtn}
-                            </td>
+                            <td class="py-3 px-3"><div class="font-bold text-white">${plane.registration}</div><div class="text-xs text-sky-400">${plane.name}</div></td>
+                            <td class="py-3 px-3"><div class="text-xs font-bold text-white">${plane.location}</div><div class="text-[10px] text-slate-400">Stock Hub: ${currentHubFuel.toLocaleString()} Kg</div></td>
+                            <td class="py-3 px-3"><div class="text-xs text-amber-400 font-bold">${plane.flightHours || 0} h</div></td>
+                            <td class="py-3 px-3">${valDisplay}</td>
+                            <td class="py-3 px-3"><span class="px-2.5 py-1 rounded-full text-xs font-bold border ${statusClass}">${plane.status}</span></td>
+                            <td class="py-3 px-3 text-right space-x-2">${flightBtn}</td>
                         </tr>
                     `;
                 });
@@ -1502,62 +1239,32 @@
                 this.team.forEach(member => {
                     teamMgmt.innerHTML += `
                         <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
-                            <div class="flex justify-between items-center">
-                                <span class="font-bold text-white text-sm">${member.name}</span>
-                                <span class="text-xs font-mono text-slate-400">${this.formatMoney(member.salary)}/tick</span>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs text-slate-400">Rôle attribué:</span>
-                                <select onchange="app.updateMemberRole(${member.id}, this.value)" class="bg-slate-900 border border-slate-700 text-xs text-sky-400 font-bold rounded-lg px-2 py-1 focus:outline-none focus:border-sky-500">
-                                    <option value="CEO" ${member.role === 'CEO' ? 'selected' : ''}>PDG (CEO)</option>
-                                    <option value="CFO" ${member.role === 'CFO' ? 'selected' : ''}>Trésorier (CFO)</option>
-                                    <option value="CLO" ${member.role === 'CLO' ? 'selected' : ''}>Logisticien (CLO)</option>
-                                    <option value="Pilote" ${member.role === 'Pilote' ? 'selected' : ''}>Pilote Commandant</option>
-                                </select>
-                            </div>
+                            <div class="flex justify-between items-center"><span class="font-bold text-white text-sm">${member.name}</span><span class="text-xs font-mono text-slate-400">${this.formatMoney(member.salary)}/tick</span></div>
+                            <select onchange="app.updateMemberRole(${member.id}, this.value)" class="w-full bg-slate-900 border border-slate-700 text-xs text-sky-400 font-bold rounded-lg px-2 py-1">
+                                <option value="CEO" ${member.role === 'CEO' ? 'selected' : ''}>PDG (CEO)</option>
+                                <option value="CFO" ${member.role === 'CFO' ? 'selected' : ''}>Trésorier (CFO)</option>
+                                <option value="CLO" ${member.role === 'CLO' ? 'selected' : ''}>Logisticien (CLO)</option>
+                                <option value="Pilote" ${member.role === 'Pilote' ? 'selected' : ''}>Pilote</option>
+                            </select>
                         </div>
                     `;
                 });
 
-                const hedgeBtn = document.getElementById('hedge-btn');
-                hedgeBtn.innerText = this.company.fuelHedgeActive ? 'Hedging en cours (1.50 €/Kg)' : 'Activer Hedging (200 000 €)';
-                hedgeBtn.disabled = this.company.fuelHedgeActive;
-
                 document.getElementById('hubs-acquired-count').innerText = this.company.hubs.length + ' Hub(s) Acquis';
                 this.renderHubs();
-
                 this.renderBalanceSheet();
 
                 const catalogContainer = document.getElementById('aircraft-catalog-container');
                 catalogContainer.innerHTML = '';
                 this.aircraftCatalog.forEach(ac => {
-                    const leaseFee = Math.round(ac.price * 0.02);
-                    const leaseBtn = ac.allowLease
-                        ? `<button onclick="app.leaseAircraft('${ac.name}')" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 rounded-lg text-xs transition shadow cursor-pointer text-center">Louer (${this.formatMoney(leaseFee)}/tick)</button>`
-                        : '';
-
                     catalogContainer.innerHTML += `
                         <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between space-y-3">
                             <div>
-                                <div class="flex items-center justify-between">
-                                    <span class="bg-sky-950 text-sky-400 text-[10px] font-bold px-2 py-0.5 rounded border border-sky-800">${ac.type}</span>
-                                    <span class="text-xs text-slate-400 font-mono">${ac.range} km</span>
-                                </div>
-                                <h4 class="font-bold text-white text-base mt-2">${ac.name}</h4>
-                                <div class="text-xs text-slate-400 mt-1 space-y-0.5">
-                                    <div>Capacité: <strong class="text-slate-200">${ac.capacity} PAX / ${ac.cargo} t (Fret)</strong></div>
-                                    <div>Conso Carburant: <strong class="text-slate-200">${ac.fuelBurn} Kg/h</strong></div>
-                                </div>
+                                <h4 class="font-bold text-white text-base">${ac.name}</h4>
+                                <div class="text-xs text-slate-400 mt-1">Prix: <strong class="text-emerald-400 font-mono">${this.formatMoney(ac.price)}</strong></div>
                             </div>
-                            <div class="space-y-2 pt-2 border-t border-slate-800">
-                                <div class="flex justify-between text-xs">
-                                    <span class="text-slate-400">Prix Neuf:</span>
-                                    <span class="font-bold text-emerald-400 font-mono">${this.formatMoney(ac.price)}</span>
-                                </div>
-                                <div class="flex space-x-2">
-                                    <button onclick="app.buyAircraft('${ac.name}')" class="flex-1 bg-sky-600 hover:bg-sky-500 text-white font-bold py-1.5 rounded-lg text-xs transition shadow cursor-pointer text-center">Acheter Cash</button>
-                                    ${leaseBtn}
-                                </div>
+                            <div class="flex space-x-2">
+                                <button onclick="app.buyAircraft('${ac.name}')" class="flex-1 bg-sky-600 hover:bg-sky-500 text-white font-bold py-1.5 rounded-lg text-xs cursor-pointer">Acheter</button>
                             </div>
                         </div>
                     `;
@@ -1565,144 +1272,60 @@
 
                 const loansContainer = document.getElementById('active-loans-container');
                 loansContainer.innerHTML = '';
-                if (this.activeLoans.length === 0) {
-                    loansContainer.innerHTML = `<div class="col-span-full text-center py-6 text-slate-500 text-xs">Aucun emprunt bancaire en cours.</div>`;
-                } else {
-                    this.activeLoans.forEach(loan => {
-                        const progress = ((loan.totalTicks - loan.ticksLeft) / loan.totalTicks * 100);
-                        loansContainer.innerHTML += `
-                            <div onclick="app.inspectLoan(${loan.id})" class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3 cursor-pointer hover:border-sky-500/50 transition">
-                                <div class="flex justify-between items-center">
-                                    <span class="font-bold text-white text-sm">${loan.title}</span>
-                                    <span class="text-xs font-mono text-emerald-400 font-bold">${this.formatMoney(loan.remainingAmount)} restants</span>
-                                </div>
-                                <div class="flex justify-between text-xs text-slate-400">
-                                    <span>Mensualité/Tick: <strong class="text-slate-200">${this.formatMoney(loan.installment)}</strong></span>
-                                    <span class="text-amber-400 font-bold">Ticks restants: ${loan.ticksLeft}</span>
-                                </div>
-                                <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-slate-800">
-                                    <div class="bg-emerald-500 h-full transition-all duration-300" style="width: ${progress}%"></div>
-                                </div>
-                                <div class="text-[10px] text-sky-400 text-right font-semibold">Cliquer pour voir le détail complet ➔</div>
-                            </div>
-                        `;
-                    });
-                }
+                this.activeLoans.forEach(loan => {
+                    loansContainer.innerHTML += `
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <div class="font-bold text-white text-sm">${loan.title}</div>
+                            <div class="text-xs text-emerald-400 font-mono">${this.formatMoney(loan.remainingAmount)} restants</div>
+                        </div>
+                    `;
+                });
 
                 const fuelTargetSelect = document.getElementById('fuel-target-hub-select');
-                const prevSelectedHub = fuelTargetSelect.value;
                 fuelTargetSelect.innerHTML = '';
-                if (this.company.hubs.length === 0) {
-                    fuelTargetSelect.innerHTML = `<option value="">-- Aucun hub possédé --</option>`;
-                } else {
-                    this.company.hubs.forEach(hCode => {
-                        const city = this.getHubCity(hCode);
-                        const selected = (prevSelectedHub === hCode) ? 'selected' : '';
-                        fuelTargetSelect.innerHTML += `<option value="${hCode}" ${selected}>${hCode} - ${city}</option>`;
-                    });
-                }
+                this.company.hubs.forEach(hCode => {
+                    fuelTargetSelect.innerHTML += `<option value="${hCode}">${hCode}</option>`;
+                });
 
                 const hubInvContainer = document.getElementById('hub-fuel-inventory-container');
                 hubInvContainer.innerHTML = '';
-                if (this.company.hubs.length === 0) {
-                    hubInvContainer.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs">Aucun hub possédé. Achetez un hub dans l'onglet Bureau du CEO.</div>`;
-                } else {
-                    this.company.hubs.forEach(hCode => {
-                        const city = this.getHubCity(hCode);
-                        const stock = this.company.fuelReservesByHub[hCode] || 0;
-                        const maxCap = this.getHubFuelCapacity(hCode);
-                        const pct = Math.min(100, Math.round((stock / maxCap) * 100));
-                        const barColor = pct > 75 ? 'bg-emerald-500' : (pct > 25 ? 'bg-sky-500' : 'bg-amber-500');
-
-                        hubInvContainer.innerHTML += `
-                            <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2">
-                                <div class="flex justify-between items-center">
-                                    <div class="flex items-center space-x-2">
-                                        <span class="bg-sky-950 text-sky-400 font-mono font-bold px-2 py-0.5 rounded text-xs">${hCode}</span>
-                                        <span class="text-xs text-white font-bold">${city}</span>
-                                    </div>
-                                    <span class="text-xs text-emerald-400 font-mono font-bold">${stock.toLocaleString()} Kg / ${maxCap.toLocaleString()} Kg</span>
-                                </div>
-                                <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-slate-800">
-                                    <div class="${barColor} h-full transition-all duration-300" style="width: ${pct}%"></div>
-                                </div>
-                                <div class="flex justify-between text-[10px] text-slate-400">
-                                    <span>Remplissage cuve: <strong class="text-slate-200">${pct}%</strong></span>
-                                    <span class="text-sky-400 font-medium">Disponible pour ravitaillement flotte</span>
-                                </div>
-                            </div>
-                        `;
-                    });
-                }
+                this.company.hubs.forEach(hCode => {
+                    const stock = this.company.fuelReservesByHub[hCode] || 0;
+                    hubInvContainer.innerHTML += `
+                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+                            <span class="font-bold text-sky-400">${hCode}</span>
+                            <span class="text-emerald-400 font-mono">${stock.toLocaleString()} Kg</span>
+                        </div>
+                    `;
+                });
 
                 const relocateSelect = document.getElementById('pilot-relocate-select');
                 relocateSelect.innerHTML = '';
-                if (this.company.hubs.length === 0) {
-                    relocateSelect.innerHTML = `<option value="">-- Aucun hub possédé --</option>`;
-                } else {
-                    this.company.hubs.forEach(hCode => {
-                        relocateSelect.innerHTML += `<option value="${hCode}">${hCode} - ${this.getHubCity(hCode)}</option>`;
-                    });
-                }
-
-                const passportContainer = document.getElementById('passport-container');
-                passportContainer.innerHTML = '';
-                if (this.passportStamps.length === 0) {
-                    passportContainer.innerHTML = `<div class="col-span-full text-center py-6 text-slate-500 text-xs">Aucun tampon dans le passeport pour l'instant.</div>`;
-                } else {
-                    this.passportStamps.forEach(stamp => {
-                        passportContainer.innerHTML += `
-                            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-center space-y-1">
-                                <div class="text-lg font-mono font-extrabold text-sky-400">${stamp.code}</div>
-                                <div class="text-xs font-bold text-white">${stamp.city}</div>
-                                <div class="text-[10px] text-emerald-400 font-semibold">${stamp.visits} visite(s)</div>
-                            </div>
-                        `;
-                    });
-                }
+                this.company.hubs.forEach(hCode => {
+                    relocateSelect.innerHTML += `<option value="${hCode}">${hCode}</option>`;
+                });
 
                 this.saveCompanyData();
             }
 
             renderHubs() {
-                const searchVal = document.getElementById('hub-search-input').value.toLowerCase();
-                const regionVal = document.getElementById('hub-region-select').value;
                 const container = document.getElementById('hubs-grid-container');
                 container.innerHTML = '';
-
-                const filtered = this.hub100List.filter(h => {
-                    const matchRegion = regionVal === 'ALL' || h.region === regionVal;
-                    const matchSearch = h.code.toLowerCase().includes(searchVal) || h.city.toLowerCase().includes(searchVal) || h.country.toLowerCase().includes(searchVal);
-                    return matchRegion && matchSearch;
-                });
-
-                filtered.forEach(hub => {
+                this.hub100List.forEach(hub => {
                     const isAcquired = this.company.hubs.includes(hub.code);
                     container.innerHTML += `
                         <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between space-y-3">
                             <div>
-                                <div class="flex items-center justify-between">
-                                    <span class="bg-sky-950 text-sky-400 font-mono font-bold px-2.5 py-1 rounded-lg border border-slate-800 text-xs">${hub.code}</span>
-                                    <span class="text-xs font-bold text-emerald-400 font-mono">${this.formatMoney(hub.price)}</span>
-                                </div>
+                                <span class="bg-sky-950 text-sky-400 font-mono font-bold px-2.5 py-1 rounded-lg border border-slate-800 text-xs">${hub.code}</span>
                                 <h4 class="font-bold text-white text-sm mt-2">${hub.city} (${hub.country})</h4>
-                                <div class="text-[11px] text-slate-400 mt-2 space-y-0.5 font-mono">
-                                    <div>Continent: <strong class="text-slate-200">${hub.region}</strong></div>
-                                    <div>Capacité Fret: <strong class="text-slate-200">${hub.cargoCap} t</strong> | Kérosène: <strong class="text-slate-200">${hub.fuelCap.toLocaleString()} Kg</strong></div>
-                                </div>
+                                <div class="text-[11px] text-slate-400 mt-1 font-mono">Prix: ${this.formatMoney(hub.price)}</div>
                             </div>
-                            <button onclick="app.buyHub('${hub.code}')" ${isAcquired ? 'disabled' : ''} class="w-full bg-sky-600 hover:bg-sky-500 disabled:bg-slate-800 disabled:text-slate-500 text-white font-bold py-2 rounded-xl text-xs transition shadow flex items-center justify-center space-x-2 cursor-pointer">
-                                <i class="fa-solid fa-building-circle-check"></i>
-                                <span>${isAcquired ? 'Hub Acquis' : 'Acquérir ce Hub'}</span>
+                            <button onclick="app.buyHub('${hub.code}')" ${isAcquired ? 'disabled' : ''} class="w-full bg-sky-600 hover:bg-sky-500 disabled:bg-slate-800 disabled:text-slate-500 text-white font-bold py-2 rounded-xl text-xs cursor-pointer">
+                                ${isAcquired ? 'Hub Acquis' : 'Acquérir ce Hub'}
                             </button>
                         </div>
                     `;
                 });
-            }
-
-            getHubCity(code) {
-                const h = this.hub100List.find(item => item.code === code);
-                return h ? h.city : code;
             }
 
             updateContractSelection(contractId, planeId) {
@@ -1713,36 +1336,32 @@
             acceptContractWithPlane(contractId) {
                 const c = this.availableContracts.find(item => item.id === contractId);
                 if (!c || !c.selectedPlaneId) {
-                    this.showToast("Veuillez assigner un appareil de la flotte à ce contrat.", "error");
+                    this.showToast("Veuillez assigner un appareil à ce contrat.", "error");
                     return;
                 }
                 const plane = this.fleet.find(p => p.id == c.selectedPlaneId);
-                if (plane) {
-                    plane.assignedContractId = c.id;
-                }
+                if (plane) plane.assignedContractId = c.id;
                 this.availableContracts = this.availableContracts.filter(item => item.id !== contractId);
                 this.activeContracts.push(c);
-                this.showToast("Contrat validé et affecté à l'appareil !", "success");
+                this.showToast("Contrat accepté !", "success");
                 this.renderAll();
             }
 
             startFlight(planeId) {
                 const p = this.fleet.find(item => item.id === planeId);
                 if (!p) return;
-
                 const reqFuel = this.getRequiredFuelForFlight(p);
                 const currentHubStock = this.company.fuelReservesByHub[p.location] || 0;
 
                 if (currentHubStock < reqFuel) {
-                    const missing = reqFuel - currentHubStock;
-                    this.openExpressFuelModal(p, missing);
+                    this.showToast("Kérosène insuffisant au Hub pour lancer le vol !", "error");
                     return;
                 }
 
                 this.company.fuelReservesByHub[p.location] -= reqFuel;
                 p.fuelOnBoard = reqFuel;
                 p.status = 'En vol';
-                this.showToast(`Vol ${p.registration} lancé ! ${reqFuel.toLocaleString()} Kg prélevés au Hub ${p.location}.`, 'success');
+                this.showToast(`Vol ${p.registration} lancé !`, "success");
                 this.renderAll();
             }
 
@@ -1750,19 +1369,11 @@
                 const p = this.fleet.find(item => item.id === planeId);
                 if (!p) return;
                 this.landingPlaneId = planeId;
-
                 const contract = this.activeContracts.find(c => c.id === p.assignedContractId);
                 const destHub = contract ? contract.destination : p.location;
 
                 document.getElementById('debrief-plane-reg').innerText = p.registration;
                 document.getElementById('debrief-dest-hub').innerText = destHub;
-
-                const estimatedBurn = Math.round((p.fuelOnBoard || this.getRequiredFuelForFlight(p)) * 0.9);
-                const estimatedRemaining = Math.max(0, (p.fuelOnBoard || this.getRequiredFuelForFlight(p)) - estimatedBurn);
-
-                document.getElementById('debrief-fuel-used').value = estimatedBurn;
-                document.getElementById('debrief-fuel-remaining').value = estimatedRemaining;
-
                 document.getElementById('flight-debrief-modal').classList.remove('hidden');
                 document.getElementById('flight-debrief-modal').classList.add('flex');
             }
@@ -1776,25 +1387,13 @@
             confirmLandingDebrief() {
                 const p = this.fleet.find(item => item.id === this.landingPlaneId);
                 if (!p) return;
-
-                const fuelUsed = parseInt(document.getElementById('debrief-fuel-used').value) || 0;
                 const fuelRemaining = parseInt(document.getElementById('debrief-fuel-remaining').value) || 0;
-                const reintegrate = document.getElementById('debrief-reintegrate').checked;
-
                 const contract = this.activeContracts.find(c => c.id === p.assignedContractId);
                 const destHub = contract ? contract.destination : p.location;
 
                 if (contract) {
                     this.company.cash += contract.reward;
-                    this.showToast(`Contrat "${contract.title}" réussi ! +${this.formatMoney(contract.reward)}`, 'success');
-                    
-                    if (!this.passportStamps.some(s => s.code === destHub)) {
-                        this.passportStamps.push({ code: destHub, city: this.getHubCity(destHub), visits: 1 });
-                    } else {
-                        const stamp = this.passportStamps.find(s => s.code === destHub);
-                        if (stamp) stamp.visits++;
-                    }
-
+                    this.showToast(`Contrat réussi ! +${this.formatMoney(contract.reward)}`, 'success');
                     this.activeContracts = this.activeContracts.filter(c => c.id !== contract.id);
                 }
 
@@ -1803,185 +1402,38 @@
                 p.status = 'Parked';
                 p.assignedContractId = '';
 
-                if (reintegrate && fuelRemaining > 0) {
-                    if (this.company.hubs.includes(destHub)) {
-                        const maxCap = this.getHubFuelCapacity(destHub);
-                        const currentStock = this.company.fuelReservesByHub[destHub] || 0;
-                        const added = Math.min(fuelRemaining, maxCap - currentStock);
-                        this.company.fuelReservesByHub[destHub] = currentStock + added;
-                        p.fuelOnBoard -= added;
-                        this.showToast(`${added.toLocaleString()} Kg réintégrés dans les cuves du Hub ${destHub}.`, 'success');
-                    } else {
-                        this.showToast(`Le Hub ${destHub} ne vous appartient pas : les ${fuelRemaining.toLocaleString()} Kg restent dans les réservoirs de l'avion.`, 'info');
-                    }
-                }
-
                 this.closeDebriefModal();
-                this.renderAll();
-            }
-
-            openExpressFuelModal(plane, missingQty) {
-                this.pendingExpressPlaneId = plane.id;
-                this.pendingExpressNeededFuel = missingQty;
-
-                document.getElementById('express-hub-code').innerText = plane.location;
-                document.getElementById('express-needed-qty').innerText = missingQty.toLocaleString() + ' Kg';
-
-                const sourceSelect = document.getElementById('express-fuel-source');
-                sourceSelect.innerHTML = '';
-
-                sourceSelect.innerHTML += `<option value="SPOT">Achat Spot d'Urgence sur Marché World (+30% surcharge)</option>`;
-
-                this.company.hubs.forEach(hCode => {
-                    if (hCode !== plane.location) {
-                        const stock = this.company.fuelReservesByHub[hCode] || 0;
-                        if (stock >= missingQty) {
-                            sourceSelect.innerHTML += `<option value="${hCode}">Transfert depuis Hub ${hCode} (Stock: ${stock.toLocaleString()} Kg) (+30% logistique)</option>`;
-                        }
-                    }
-                });
-
-                this.updateExpressCost();
-
-                document.getElementById('express-fuel-modal').classList.remove('hidden');
-                document.getElementById('express-fuel-modal').classList.add('flex');
-            }
-
-            closeExpressFuelModal() {
-                document.getElementById('express-fuel-modal').classList.add('hidden');
-                document.getElementById('express-fuel-modal').classList.remove('flex');
-            }
-
-            updateExpressCost() {
-                const effectivePrice = this.company.fuelHedgeActive ? 1.50 : this.currentFuelPrice;
-                const baseCost = this.pendingExpressNeededFuel * effectivePrice;
-                const totalCostWithSurcharge = Math.round(baseCost * 1.30);
-                document.getElementById('express-total-price').innerText = this.formatMoney(totalCostWithSurcharge);
-            }
-
-            confirmExpressFuel() {
-                const source = document.getElementById('express-fuel-source').value;
-                const plane = this.fleet.find(p => p.id === this.pendingExpressPlaneId);
-                if (!plane) return;
-
-                const effectivePrice = this.company.fuelHedgeActive ? 1.50 : this.currentFuelPrice;
-                const baseCost = this.pendingExpressNeededFuel * effectivePrice;
-                const totalCost = Math.round(baseCost * 1.30);
-
-                if (this.company.cash < totalCost) {
-                    this.showToast("Trésorerie insuffisante pour l'avitaillement d'urgence.", "error");
-                    return;
-                }
-
-                if (source === 'SPOT') {
-                    this.company.cash -= totalCost;
-                } else {
-                    this.company.fuelReservesByHub[source] -= this.pendingExpressNeededFuel;
-                    this.company.cash -= Math.round(baseCost * 0.30);
-                }
-
-                this.company.fuelReservesByHub[plane.location] = (this.company.fuelReservesByHub[plane.location] || 0) + this.pendingExpressNeededFuel;
-                
-                this.closeExpressFuelModal();
-                this.showToast("Avitaillement express réussi ! Lancement du vol...", "success");
-                this.startFlight(plane.id);
-            }
-
-            sellAircraft(planeId) {
-                const index = this.fleet.findIndex(p => p.id === planeId);
-                if (index === -1) return;
-                const plane = this.fleet[index];
-                if (plane.status === 'En vol') {
-                    this.showToast("Impossible de vendre un appareil actuellement en vol !", "error");
-                    return;
-                }
-                const resalePrice = this.calculateResaleValue(plane);
-                this.company.cash += resalePrice;
-                this.fleet.splice(index, 1);
-                this.showToast(`Appareil ${plane.registration} revendu sur le marché secondaire pour ${this.formatMoney(resalePrice)} !`, 'success');
-                this.renderAll();
-            }
-
-            returnLeasedAircraft(planeId) {
-                const index = this.fleet.findIndex(p => p.id === planeId);
-                if (index === -1) return;
-                const plane = this.fleet[index];
-                if (plane.status === 'En vol') {
-                    this.showToast("Impossible de rendre un appareil en vol !", "error");
-                    return;
-                }
-                this.fleet.splice(index, 1);
-                this.showToast(`Contrat de leasing pour ${plane.registration} résilié. L'appareil a été restitué.`, "info");
                 this.renderAll();
             }
 
             updateMemberRole(memberId, newRole) {
                 const member = this.team.find(m => m.id === memberId);
-                if (!member) return;
-
-                if (newRole !== 'Pilote') {
-                    const existing = this.team.find(m => m.role === newRole && m.id !== memberId);
-                    if (existing) {
-                        this.showToast(`Attention: Il ne peut y avoir qu'un seul ${newRole} dans la direction !`, 'error');
-                        this.renderAll();
-                        return;
-                    }
-                }
-                member.role = newRole;
-                if (member.name === this.playerName) {
-                    this.playerRole = newRole;
-                    document.getElementById('header-player-role').innerText = newRole;
-                }
-                this.showToast("Rôle mis à jour avec succès !", "success");
+                if (member) member.role = newRole;
                 this.renderAll();
             }
 
             hirePilot() {
                 const nameInput = document.getElementById('new-pilot-name');
                 const name = nameInput.value.trim();
-                if (!name) {
-                    this.showToast("Veuillez saisir un nom de pilote.", "error");
-                    return;
-                }
-                if (this.company.cash < 50000) {
-                    this.showToast("Trésorerie insuffisante (50 000 € requis).", "error");
-                    return;
-                }
+                if (!name || this.company.cash < 50000) return;
                 this.company.cash -= 50000;
                 this.team.push({ id: Date.now(), name: name, role: 'Pilote', salary: 8000, exp: 100 });
                 nameInput.value = '';
-                this.showToast("Nouveau Pilote recruté avec succès !", "success");
                 this.renderAll();
             }
 
             buyHub(code) {
                 const hub = this.hub100List.find(h => h.code === code);
-                if (!hub) return;
-                if (this.company.cash < hub.price) {
-                    this.showToast("Trésorerie insuffisante pour cet achat immobilier.", "error");
-                    return;
-                }
+                if (!hub || this.company.cash < hub.price) return;
                 this.company.cash -= hub.price;
                 this.company.hubs.push(hub.code);
-                if (!this.company.fuelReservesByHub[hub.code]) {
-                    this.company.fuelReservesByHub[hub.code] = 10000;
-                }
-                this.passportStamps.push({ code: hub.code, city: hub.city, visits: 1 });
-                this.showToast(`Hub ${hub.city} (${hub.code}) débloqué !`, "success");
+                this.company.fuelReservesByHub[hub.code] = 50000;
                 this.renderAll();
             }
 
             buyAircraft(acName) {
                 const ac = this.aircraftCatalog.find(a => a.name === acName);
-                if (!ac) return;
-                if (this.company.hubs.length === 0) {
-                    this.showToast("Vous devez posséder au moins un Hub pour stationner un nouvel appareil !", "error");
-                    return;
-                }
-                if (this.company.cash < ac.price) {
-                    this.showToast("Trésorerie insuffisante pour acquérir cet appareil neuf.", "error");
-                    return;
-                }
+                if (!ac || this.company.cash < ac.price || this.company.hubs.length === 0) return;
                 this.company.cash -= ac.price;
                 const reg = 'F-' + Math.random().toString(36).substring(2, 6).toUpperCase();
                 this.fleet.push({
@@ -1989,113 +1441,43 @@
                     registration: reg,
                     name: ac.name,
                     capacity: ac.capacity,
-                    cargo: ac.cargo,
                     location: this.company.hubs[0],
                     fuelOnBoard: 0,
                     status: 'Parked',
-                    assignedPilot: '',
                     assignedContractId: '',
                     flightHours: 0,
                     originalPrice: ac.price,
-                    isLeased: false,
-                    leaseFee: 0
+                    isLeased: false
                 });
-                this.showToast(`Appareil ${ac.name} (${reg}) acheté neuf avec succès !`, "success");
-                this.renderAll();
-            }
-
-            leaseAircraft(acName) {
-                const ac = this.aircraftCatalog.find(a => a.name === acName);
-                if (!ac) return;
-                if (this.company.hubs.length === 0) {
-                    this.showToast("Vous devez posséder au moins un Hub pour louer un appareil !", "error");
-                    return;
-                }
-                const leaseFee = Math.round(ac.price * 0.02);
-                if (this.company.cash < leaseFee) {
-                    this.showToast("Trésorerie insuffisante pour régler la 1ère mensualité de leasing.", "error");
-                    return;
-                }
-                this.company.cash -= leaseFee;
-                const reg = 'F-L' + Math.random().toString(36).substring(2, 5).toUpperCase();
-                this.fleet.push({
-                    id: Date.now(),
-                    registration: reg,
-                    name: ac.name,
-                    capacity: ac.capacity,
-                    cargo: ac.cargo,
-                    location: this.company.hubs[0],
-                    fuelOnBoard: 0,
-                    status: 'Parked',
-                    assignedPilot: '',
-                    assignedContractId: '',
-                    flightHours: 0,
-                    originalPrice: ac.price,
-                    isLeased: true,
-                    leaseFee: leaseFee
-                });
-                this.showToast(`Appareil ${ac.name} (${reg}) pris en leasing (${this.formatMoney(leaseFee)}/tick) !`, "success");
                 this.renderAll();
             }
 
             toggleFuelHedge() {
-                if (this.company.cash < 200000) {
-                    this.showToast("Trésorerie insuffisante pour souscrire le Hedging (200 000 €).", "error");
-                    return;
-                }
+                if (this.company.cash < 200000) return;
                 this.company.cash -= 200000;
                 this.company.fuelHedgeActive = true;
-                this.showToast("Contrat de couverture kérosène activé par le PDG.", "success");
                 this.renderAll();
             }
 
             updateFuelSlider(val) {
                 this.fuelPurchaseQty = parseInt(val);
                 document.getElementById('fuel-qty-label').innerText = this.fuelPurchaseQty.toLocaleString() + ' Kg';
-                const effectivePrice = this.company.fuelHedgeActive ? 1.50 : this.currentFuelPrice;
-                const cost = this.fuelPurchaseQty * effectivePrice;
+                const cost = this.fuelPurchaseQty * (this.company.fuelHedgeActive ? 1.50 : this.currentFuelPrice);
                 document.getElementById('fuel-total-cost').innerText = this.formatMoney(cost);
             }
 
             buyFuelSpot() {
                 const targetHub = document.getElementById('fuel-target-hub-select').value;
-                if (!targetHub) {
-                    this.showToast("Veuillez sélectionner un hub cible.", "error");
-                    return;
-                }
-                const effectivePrice = this.company.fuelHedgeActive ? 1.50 : this.currentFuelPrice;
-                const cost = this.fuelPurchaseQty * effectivePrice;
-                if (this.company.cash < cost) {
-                    this.showToast("Trésorerie insuffisante pour le carburant.", "error");
-                    return;
-                }
-
-                const maxCap = this.getHubFuelCapacity(targetHub);
-                const currentStock = this.company.fuelReservesByHub[targetHub] || 0;
-                if (currentStock + this.fuelPurchaseQty > maxCap) {
-                    this.showToast(`Capacité maximale des cuves du hub ${targetHub} dépassée (${maxCap.toLocaleString()} Kg max) !`, "error");
-                    return;
-                }
-
+                const cost = this.fuelPurchaseQty * (this.company.fuelHedgeActive ? 1.50 : this.currentFuelPrice);
+                if (this.company.cash < cost || !targetHub) return;
                 this.company.cash -= cost;
-                this.company.fuelReservesByHub[targetHub] = currentStock + this.fuelPurchaseQty;
-                this.showToast(`${this.fuelPurchaseQty.toLocaleString()} Kg de kérosène achetés et stockés au hub ${targetHub}.`, "success");
+                this.company.fuelReservesByHub[targetHub] = (this.company.fuelReservesByHub[targetHub] || 0) + this.fuelPurchaseQty;
                 this.renderAll();
             }
 
             relocatePilot() {
-                const select = document.getElementById('pilot-relocate-select');
-                const target = select.value;
-                if (!target) {
-                    this.showToast("Aucun hub disponible.", "error");
-                    return;
-                }
-                if (this.company.cash < 1500) {
-                    this.showToast("Trésorerie insuffisante pour la relocalisation.", "error");
-                    return;
-                }
+                if (this.company.cash < 1500) return;
                 this.company.cash -= 1500;
-                this.showToast(`Pilote relocalisé avec succès vers ${target}.`, "success");
                 this.renderAll();
             }
 
@@ -2112,46 +1494,18 @@
             confirmLoan() {
                 const amount = parseInt(document.getElementById('loan-amount-select').value);
                 const ticks = parseInt(document.getElementById('loan-term-select').value);
-
-                let interestRate = 0.05;
-                if (ticks === 10) interestRate = 0.12;
-                else if (ticks === 20) interestRate = 0.25;
-                else if (ticks === 30) interestRate = 0.40;
-
-                const totalAmount = Math.round(amount * (1 + interestRate));
-                const installment = Math.round(totalAmount / ticks);
-
+                const total = Math.round(amount * 1.15);
                 this.company.cash += amount;
                 this.activeLoans.push({
                     id: Date.now(),
-                    title: `Emprunt ${this.formatMoney(amount)} (${ticks} ticks)`,
-                    remainingAmount: totalAmount,
-                    installment: installment,
+                    title: `Emprunt ${this.formatMoney(amount)}`,
+                    remainingAmount: total,
+                    installment: Math.round(total / ticks),
                     ticksLeft: ticks,
-                    totalTicks: ticks,
-                    interestRate: (interestRate * 100).toFixed(1)
+                    totalTicks: ticks
                 });
                 this.closeLoanModal();
-                this.showToast("Emprunt contracté et immédiatement crédité.", "success");
                 this.renderAll();
-            }
-
-            inspectLoan(loanId) {
-                const loan = this.activeLoans.find(l => l.id === loanId);
-                if (!loan) return;
-                this.inspectedLoan = loan;
-                document.getElementById('inspect-loan-title').innerText = loan.title;
-                document.getElementById('inspect-loan-remaining').innerText = this.formatMoney(loan.remainingAmount);
-                document.getElementById('inspect-loan-installment').innerText = this.formatMoney(loan.installment);
-                document.getElementById('inspect-loan-ticks').innerText = loan.ticksLeft + ' / ' + loan.totalTicks;
-                
-                const rateEl = document.getElementById('inspect-loan-rate');
-                if (rateEl) {
-                    rateEl.innerText = (loan.interestRate || '10.0') + '% Global';
-                }
-
-                document.getElementById('loan-detail-modal').classList.remove('hidden');
-                document.getElementById('loan-detail-modal').classList.add('flex');
             }
 
             closeLoanDetailModal() {
