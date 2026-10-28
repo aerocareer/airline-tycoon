@@ -21,7 +21,7 @@ Le jeu intègre un système de progression en temps réel basé sur l'horloge sy
 - **Capital de départ :** Chaque nouvelle compagnie créée commence son activité avec un capital initial de **4 000 000 €**.
 - **Structure financière complète :** Suivi en temps réel de la trésorerie, de la valeur Argus de la flotte, du ratio d'endettement, du fonds de roulement (FRNG) et d'un bilan comptable actif/passif détaillé dans le bureau du CFO.
 
-### 🌐 3. Expansion Géographique & End-Game (100 Hubs)
+### 🌐 3. Expansion Géographique & End-Game (100 Hubs (WIP))
 Le marché mondial propose une sélection de hubs internationaux dotés de capacités de fret et de stockage de kérosène propres :
 - **Démarrage régional :** Démarrez avec des plateformes régionales plus abordables (ex: Bourges à 1,8M €, Chambéry à 2,5M € ou Nice à 2,2M €).
 - **Objectifs End-Game :** Investissez les plus grandes capitales mondiales pour asseoir votre suprématie, telles que **Paris-CDG (25 000 000 €)** ou **New York-JFK (30 000 000 €)**.
