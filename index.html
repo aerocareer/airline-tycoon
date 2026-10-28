@@ -89,7 +89,7 @@
             <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-[11px] font-semibold">
                 <button onclick="app.switchAuthMode('create')" id="auth-tab-create" class="flex-1 py-2.5 rounded-lg text-sky-400 bg-slate-900 border border-slate-700 transition cursor-pointer">Créer</button>
                 <button onclick="app.switchAuthMode('join')" id="auth-tab-join" class="flex-1 py-2.5 rounded-lg text-slate-400 transition cursor-pointer">Rejoindre</button>
-                <button onclick="app.switchAuthMode('manage')" id="auth-tab-manage" class="flex-1 py-2.5 rounded-lg text-slate-400 transition cursor-pointer">Gérer / Supprimer</button>
+                <button onclick="app.switchAuthMode('manage')" id="auth-tab-manage" class="flex-1 py-2.5 rounded-lg text-slate-400 transition cursor-pointer">Gérer / Reconnexion</button>
             </div>
 
             <!-- FORMULAIRE CRÉATION -->
@@ -148,9 +148,9 @@
                 </button>
             </div>
 
-            <!-- SECTION GÉRER / SUPPRIMER DES ENTREPRISES -->
+            <!-- SECTION GÉRER / RECONNEXION RAPIDE -->
             <div id="auth-form-manage" class="space-y-4 text-xs hidden-tab">
-                <p class="text-slate-400 text-xs">Voici la liste de vos sessions enregistrées sur cet appareil :</p>
+                <p class="text-slate-400 text-xs">Vos compagnies enregistrées sur cet appareil :</p>
                 <div class="space-y-2 max-h-56 overflow-y-auto pr-1" id="saved-companies-list-container"></div>
             </div>
         </div>
@@ -246,7 +246,7 @@
             </div>
             <div class="p-3 border-t border-slate-800 bg-slate-950/40 rounded-xl text-xs text-slate-500 space-y-1">
                 <div class="flex justify-between"><span>Cloud Firestore:</span> <span class="text-emerald-400 font-mono">Connecté (Live)</span></div>
-                <div class="flex justify-between"><span>Version:</span> <span class="text-sky-400 font-mono">5.9.10 Debrief Escale</span></div>
+                <div class="flex justify-between"><span>Version:</span> <span class="text-sky-400 font-mono">6.1.0 Ravitaillement Intelligent</span></div>
             </div>
         </nav>
 
@@ -258,7 +258,7 @@
                 <div class="flex justify-between items-center">
                     <div>
                         <h2 class="text-2xl font-extrabold text-white tracking-tight">Tableau de Bord Général</h2>
-                        <p class="text-sm text-slate-400">Contrats géolocalisés avec escales et ravitaillement asynchrone.</p>
+                        <p class="text-sm text-slate-400">Contrats géolocalisés avec escales et ravitaillement intelligent.</p>
                     </div>
                 </div>
 
@@ -326,7 +326,7 @@
                             <thead>
                                 <tr class="border-b border-slate-800 text-slate-400 text-xs uppercase font-semibold">
                                     <th class="pb-3 px-3">Immatriculation & Modèle</th>
-                                    <th class="pb-3 px-3">Position & Réservoirs Avion (Kg)</th>
+                                    <th class="pb-3 px-3">Position & Réservoir de l'Avion</th>
                                     <th class="pb-3 px-3">Heures de Vol (Usure)</th>
                                     <th class="pb-3 px-3">Valeur Argus / Loyer</th>
                                     <th class="pb-3 px-3">Statut & Contrat</th>
@@ -344,7 +344,7 @@
                 <div class="flex justify-between items-center">
                     <div>
                         <h2 class="text-2xl font-extrabold text-white tracking-tight">Bureau du PDG (CEO) & Stratégie</h2>
-                        <p class="text-sm text-slate-400">Expansion du réseau mondial des 100 Hubs internationaux.</p>
+                        <p class="text-sm text-slate-400">Expansion du réseau mondial et gestion des effectifs.</p>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -352,8 +352,8 @@
                         <h3 class="text-lg font-bold text-white flex items-center space-x-2">
                             <i class="fa-solid fa-users-gear text-sky-400"></i><span>Gestion des Postes & Équipe</span>
                         </h3>
-                        <p class="text-xs text-slate-400">Rôles exécutifs uniques (1 CEO, 1 CFO, 1 CLO). Pilotes illimités !</p>
-                        <div class="space-y-3" id="team-management-container"></div>
+                        <p class="text-xs text-slate-400">Rôles exécutifs uniques (1 CEO, 1 CFO, 1 CLO). Vous pouvez virer les doublons ci-dessous.</p>
+                        <div class="space-y-3 max-h-60 overflow-y-auto pr-1" id="team-management-container"></div>
                         <div class="pt-3 border-t border-slate-800 space-y-2">
                             <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Recruter un nouveau Pilote</h4>
                             <input type="text" id="new-pilot-name" placeholder="Nom du Pilote..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-sky-500">
@@ -395,7 +395,7 @@
                 <div class="flex justify-between items-center">
                     <div>
                         <h2 class="text-2xl font-extrabold text-white tracking-tight">Bureau du Trésorier (CFO) & Bilan Comptable</h2>
-                        <p class="text-sm text-slate-400">Supervision financière et bilan comptable en temps réel.</p>
+                        <p class="text-sm text-slate-400">Supervision financière et flux de trésorerie à ce tick.</p>
                     </div>
                 </div>
                 <div class="glass-card p-5 rounded-2xl shadow-xl space-y-6 border border-emerald-500/20">
@@ -405,46 +405,49 @@
                                 <i class="fa-solid fa-file-invoice-dollar"></i>
                             </div>
                             <div>
-                                <h3 class="text-lg font-bold text-white">Bilan Comptable & Structure Financière</h3>
+                                <h3 class="text-lg font-bold text-white">Bilan Comptable & Flux Financiers</h3>
                                 <p class="text-xs text-slate-400">Situation arrêtée au Tick #<span id="balance-sheet-tick">1</span></p>
                             </div>
                         </div>
-                        <div class="text-right font-mono">
-                            <div class="text-[10px] text-slate-400 uppercase font-semibold">Total Actif Net / Passif Net</div>
-                            <div class="text-lg font-extrabold text-emerald-400" id="cfo-total-assets">0 €</div>
-                        </div>
                     </div>
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- COLONNE 1: ACTIF / PATRIMOINE -->
                         <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
                             <div class="flex justify-between items-center border-b border-slate-800 pb-2">
                                 <span class="font-extrabold text-sky-400 text-sm uppercase tracking-wider flex items-center space-x-2">
-                                    <i class="fa-solid fa-circle-arrow-down text-sky-400"></i><span>Actif (Patrimoine)</span>
+                                    <i class="fa-solid fa-circle-arrow-down text-sky-400"></i><span>Actif / Patrimoine</span>
                                 </span>
                             </div>
                             <div class="space-y-2 text-xs font-mono">
                                 <div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Trésorerie / Cash</span><strong class="text-emerald-400" id="asset-cash">0 €</strong></div>
                                 <div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Parc Aérien (Argus)</span><strong class="text-slate-100" id="asset-fleet">0 €</strong></div>
-                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Stocks Kérosène</span><strong class="text-slate-100" id="asset-fuel">0 €</strong></div>
-                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Immobilisations Hubs</span><strong class="text-slate-100" id="asset-hubs">0 €</strong></div>
-                            </div>
-                            <div class="pt-2 border-t-2 border-slate-800 flex justify-between items-center text-sm font-bold">
-                                <span class="text-slate-200 uppercase">Total Actif</span><span class="text-sky-400 font-mono text-base" id="total-asset-val">0 €</span>
                             </div>
                         </div>
+
+                        <!-- COLONNE 2: PASSIF & CHARGES -->
                         <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
                             <div class="flex justify-between items-center border-b border-slate-800 pb-2">
                                 <span class="font-extrabold text-amber-400 text-sm uppercase tracking-wider flex items-center space-x-2">
-                                    <i class="fa-solid fa-circle-arrow-up text-amber-400"></i><span>Passif (Dettes & Capitaux)</span>
+                                    <i class="fa-solid fa-circle-arrow-up text-amber-400"></i><span>Dettes & Charges</span>
                                 </span>
                             </div>
                             <div class="space-y-2 text-xs font-mono">
-                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Capital Social</span><strong class="text-slate-100">4 000 000 €</strong></div>
                                 <div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Dettes Bancaires</span><strong class="text-rose-400" id="liability-loans">0 €</strong></div>
-                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Résultat Net Cumulé</span><strong class="text-emerald-400" id="liability-equity">0 €</strong></div>
-                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Charges Prochain Tick</span><strong class="text-slate-400" id="liability-salaries">0 €</strong></div>
+                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Charges du Prochain Tick</span><strong class="text-amber-400" id="liability-salaries">0 €</strong></div>
+                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Total Prévu Prochain Tick</span><strong class="text-sky-400" id="liability-next-total">0 €</strong></div>
                             </div>
-                            <div class="pt-2 border-t-2 border-slate-800 flex justify-between items-center text-sm font-bold">
-                                <span class="text-slate-200 uppercase">Total Passif</span><span class="text-amber-400 font-mono text-base" id="total-liability-val">0 €</span>
+                        </div>
+
+                        <!-- COLONNE 3: ACTIVITÉ À CE TICK -->
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                                <span class="font-extrabold text-emerald-400 text-sm uppercase tracking-wider flex items-center space-x-2">
+                                    <i class="fa-solid fa-chart-line text-emerald-400"></i><span>Activité à ce Tick</span>
+                                </span>
+                            </div>
+                            <div class="space-y-2 text-xs font-mono">
+                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Contrats Effectués à ce Tick</span><strong class="text-sky-400" id="tick-contracts-count">0</strong></div>
+                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Gagné à ce Tick</span><strong class="text-emerald-400" id="tick-earned-amount">0 €</strong></div>
                             </div>
                         </div>
                     </div>
@@ -473,7 +476,7 @@
                 <div class="flex justify-between items-center">
                     <div>
                         <h2 class="text-2xl font-extrabold text-white tracking-tight">Terminal Logistique (CLO)</h2>
-                        <p class="text-sm text-slate-400">Ravitaillement carburant et gestion des stocks par hub.</p>
+                        <p class="text-sm text-slate-400">Ravitaillement carburant et gestion des capacités par hub.</p>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -505,7 +508,7 @@
                     </div>
                     <div class="glass-card p-5 rounded-2xl shadow-xl space-y-4">
                         <h3 class="text-lg font-bold text-white flex items-center space-x-2">
-                            <i class="fa-solid fa-warehouse text-indigo-400"></i><span>Stocks de Kérosène par Hub (Kg)</span>
+                            <i class="fa-solid fa-warehouse text-indigo-400"></i><span>Stocks & Capacité des Cuves par Hub (Kg)</span>
                         </h3>
                         <div class="space-y-3 max-h-[320px] overflow-y-auto pr-1" id="hub-fuel-inventory-container"></div>
                     </div>
@@ -517,7 +520,7 @@
                 <div class="flex justify-between items-center">
                     <div>
                         <h2 class="text-2xl font-extrabold text-white tracking-tight">Carnet de Vol & Passeport</h2>
-                        <p class="text-sm text-slate-400">Relocalisation personnelle, tampons OACI et contrats assignés.</p>
+                        <p class="text-sm text-slate-400">Relocalisation personnelle et contrats assignés.</p>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -528,7 +531,7 @@
                         <div class="space-y-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
                             <p class="text-xs text-slate-400">Déplacez votre avatar dans une nouvelle ville pour générer de nouveaux contrats sur place.</p>
                             <div>
-                                <label class="block text-xs text-slate-400 mb-1">Destination (OACI ou n'importe quel Hub/Aéroport)</label>
+                                <label class="block text-xs text-slate-400 mb-1">Destination (OACI / Hub)</label>
                                 <select id="pilot-relocate-select" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-sky-500"></select>
                             </div>
                             <button onclick="app.relocatePlayer()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-2 rounded-xl text-xs transition shadow cursor-pointer">Se Relocaliser (1 500 €)</button>
@@ -536,17 +539,10 @@
                     </div>
                     <div class="lg:col-span-2 glass-card p-5 rounded-2xl shadow-xl space-y-4">
                         <h3 class="text-lg font-bold text-white flex items-center space-x-2">
-                            <i class="fa-solid fa-passport text-amber-400"></i><span>Contrats Actifs & Tampons Passeport OACI</span>
+                            <i class="fa-solid fa-file-contract text-amber-400"></i><span>Contrats Actifs Assignés</span>
                         </h3>
                         <div class="space-y-4">
-                            <div>
-                                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Contrats assignés à vos appareils / pilotes</h4>
-                                <div class="space-y-2 max-h-48 overflow-y-auto pr-1" id="pilot-active-contracts-container"></div>
-                            </div>
-                            <div class="pt-2 border-t border-slate-800">
-                                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Tampons de Visites</h4>
-                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="passport-container"></div>
-                            </div>
+                            <div class="space-y-2 max-h-60 overflow-y-auto pr-1" id="pilot-active-contracts-container"></div>
                         </div>
                     </div>
                 </div>
@@ -554,28 +550,28 @@
         </main>
     </div>
 
-    <!-- MODALS -->
+    <!-- MODAL DÉBRIEFING / ATTERRISSAGE -->
     <div id="flight-debrief-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
             <h3 class="text-lg font-bold text-white flex items-center space-x-2"><i class="fa-solid fa-plane-arrival text-sky-400"></i><span>Débriefing de Fin de Vol</span></h3>
-            <p class="text-xs text-slate-300">Enregistrez les masses pour <strong id="debrief-plane-reg" class="text-sky-400"></strong> à l'arrivée à <strong id="debrief-dest-hub" class="text-emerald-400"></strong>.</p>
+            <p class="text-xs text-slate-300">Enregistrez les paramètres pour <strong id="debrief-plane-reg" class="text-sky-400"></strong> à l'arrivée à <strong id="debrief-dest-hub" class="text-emerald-400"></strong>.</p>
             <div class="space-y-3 bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs">
                 <div>
-                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Carburant Réel Utilisé (Kg) :</label>
-                    <input type="number" id="debrief-fuel-used" value="2500" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-sky-500">
+                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Heures de Vol Effectuées :</label>
+                    <input type="number" id="debrief-flight-hours" value="2" step="0.5" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-sky-500">
                 </div>
                 <div>
-                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Carburant Restant à Bord (Kg) :</label>
-                    <input type="number" id="debrief-fuel-remaining" value="1000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-sky-500">
+                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Carburant Utilisé (Kg) :</label>
+                    <input type="number" id="debrief-fuel-used" value="1500" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-sky-500">
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Carburant Restant dans les Réservoirs (Kg) :</label>
+                    <input type="number" id="debrief-fuel-remaining" value="500" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-sky-500">
                 </div>
                 <div class="space-y-2 pt-2 border-t border-slate-800">
                     <div class="flex items-center space-x-2">
                         <input type="checkbox" id="debrief-is-stopover" class="w-4 h-4 accent-sky-500 rounded cursor-pointer">
                         <label for="debrief-is-stopover" class="text-sky-400 font-bold cursor-pointer">C'est une escale intermédiaire (Met le contrat en pause)</label>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <input type="checkbox" id="debrief-reintegrate" checked class="w-4 h-4 accent-sky-500 rounded cursor-pointer">
-                        <label for="debrief-reintegrate" class="text-slate-300 cursor-pointer">Réintégrer le carburant restant dans les stocks du Hub d'arrivée</label>
                     </div>
                 </div>
             </div>
@@ -586,6 +582,44 @@
         </div>
     </div>
 
+    <!-- MODAL DÉPART / BESOIN CARBURANT -->
+    <div id="flight-fuel-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <h3 class="text-lg font-bold text-white flex items-center space-x-2"><i class="fa-solid fa-gas-pump text-sky-400"></i><span>Préparation du Carburant — Décollage</span></h3>
+            <p class="text-xs text-slate-300">Appareil : <strong id="fuel-modal-plane-reg" class="text-sky-400"></strong> | Actuellement à bord : <strong id="fuel-modal-onboard" class="text-emerald-400"></strong> Kg</p>
+            <div class="space-y-3 bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs">
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Combien de carburant as-tu besoin pour ce vol (Kg) ? :</label>
+                    <input type="number" id="flight-needed-fuel-input" value="3000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-sky-500">
+                    <p class="text-[10px] text-slate-500 mt-1">Si le réservoir contient déjà assez, rien n'est prélevé. Sinon, la différence est prise sur le Hub (ou achetée au spot).</p>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 pt-2">
+                <button onclick="app.closeFlightFuelModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">Annuler</button>
+                <button onclick="app.confirmStartFlightWithFuel()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow cursor-pointer">Confirmer & Décoller</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DÉPART VOL LIBRE -->
+    <div id="free-flight-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <h3 class="text-lg font-bold text-white flex items-center space-x-2"><i class="fa-solid fa-plane-departure text-sky-400"></i><span>Lancer un Vol Libre (Sans Contrat)</span></h3>
+            <p class="text-xs text-slate-300">Sélectionnez la destination de l'appareil <strong id="free-flight-plane-reg" class="text-sky-400"></strong>.</p>
+            <div class="space-y-3 bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs">
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Aéroport de Destination :</label>
+                    <select id="free-flight-dest-select" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-sky-500"></select>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 pt-2">
+                <button onclick="app.closeFreeFlightModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">Annuler</button>
+                <button onclick="app.proceedToFuelModal()" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow cursor-pointer">Suivant (Carburant)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EMPRUNT -->
     <div id="loan-create-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
             <h3 class="text-lg font-bold text-white">Souscrire un Emprunt Bancaire</h3>
@@ -616,6 +650,8 @@
                 this.fuelPurchaseQty = 10000;
                 this.currentFuelPrice = 1.85;
                 this.landingPlaneId = null;
+                this.freeFlightPlaneId = null;
+                this.pendingFlightData = null;
 
                 this.playerName = '';
                 this.companyCode = '';
@@ -634,7 +670,9 @@
                     lastTickDate: new Date().toDateString(),
                     hubs: ['LFLB'],
                     fuelReservesByHub: { 'LFLB': 100000 },
-                    fuelHedgeActive: false
+                    fuelHedgeActive: false,
+                    tickContractsCompleted: 0,
+                    tickEarnedAmount: 0
                 };
 
                 this.aircraftCatalog = [
@@ -712,9 +750,20 @@
                 this.activeContracts = [];
                 this.availableContracts = [];
                 this.activeLoans = [];
-                this.passportStamps = [];
 
                 this.checkStoredAuth();
+            }
+
+            saveSessionToHistory(pName, cCode, cName) {
+                let savedList = JSON.parse(localStorage.getItem('aerocareer_saved_sessions') || '[]');
+                const existingIndex = savedList.findIndex(s => s.code === cCode && s.playerName === pName);
+                const sessionObj = { playerName: pName, code: cCode, companyName: cName, lastUsed: Date.now() };
+                if (existingIndex >= 0) {
+                    savedList[existingIndex] = sessionObj;
+                } else {
+                    savedList.push(sessionObj);
+                }
+                localStorage.setItem('aerocareer_saved_sessions', JSON.stringify(savedList));
             }
 
             generateUniqueCompanyCode(companyName) {
@@ -785,20 +834,51 @@
             renderSavedCompaniesList() {
                 const container = document.getElementById('saved-companies-list-container');
                 container.innerHTML = '';
-                const savedPlayer = localStorage.getItem('aerocareer_player_name');
-                const savedCode = localStorage.getItem('aerocareer_company_code');
-                if (savedCode) {
-                    container.innerHTML = `
+                const savedList = JSON.parse(localStorage.getItem('aerocareer_saved_sessions') || '[]');
+                
+                if (savedList.length === 0) {
+                    container.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs">Aucune session enregistrée sur cet appareil.</div>`;
+                    return;
+                }
+
+                savedList.forEach((s, idx) => {
+                    container.innerHTML += `
                         <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex items-center justify-between">
                             <div>
-                                <div class="font-bold text-white text-xs">${savedPlayer} (${savedCode})</div>
+                                <div class="font-bold text-white text-xs">${s.companyName || 'AeroCareer'}</div>
+                                <div class="text-[10px] text-sky-400 font-mono">Joueur: ${s.playerName} | Code: ${s.code}</div>
                             </div>
-                            <button onclick="app.logout()" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer">Se Déconnecter</button>
+                            <div class="flex space-x-2">
+                                <button onclick="app.quickReconnect('${s.playerName}', '${s.code}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer">Se Reconnecter</button>
+                                <button onclick="app.removeSavedSession(${idx})" class="bg-slate-800 hover:bg-rose-900 text-rose-400 px-2 py-1.5 rounded-lg text-xs transition cursor-pointer" title="Supprimer la clé locale"><i class="fa-solid fa-trash"></i></button>
+                            </div>
                         </div>
                     `;
+                });
+            }
+
+            async quickReconnect(pName, cCode) {
+                this.playerName = pName;
+                this.companyCode = cCode;
+                const loaded = await this.loadCompanyData();
+                if (loaded) {
+                    localStorage.setItem('aerocareer_player_name', this.playerName);
+                    localStorage.setItem('aerocareer_company_code', this.companyCode);
+                    this.saveSessionToHistory(pName, cCode, this.company.name);
+                    document.getElementById('auth-modal').classList.add('hidden');
+                    document.getElementById('auth-modal').classList.remove('flex');
+                    this.showToast(`Reconnecté à ${this.company.name} !`, 'success');
+                    this.init();
                 } else {
-                    container.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs">Aucune session active sur cet appareil.</div>`;
+                    this.showToast("Impossible de trouver cette compagnie sur le Cloud.", "error");
                 }
+            }
+
+            removeSavedSession(idx) {
+                let savedList = JSON.parse(localStorage.getItem('aerocareer_saved_sessions') || '[]');
+                savedList.splice(idx, 1);
+                localStorage.setItem('aerocareer_saved_sessions', JSON.stringify(savedList));
+                this.renderSavedCompaniesList();
             }
 
             getAvailableOrigins() {
@@ -932,12 +1012,13 @@
                     lastTickDate: new Date().toDateString(),
                     hubs: [hubObj.code],
                     fuelReservesByHub: { [hubObj.code]: 100000 },
-                    fuelHedgeActive: false
+                    fuelHedgeActive: false,
+                    tickContractsCompleted: 0,
+                    tickEarnedAmount: 0
                 };
                 this.fleet = [];
                 this.activeContracts = [];
                 this.activeLoans = [];
-                this.passportStamps = [];
                 
                 this.team = [
                     { id: Date.now(), name: pName, role: 'CEO', salary: 15000, exp: 100, location: hubObj.code }
@@ -950,6 +1031,7 @@
 
                 localStorage.setItem('aerocareer_player_name', this.playerName);
                 localStorage.setItem('aerocareer_company_code', this.companyCode);
+                this.saveSessionToHistory(pName, cCode, cName);
 
                 document.getElementById('auth-modal').classList.add('hidden');
                 document.getElementById('auth-modal').classList.remove('flex');
@@ -989,6 +1071,7 @@
                 await this.saveCompanyData();
                 localStorage.setItem('aerocareer_player_name', this.playerName);
                 localStorage.setItem('aerocareer_company_code', this.companyCode);
+                this.saveSessionToHistory(pName, cCode, this.company.name);
 
                 document.getElementById('auth-modal').classList.add('hidden');
                 document.getElementById('auth-modal').classList.remove('flex');
@@ -1011,7 +1094,6 @@
                     activeContracts: this.activeContracts,
                     availableContracts: this.availableContracts,
                     activeLoans: this.activeLoans,
-                    passportStamps: this.passportStamps,
                     lastUpdated: Date.now()
                 };
                 this._lastRemoteUpdate = state.lastUpdated;
@@ -1047,7 +1129,6 @@
                 this.activeContracts = data.activeContracts || this.activeContracts;
                 this.availableContracts = data.availableContracts || this.availableContracts;
                 this.activeLoans = data.activeLoans || this.activeLoans;
-                this.passportStamps = data.passportStamps || this.passportStamps;
 
                 const me = this.team.find(m => m.name === this.playerName);
                 if (me) {
@@ -1113,6 +1194,8 @@
 
             advanceTick() {
                 this.company.tickCount++;
+                this.company.tickContractsCompleted = 0;
+                this.company.tickEarnedAmount = 0;
 
                 this.activeLoans.forEach(loan => {
                     loan.ticksLeft--;
@@ -1120,12 +1203,6 @@
                     this.company.cash -= loan.installment;
                 });
                 this.activeLoans = this.activeLoans.filter(l => l.ticksLeft > 0 && l.remainingAmount > 0);
-
-                this.fleet.forEach(p => {
-                    if (p.status === 'En vol') {
-                        p.flightHours = (p.flightHours || 0) + 12;
-                    }
-                });
 
                 this.activeContracts.forEach(c => c.ticksLeft--);
                 this.availableContracts.forEach(c => c.ticksLeft--);
@@ -1224,12 +1301,6 @@
                 return total;
             }
 
-            getRequiredFuelForFlight(plane) {
-                const ac = this.aircraftCatalog.find(a => a.name === plane.name);
-                const fuelBurnPerHour = ac ? ac.fuelBurn : 800;
-                return Math.round(fuelBurnPerHour * 3.5);
-            }
-
             showToast(message, type = 'info') {
                 const container = document.getElementById('toast-container');
                 const bgClass = type === 'error' ? 'bg-rose-950/90 border-rose-800 text-rose-100' : (type === 'success' ? 'bg-emerald-950/90 border-emerald-800 text-emerald-100' : 'bg-slate-900/90 border-slate-700 text-slate-100');
@@ -1269,36 +1340,23 @@
                 let fleetAsset = 0;
                 this.fleet.forEach(p => fleetAsset += this.calculateResaleValue(p));
 
-                const totalFuelKg = this.getTotalFuelReserves();
-                const fuelAsset = Math.round(totalFuelKg * this.currentFuelPrice);
-
-                let hubsAsset = 0;
-                this.company.hubs.forEach(hCode => {
-                    const hub = this.hub100List.find(item => item.code === hCode);
-                    if (hub) hubsAsset += hub.price;
-                });
-
-                const totalAssets = cashAsset + fleetAsset + fuelAsset + hubsAsset;
                 let loansLiability = 0;
                 this.activeLoans.forEach(l => loansLiability += l.remainingAmount);
 
                 const salariesPerTick = this.team.reduce((acc, m) => acc + m.salary, 0);
                 const leasePerTick = this.fleet.reduce((acc, p) => acc + (p.isLeased ? p.leaseFee : 0), 0);
                 const totalFixedCharges = salariesPerTick + leasePerTick;
-                const initialCapital = 4000000;
-                const equityCumulative = totalAssets - loansLiability - initialCapital;
+                const totalNextTick = cashAsset - totalFixedCharges;
 
                 document.getElementById('asset-cash').innerText = this.formatMoney(cashAsset);
                 document.getElementById('asset-fleet').innerText = this.formatMoney(fleetAsset);
-                document.getElementById('asset-fuel').innerText = this.formatMoney(fuelAsset);
-                document.getElementById('asset-hubs').innerText = this.formatMoney(hubsAsset);
-                document.getElementById('total-asset-val').innerText = this.formatMoney(totalAssets);
 
                 document.getElementById('liability-loans').innerText = this.formatMoney(loansLiability);
-                document.getElementById('liability-equity').innerText = this.formatMoney(equityCumulative);
                 document.getElementById('liability-salaries').innerText = this.formatMoney(totalFixedCharges);
-                document.getElementById('total-liability-val').innerText = this.formatMoney(totalAssets);
-                document.getElementById('cfo-total-assets').innerText = this.formatMoney(totalAssets);
+                document.getElementById('liability-next-total').innerText = this.formatMoney(totalNextTick);
+
+                document.getElementById('tick-contracts-count').innerText = this.company.tickContractsCompleted || 0;
+                document.getElementById('tick-earned-amount').innerText = this.formatMoney(this.company.tickEarnedAmount || 0);
             }
 
             renderAll() {
@@ -1359,7 +1417,7 @@
                                     <div class="text-[10px] text-emerald-400 font-mono">📍 ${pilot.location || 'LFLB'}</div>
                                 </div>
                             </div>
-                            <span class="text-[10px] bg-slate-800 text-sky-400 px-2 py-0.5 rounded font-mono">${pilot.exp} h</span>
+                            <span class="text-[10px] bg-slate-800 text-sky-400 px-2 py-0.5 rounded font-mono">${pilot.exp || 0} h</span>
                         </div>
                     `;
                 });
@@ -1417,11 +1475,10 @@
                     const resaleVal = this.calculateResaleValue(plane);
                     const valDisplay = plane.isLeased ? `<div class="text-xs font-mono text-amber-400 font-bold">${this.formatMoney(plane.leaseFee)}/tick</div>` : `<div class="text-xs font-mono text-emerald-400 font-bold">${this.formatMoney(resaleVal)}</div>`;
 
-                    const currentHubFuel = this.company.fuelReservesByHub[plane.location] || 0;
                     const assignedContract = this.activeContracts.find(c => c.id === plane.assignedContractId);
                     const assignedPilotName = plane.assignedPilotName || 'Non assigné';
 
-                    let contractInfoDisplay = '<span class="text-slate-500">Aucun contrat</span>';
+                    let contractInfoDisplay = '<span class="text-slate-500">Vol libre</span>';
                     if (assignedContract) {
                         contractInfoDisplay = `
                             <div class="text-[11px] text-sky-400 font-semibold">${assignedContract.title}</div>
@@ -1442,7 +1499,10 @@
                                 </div>
                                 <div class="text-xs text-sky-400">${plane.name}</div>
                             </td>
-                            <td class="py-3 px-3"><div class="text-xs font-bold text-white">📍 ${plane.location}</div><div class="text-[10px] text-slate-400">Stock Hub: ${currentHubFuel.toLocaleString()} Kg</div></td>
+                            <td class="py-3 px-3">
+                                <div class="text-xs font-bold text-white">📍 ${plane.location}</div>
+                                <div class="text-[10px] text-emerald-400 font-mono font-bold">Réservoir : ${(plane.fuelOnBoard || 0).toLocaleString()} Kg</div>
+                            </td>
                             <td class="py-3 px-3"><div class="text-xs text-amber-400 font-bold">${plane.flightHours || 0} h</div></td>
                             <td class="py-3 px-3">${valDisplay}</td>
                             <td class="py-3 px-3">
@@ -1459,9 +1519,16 @@
                 const teamMgmt = document.getElementById('team-management-container');
                 teamMgmt.innerHTML = '';
                 this.team.forEach(member => {
+                    const isMe = member.name === this.playerName;
                     teamMgmt.innerHTML += `
                         <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
-                            <div class="flex justify-between items-center"><span class="font-bold text-white text-sm">${member.name}</span><span class="text-xs font-mono text-slate-400">${this.formatMoney(member.salary)}/tick</span></div>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-white text-sm">${member.name} ${isMe ? '<span class="text-[10px] text-sky-400">(Vous)</span>' : ''}</span>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs font-mono text-slate-400">${this.formatMoney(member.salary)}/tick</span>
+                                    ${!isMe ? `<button onclick="app.fireMember(${member.id})" class="bg-rose-950 hover:bg-rose-800 text-rose-300 px-2 py-1 rounded text-[10px] font-bold cursor-pointer" title="Virer / Licencier"><i class="fa-solid fa-user-minus"></i> Virer</button>` : ''}
+                                </div>
+                            </div>
                             <select onchange="app.updateMemberRole(${member.id}, this.value)" class="w-full bg-slate-900 border border-slate-700 text-xs text-sky-400 font-bold rounded-lg px-2 py-1">
                                 <option value="CEO" ${member.role === 'CEO' ? 'selected' : ''}>PDG (CEO)</option>
                                 <option value="CFO" ${member.role === 'CFO' ? 'selected' : ''}>Trésorier (CFO)</option>
@@ -1555,10 +1622,12 @@
                 hubInvContainer.innerHTML = '';
                 this.company.hubs.forEach(hCode => {
                     const stock = this.company.fuelReservesByHub[hCode] || 0;
+                    const hubObj = this.hub100List.find(h => h.code === hCode);
+                    const fuelCap = hubObj ? hubObj.fuelCap : 80000;
                     hubInvContainer.innerHTML += `
                         <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
-                            <span class="font-bold text-sky-400">📍 ${hCode}</span>
-                            <span class="text-emerald-400 font-mono">${stock.toLocaleString()} Kg</span>
+                            <span class="font-bold text-sky-400">📍 ${hCode} (${hubObj ? hubObj.city : ''})</span>
+                            <span class="text-emerald-400 font-mono font-bold">${stock.toLocaleString()} / ${fuelCap.toLocaleString()} Kg</span>
                         </div>
                     `;
                 });
@@ -1582,7 +1651,7 @@
                             <div>
                                 <span class="bg-sky-950 text-sky-400 font-mono font-bold px-2.5 py-1 rounded-lg border border-slate-800 text-xs">${hub.code}</span>
                                 <h4 class="font-bold text-white text-sm mt-2">${hub.city} (${hub.country})</h4>
-                                <div class="text-[11px] text-slate-400 mt-1 font-mono">Prix: ${this.formatMoney(hub.price)}</div>
+                                <div class="text-[11px] text-slate-400 mt-1 font-mono">Prix: ${this.formatMoney(hub.price)} | Cuves Max: ${hub.fuelCap.toLocaleString()} Kg</div>
                             </div>
                             <button onclick="app.buyHub('${hub.code}')" ${isAcquired ? 'disabled' : ''} class="w-full bg-sky-600 hover:bg-sky-500 disabled:bg-slate-800 disabled:text-slate-500 text-white font-bold py-2 rounded-xl text-xs cursor-pointer">
                                 ${isAcquired ? 'Hub Acquis' : 'Acquérir ce Hub'}
@@ -1623,34 +1692,138 @@
             startFlight(planeId) {
                 const p = this.fleet.find(item => item.id === planeId);
                 if (!p) return;
-                const contract = this.activeContracts.find(c => c.id === p.assignedContractId);
-                
-                let targetDest = contract ? (contract.stopover ? contract.stopover : contract.destination) : p.location;
 
-                const reqFuel = this.getRequiredFuelForFlight(p);
-                let currentHubStock = this.company.fuelReservesByHub[p.location] || 0;
-
-                if (currentHubStock < reqFuel) {
-                    const missingFuel = reqFuel - currentHubStock;
-                    const pricePerKg = this.company.fuelHedgeActive ? 1.50 : this.currentFuelPrice;
-                    const spotCost = Math.round(missingFuel * pricePerKg);
-
-                    if (this.company.cash < spotCost) {
-                        this.showToast(`Kérosène insuffisant et trésorerie trop faible pour acheter ${missingFuel.toLocaleString()} Kg au prix spot (${this.formatMoney(spotCost)}) !`, "error");
+                // Contrôle de taille d'aérodrome pour les gros porteurs
+                const acDef = this.aircraftCatalog.find(a => a.name === p.name);
+                const currentHubObj = this.hub100List.find(h => h.code === p.location);
+                if (acDef && (acDef.type === 'Moyen-Porteur' || acDef.type === 'Long-Courrier' || acDef.type === 'Cargo Lourd')) {
+                    if (currentHubObj && currentHubObj.cargoCap < 300) {
+                        this.showToast(`Impossible de faire décoller un gros porteur (${p.name}) depuis ${p.location} (Piste trop courte) !`, "error");
                         return;
                     }
-
-                    this.company.cash -= spotCost;
-                    this.company.fuelReservesByHub[p.location] = currentHubStock + missingFuel;
-                    this.showToast(`Approvisionnement spot automatique : ${missingFuel.toLocaleString()} Kg achetés pour ${this.formatMoney(spotCost)} au hub ${p.location}.`, "info");
                 }
 
-                this.company.fuelReservesByHub[p.location] -= reqFuel;
-                p.fuelOnBoard = reqFuel;
+                const contract = this.activeContracts.find(c => c.id === p.assignedContractId);
+                if (!contract) {
+                    this.openFreeFlightModal(planeId);
+                    return;
+                }
+
+                // Ouvrir la modale de carburant pour les missions
+                this.openFlightFuelModal(planeId, contract.stopover ? contract.stopover : contract.destination);
+            }
+
+            openFlightFuelModal(planeId, targetDest) {
+                const p = this.fleet.find(item => item.id === planeId);
+                if (!p) return;
+                this.pendingFlightData = { planeId, targetDest, isFreeFlight: false };
+
+                document.getElementById('fuel-modal-plane-reg').innerText = p.registration;
+                document.getElementById('fuel-modal-onboard').innerText = (p.fuelOnBoard || 0).toLocaleString();
+                
+                // Pré-remplir avec une estimation standard basée sur la consommation
+                const acDef = this.aircraftCatalog.find(a => a.name === p.name);
+                const defaultNeed = acDef ? Math.round(acDef.fuelBurn * 3.5) : 3000;
+                document.getElementById('flight-needed-fuel-input').value = defaultNeed;
+
+                document.getElementById('flight-fuel-modal').classList.remove('hidden');
+                document.getElementById('flight-fuel-modal').classList.add('flex');
+            }
+
+            closeFlightFuelModal() {
+                document.getElementById('flight-fuel-modal').classList.add('hidden');
+                document.getElementById('flight-fuel-modal').classList.remove('flex');
+                this.pendingFlightData = null;
+            }
+
+            confirmStartFlightWithFuel() {
+                if (!this.pendingFlightData) return;
+                const { planeId, targetDest, isFreeFlight } = this.pendingFlightData;
+                const p = this.fleet.find(item => item.id === planeId);
+                if (!p) return;
+
+                const neededFuel = parseInt(document.getElementById('flight-needed-fuel-input').value) || 0;
+                const currentOnBoard = p.fuelOnBoard || 0;
+
+                if (currentOnBoard >= neededFuel) {
+                    // Assez à bord, pas de ravitaillement nécessaire
+                    p.fuelOnBoard = neededFuel; // ou on garde tout si on veut
+                    this.showToast(`Vol ${p.registration} vers ${targetDest} lancé (Réservoirs suffisants à bord) !`, "success");
+                } else {
+                    const missingFuel = neededFuel - currentOnBoard;
+                    const hubStock = this.company.fuelReservesByHub[p.location] || 0;
+
+                    if (hubStock >= missingFuel) {
+                        // Prélèvement dans les stocks du hub
+                        this.company.fuelReservesByHub[p.location] -= missingFuel;
+                        p.fuelOnBoard = neededFuel;
+                        this.showToast(`Ravitaillement de ${missingFuel.toLocaleString()} Kg depuis les stocks du Hub ${p.location}.`, "info");
+                    } else {
+                        // Stock hub insuffisant, achat spot du reste
+                        const spotToBuy = missingFuel - hubStock;
+                        const pricePerKg = this.company.fuelHedgeActive ? 1.50 : this.currentFuelPrice;
+                        const spotCost = Math.round(spotToBuy * pricePerKg);
+
+                        if (this.company.cash < spotCost) {
+                            this.showToast(`Trésorerie insuffisante pour acheter ${spotToBuy.toLocaleString()} Kg au prix spot (${this.formatMoney(spotCost)}) !`, "error");
+                            return;
+                        }
+
+                        this.company.cash -= spotCost;
+                        this.company.fuelReservesByHub[p.location] = 0; // tout vidé
+                        p.fuelOnBoard = neededFuel;
+                        this.showToast(`Achat spot de complément : ${spotToBuy.toLocaleString()} Kg achetés pour ${this.formatMoney(spotCost)}.`, "info");
+                    }
+                }
+
                 p.status = 'En vol';
                 p.currentLegTarget = targetDest;
-                this.showToast(`Vol ${p.registration} vers ${targetDest} lancé !`, "success");
+                this.closeFlightFuelModal();
                 this.renderAll();
+            }
+
+            openFreeFlightModal(planeId) {
+                const p = this.fleet.find(item => item.id === planeId);
+                if (!p) return;
+                this.freeFlightPlaneId = planeId;
+                document.getElementById('free-flight-plane-reg').innerText = p.registration;
+
+                const destSelect = document.getElementById('free-flight-dest-select');
+                destSelect.innerHTML = '';
+                this.hub100List.forEach(h => {
+                    if (h.code !== p.location) {
+                        destSelect.innerHTML += `<option value="${h.code}">${h.code} - ${h.city} (${h.country})</option>`;
+                    }
+                });
+
+                document.getElementById('free-flight-modal').classList.remove('hidden');
+                document.getElementById('free-flight-modal').classList.add('flex');
+            }
+
+            closeFreeFlightModal() {
+                document.getElementById('free-flight-modal').classList.add('hidden');
+                document.getElementById('free-flight-modal').classList.remove('flex');
+                this.freeFlightPlaneId = null;
+            }
+
+            proceedToFuelModal() {
+                const targetDest = document.getElementById('free-flight-dest-select').value;
+                const planeId = this.freeFlightPlaneId;
+                this.closeFreeFlightModal();
+
+                const p = this.fleet.find(item => item.id === planeId);
+                if (!p) return;
+
+                this.pendingFlightData = { planeId, targetDest, isFreeFlight: true };
+                document.getElementById('fuel-modal-plane-reg').innerText = p.registration;
+                document.getElementById('fuel-modal-onboard').innerText = (p.fuelOnBoard || 0).toLocaleString();
+
+                const acDef = this.aircraftCatalog.find(a => a.name === p.name);
+                const defaultNeed = acDef ? Math.round(acDef.fuelBurn * 3.5) : 3000;
+                document.getElementById('flight-needed-fuel-input').value = defaultNeed;
+
+                document.getElementById('flight-fuel-modal').classList.remove('hidden');
+                document.getElementById('flight-fuel-modal').classList.add('flex');
             }
 
             openDebriefModal(planeId) {
@@ -1663,9 +1836,8 @@
                 document.getElementById('debrief-plane-reg').innerText = p.registration;
                 document.getElementById('debrief-dest-hub').innerText = destHub;
                 
-                // Pré-cocher automatiquement l'option "escale" si le contrat possède une escale non validée
                 const isStop = contract && contract.stopover && p.currentLegTarget === contract.stopover;
-                document.getElementById('debrief-is-stopover').checked = isStop;
+                document.getElementById('debrief-is-stopover').checked = !!isStop;
 
                 document.getElementById('flight-debrief-modal').classList.remove('hidden');
                 document.getElementById('flight-debrief-modal').classList.add('flex');
@@ -1681,46 +1853,59 @@
                 const p = this.fleet.find(item => item.id === this.landingPlaneId);
                 if (!p) return;
 
+                const addedHours = parseFloat(document.getElementById('debrief-flight-hours').value) || 0;
                 const fuelRemaining = parseInt(document.getElementById('debrief-fuel-remaining').value) || 0;
                 const isStopover = document.getElementById('debrief-is-stopover').checked;
-                const reintegrate = document.getElementById('debrief-reintegrate').checked;
 
                 const contract = this.activeContracts.find(c => c.id === p.assignedContractId);
                 const targetDest = p.currentLegTarget || (contract ? contract.destination : p.location);
 
-                // Réintégration du carburant restant dans les stocks du hub d'arrivée
-                if (reintegrate && fuelRemaining > 0) {
-                    if (!this.company.fuelReservesByHub[targetDest]) {
-                        this.company.fuelReservesByHub[targetDest] = 0;
-                    }
-                    this.company.fuelReservesByHub[targetDest] += fuelRemaining;
-                }
-
+                p.flightHours = (p.flightHours || 0) + addedHours;
                 p.location = targetDest;
-                p.fuelOnBoard = 0;
+                p.fuelOnBoard = fuelRemaining;
                 p.status = 'Parked';
                 delete p.currentLegTarget;
 
+                const myMember = this.team.find(m => m.name === this.playerName);
+                if (myMember) {
+                    myMember.location = targetDest;
+                    myMember.exp = (myMember.exp || 0) + addedHours;
+                }
+                this.playerLocation = targetDest;
+
                 if (contract) {
                     if (isStopover && contract.stopover) {
-                        // Étape d'escale validée : on met à jour l'origine et on supprime l'escale (contrat en pause / étape suivante prête)
                         const oldStop = contract.stopover;
                         contract.origin = oldStop;
                         contract.stopover = '';
                         contract.title = contract.title.replace(`➔ ${oldStop} [Escale] ➔`, `(Escale ${oldStop} validée) ➔`);
-                        this.showToast(`Escale à ${oldStop} enregistrée ! Le contrat est en pause. Ravitaillez l'appareil et repartez vers la destination finale quand vous voulez.`, 'success');
+                        this.showToast(`Escale à ${oldStop} validée ! Avion et pilote déplacés.`, 'success');
                     } else {
-                        // Fin définitive du contrat
                         this.company.cash += contract.reward;
-                        this.showToast(`Contrat entièrement réussi ! +${this.formatMoney(contract.reward)}`, 'success');
+                        this.company.tickContractsCompleted = (this.company.tickContractsCompleted || 0) + 1;
+                        this.company.tickEarnedAmount = (this.company.tickEarnedAmount || 0) + contract.reward;
+
+                        this.showToast(`Contrat réussi ! +${this.formatMoney(contract.reward)}`, 'success');
                         this.activeContracts = this.activeContracts.filter(c => c.id !== contract.id);
                         p.assignedContractId = '';
                         p.assignedPilotName = '';
                     }
+                } else {
+                    this.showToast(`Atterrissage effectué à ${targetDest} (${addedHours} h de vol enregistrées).`, 'info');
                 }
 
                 this.closeDebriefModal();
                 this.renderAll();
+            }
+
+            fireMember(memberId) {
+                const idx = this.team.findIndex(m => m.id === memberId);
+                if (idx >= 0) {
+                    const fired = this.team[idx];
+                    this.team.splice(idx, 1);
+                    this.showToast(`Employé ${fired.name} licencié avec succès.`, 'info');
+                    this.renderAll();
+                }
             }
 
             updateMemberRole(memberId, newRole) {
@@ -1775,7 +1960,7 @@
                     name: ac.name,
                     capacity: ac.capacity,
                     location: this.company.hubs[0],
-                    fuelOnBoard: 0,
+                    fuelOnBoard: 1000,
                     status: 'Parked',
                     assignedContractId: '',
                     assignedPilotName: '',
@@ -1808,7 +1993,7 @@
                     name: ac.name,
                     capacity: ac.capacity,
                     location: this.company.hubs[0],
-                    fuelOnBoard: 0,
+                    fuelOnBoard: 1000,
                     status: 'Parked',
                     assignedContractId: '',
                     assignedPilotName: '',
@@ -1839,8 +2024,18 @@
                 const targetHub = document.getElementById('fuel-target-hub-select').value;
                 const cost = this.fuelPurchaseQty * (this.company.fuelHedgeActive ? 1.50 : this.currentFuelPrice);
                 if (this.company.cash < cost || !targetHub) return;
+                
+                const hubObj = this.hub100List.find(h => h.code === targetHub);
+                const maxCap = hubObj ? hubObj.fuelCap : 80000;
+                const currentStock = this.company.fuelReservesByHub[targetHub] || 0;
+
+                if (currentStock + this.fuelPurchaseQty > maxCap) {
+                    this.showToast(`Capacité maximale des cuves dépassée à ${targetHub} (${maxCap.toLocaleString()} Kg max) !`, "error");
+                    return;
+                }
+
                 this.company.cash -= cost;
-                this.company.fuelReservesByHub[targetHub] = (this.company.fuelReservesByHub[targetHub] || 0) + this.fuelPurchaseQty;
+                this.company.fuelReservesByHub[targetHub] = currentStock + this.fuelPurchaseQty;
                 this.renderAll();
             }
 
