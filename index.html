@@ -103,19 +103,22 @@
                     <input type="text" id="create-company-name" oninput="app.onCompanyNameInput()" placeholder="Ex: Beazen Airway" value="AeroCareer Airlines" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-sky-500 font-mono">
                 </div>
                 <div>
-                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Hub Principal de Départ :</label>
+                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Petit Hub Régional de Départ :</label>
                     <select id="create-hub-select" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-sky-500 font-mono">
                         <option value="LFLB" selected>LFLB - Chambéry-Savoie Mont-Blanc (France)</option>
-                        <option value="CDG">CDG - Paris Charles de Gaulle (France)</option>
-                        <option value="NCE">NCE - Nice Côte d'Azur (France)</option>
                         <option value="LFLD">LFLD - Bourges (France)</option>
-                        <option value="LYS">LYS - Lyon Saint-Exupéry (France)</option>
-                        <option value="GVA">GVA - Genève (Suisse)</option>
-                        <option value="JFK">JFK - New York John F. Kennedy (USA)</option>
-                        <option value="GMP">GMP - Séoul Gimpo (Corée du Sud)</option>
-                        <option value="ICN">ICN - Séoul Incheon (Corée du Sud)</option>
-                        <option value="DXB">DXB - Dubaï (Émirats arabes unis)</option>
-                        <option value="NRT">NRT - Tokyo Narita (Japon)</option>
+                        <option value="LFLP">LFLP - Annecy-Meythet (France)</option>
+                        <option value="BES">BES - Brest-Bretagne (France)</option>
+                        <option value="INN">INN - Innsbruck (Autriche)</option>
+                        <option value="LJU">LJU - Ljubljana (Slovénie)</option>
+                        <option value="BTS">BTS - Bratislava (Slovaquie)</option>
+                        <option value="KRK">KRK - Cracovie (Pologne)</option>
+                        <option value="ZAG">ZAG - Zagreb (Croatie)</option>
+                        <option value="RIX">RIX - Riga (Lettonie)</option>
+                        <option value="VNO">VNO - Vilnius (Lituanie)</option>
+                        <option value="TLL">TLL - Tallinn (Estonie)</option>
+                        <option value="CJS">CJS - Ciudad Juárez (Mexique)</option>
+                        <option value="CJU">CJU - Jeju (Corée du Sud)</option>
                     </select>
                 </div>
                 <div>
@@ -243,7 +246,7 @@
             </div>
             <div class="p-3 border-t border-slate-800 bg-slate-950/40 rounded-xl text-xs text-slate-500 space-y-1">
                 <div class="flex justify-between"><span>Cloud Firestore:</span> <span class="text-emerald-400 font-mono">Connecté (Live)</span></div>
-                <div class="flex justify-between"><span>Version:</span> <span class="text-sky-400 font-mono">5.9.8 Default Hub Chambéry</span></div>
+                <div class="flex justify-between"><span>Version:</span> <span class="text-sky-400 font-mono">5.9.10 Debrief Escale</span></div>
             </div>
         </nav>
 
@@ -559,20 +562,26 @@
             <div class="space-y-3 bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs">
                 <div>
                     <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Carburant Réel Utilisé (Kg) :</label>
-                    <input type="number" id="debrief-fuel-used" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-sky-500">
+                    <input type="number" id="debrief-fuel-used" value="2500" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-sky-500">
                 </div>
                 <div>
-                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Carburant Restant (Kg) :</label>
-                    <input type="number" id="debrief-fuel-remaining" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-sky-500">
+                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Carburant Restant à Bord (Kg) :</label>
+                    <input type="number" id="debrief-fuel-remaining" value="1000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-sky-500">
                 </div>
-                <div class="flex items-center space-x-2 pt-2 border-t border-slate-800">
-                    <input type="checkbox" id="debrief-reintegrate" checked class="w-4 h-4 accent-sky-500 rounded cursor-pointer">
-                    <label for="debrief-reintegrate" class="text-slate-300 cursor-pointer">Réintégrer le carburant restant dans les stocks du Hub d'arrivée</label>
+                <div class="space-y-2 pt-2 border-t border-slate-800">
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" id="debrief-is-stopover" class="w-4 h-4 accent-sky-500 rounded cursor-pointer">
+                        <label for="debrief-is-stopover" class="text-sky-400 font-bold cursor-pointer">C'est une escale intermédiaire (Met le contrat en pause)</label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" id="debrief-reintegrate" checked class="w-4 h-4 accent-sky-500 rounded cursor-pointer">
+                        <label for="debrief-reintegrate" class="text-slate-300 cursor-pointer">Réintégrer le carburant restant dans les stocks du Hub d'arrivée</label>
+                    </div>
                 </div>
             </div>
             <div class="flex justify-end space-x-3 pt-2">
                 <button onclick="app.closeDebriefModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">Annuler</button>
-                <button onclick="app.confirmLandingDebrief()" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow cursor-pointer">Valider</button>
+                <button onclick="app.confirmLandingDebrief()" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow cursor-pointer">Valider l'Atterrissage</button>
             </div>
         </div>
     </div>
@@ -680,6 +689,7 @@
 
                     // --- PETITS HUBS ---
                     { code: 'BES', city: 'Brest', country: 'France', region: 'Europe', price: 1600000, cargoCap: 110, fuelCap: 55000, lat: 48.4489, lon: -4.4161 },
+                    { code: 'LFLP', city: 'Annecy', country: 'France', region: 'Europe', price: 1900000, cargoCap: 120, fuelCap: 60000, lat: 45.9272, lon: 6.1031 },
                     { code: 'CJS', city: 'Ciudad Juárez', country: 'Mexique', region: 'Amérique du Nord', price: 2800000, cargoCap: 210, fuelCap: 95000, lat: 31.6361, lon: -106.4289 },
                     { code: 'CJU', city: 'Jeju', country: 'Corée du Sud', region: 'Asie', price: 4000000, cargoCap: 250, fuelCap: 120000, lat: 33.5113, lon: 126.4930 },
                     { code: 'INN', city: 'Innsbruck', country: 'Autriche', region: 'Europe', price: 2100000, cargoCap: 130, fuelCap: 70000, lat: 47.2602, lon: 11.3440 },
@@ -1652,6 +1662,11 @@
 
                 document.getElementById('debrief-plane-reg').innerText = p.registration;
                 document.getElementById('debrief-dest-hub').innerText = destHub;
+                
+                // Pré-cocher automatiquement l'option "escale" si le contrat possède une escale non validée
+                const isStop = contract && contract.stopover && p.currentLegTarget === contract.stopover;
+                document.getElementById('debrief-is-stopover').checked = isStop;
+
                 document.getElementById('flight-debrief-modal').classList.remove('hidden');
                 document.getElementById('flight-debrief-modal').classList.add('flex');
             }
@@ -1665,23 +1680,37 @@
             confirmLandingDebrief() {
                 const p = this.fleet.find(item => item.id === this.landingPlaneId);
                 if (!p) return;
+
                 const fuelRemaining = parseInt(document.getElementById('debrief-fuel-remaining').value) || 0;
+                const isStopover = document.getElementById('debrief-is-stopover').checked;
+                const reintegrate = document.getElementById('debrief-reintegrate').checked;
+
                 const contract = this.activeContracts.find(c => c.id === p.assignedContractId);
                 const targetDest = p.currentLegTarget || (contract ? contract.destination : p.location);
 
+                // Réintégration du carburant restant dans les stocks du hub d'arrivée
+                if (reintegrate && fuelRemaining > 0) {
+                    if (!this.company.fuelReservesByHub[targetDest]) {
+                        this.company.fuelReservesByHub[targetDest] = 0;
+                    }
+                    this.company.fuelReservesByHub[targetDest] += fuelRemaining;
+                }
+
                 p.location = targetDest;
-                p.fuelOnBoard = fuelRemaining;
+                p.fuelOnBoard = 0;
                 p.status = 'Parked';
                 delete p.currentLegTarget;
 
                 if (contract) {
-                    if (contract.stopover && targetDest === contract.stopover) {
+                    if (isStopover && contract.stopover) {
+                        // Étape d'escale validée : on met à jour l'origine et on supprime l'escale (contrat en pause / étape suivante prête)
                         const oldStop = contract.stopover;
                         contract.origin = oldStop;
                         contract.stopover = '';
                         contract.title = contract.title.replace(`➔ ${oldStop} [Escale] ➔`, `(Escale ${oldStop} validée) ➔`);
-                        this.showToast(`Escale à ${oldStop} réussie ! Ravitaillez l'appareil et repartez quand vous voulez.`, 'success');
+                        this.showToast(`Escale à ${oldStop} enregistrée ! Le contrat est en pause. Ravitaillez l'appareil et repartez vers la destination finale quand vous voulez.`, 'success');
                     } else {
+                        // Fin définitive du contrat
                         this.company.cash += contract.reward;
                         this.showToast(`Contrat entièrement réussi ! +${this.formatMoney(contract.reward)}`, 'success');
                         this.activeContracts = this.activeContracts.filter(c => c.id !== contract.id);
