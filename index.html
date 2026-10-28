@@ -103,12 +103,27 @@
                     <input type="text" id="create-company-name" oninput="app.onCompanyNameInput()" placeholder="Ex: Beazen Airway" value="AeroCareer Airlines" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-sky-500 font-mono">
                 </div>
                 <div>
-                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Code Unique de l'Entreprise (Généré anti-doublon) :</label>
+                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Hub Principal de Départ :</label>
+                    <select id="create-hub-select" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-sky-500 font-mono">
+                        <option value="LFLB" selected>LFLB - Chambéry-Savoie Mont-Blanc (France)</option>
+                        <option value="CDG">CDG - Paris Charles de Gaulle (France)</option>
+                        <option value="NCE">NCE - Nice Côte d'Azur (France)</option>
+                        <option value="LFLD">LFLD - Bourges (France)</option>
+                        <option value="LYS">LYS - Lyon Saint-Exupéry (France)</option>
+                        <option value="GVA">GVA - Genève (Suisse)</option>
+                        <option value="JFK">JFK - New York John F. Kennedy (USA)</option>
+                        <option value="GMP">GMP - Séoul Gimpo (Corée du Sud)</option>
+                        <option value="ICN">ICN - Séoul Incheon (Corée du Sud)</option>
+                        <option value="DXB">DXB - Dubaï (Émirats arabes unis)</option>
+                        <option value="NRT">NRT - Tokyo Narita (Japon)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Code Unique de l'Entreprise :</label>
                     <div class="flex space-x-2">
                         <input type="text" id="create-company-code" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sky-400 font-mono font-bold focus:outline-none select-all">
                         <button type="button" onclick="app.generateNewCode()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3.5 rounded-xl transition cursor-pointer" title="Générer un autre code"><i class="fa-solid fa-rotate"></i></button>
                     </div>
-                    <span class="text-[10px] text-slate-500 mt-1 block">Ce code unique intègre la date, l'heure et une clé aléatoire. Donnez-le à vos amis !</span>
                 </div>
                 <button onclick="app.submitCreateCompany()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 rounded-xl text-xs transition shadow-lg cursor-pointer">
                     Créer la Compagnie Cloud & Devenir PDG (CEO)
@@ -153,7 +168,7 @@
                     <div class="flex items-center space-x-2 text-xs text-slate-400 mt-0.5">
                         <span class="text-sky-400 font-medium">Joueur : <strong class="text-white" id="header-player-name">Ben</strong> (<span id="header-player-role" class="text-amber-400 font-bold">CEO</span>)</span>
                         <span>•</span>
-                        <span>Position : <strong class="text-emerald-400 font-mono" id="header-player-loc">CDG</strong></span>
+                        <span>Position : <strong class="text-emerald-400 font-mono" id="header-player-loc">LFLB</strong></span>
                         <span>•</span>
                         <span>Code Salon : <strong class="text-emerald-400 font-mono" id="header-company-code">BEAZ</strong></span>
                     </div>
@@ -228,7 +243,7 @@
             </div>
             <div class="p-3 border-t border-slate-800 bg-slate-950/40 rounded-xl text-xs text-slate-500 space-y-1">
                 <div class="flex justify-between"><span>Cloud Firestore:</span> <span class="text-emerald-400 font-mono">Connecté (Live)</span></div>
-                <div class="flex justify-between"><span>Version:</span> <span class="text-sky-400 font-mono">5.8.0 Multi-Leg Routing</span></div>
+                <div class="flex justify-between"><span>Version:</span> <span class="text-sky-400 font-mono">5.9.8 Default Hub Chambéry</span></div>
             </div>
         </nav>
 
@@ -499,7 +514,7 @@
                 <div class="flex justify-between items-center">
                     <div>
                         <h2 class="text-2xl font-extrabold text-white tracking-tight">Carnet de Vol & Passeport</h2>
-                        <p class="text-sm text-slate-400">Relocalisation personnelle et tampons OACI.</p>
+                        <p class="text-sm text-slate-400">Relocalisation personnelle, tampons OACI et contrats assignés.</p>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -518,9 +533,18 @@
                     </div>
                     <div class="lg:col-span-2 glass-card p-5 rounded-2xl shadow-xl space-y-4">
                         <h3 class="text-lg font-bold text-white flex items-center space-x-2">
-                            <i class="fa-solid fa-passport text-amber-400"></i><span>Tampons Passeport OACI</span>
+                            <i class="fa-solid fa-passport text-amber-400"></i><span>Contrats Actifs & Tampons Passeport OACI</span>
                         </h3>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="passport-container"></div>
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Contrats assignés à vos appareils / pilotes</h4>
+                                <div class="space-y-2 max-h-48 overflow-y-auto pr-1" id="pilot-active-contracts-container"></div>
+                            </div>
+                            <div class="pt-2 border-t border-slate-800">
+                                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Tampons de Visites</h4>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="passport-container"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -587,8 +611,10 @@
                 this.playerName = '';
                 this.companyCode = '';
                 this.playerRole = 'CEO';
-                this.playerLocation = 'CDG';
+                this.playerLocation = 'LFLB';
                 this._unsubscribeSync = null;
+                this._lastRemoteUpdate = 0;
+                this._baseGeneratedCodeTime = null;
 
                 this.company = {
                     name: 'AeroCareer Airlines',
@@ -597,8 +623,8 @@
                     level: 1,
                     tickCount: 1,
                     lastTickDate: new Date().toDateString(),
-                    hubs: [],
-                    fuelReservesByHub: {},
+                    hubs: ['LFLB'],
+                    fuelReservesByHub: { 'LFLB': 100000 },
                     fuelHedgeActive: false
                 };
 
@@ -620,56 +646,55 @@
                 ];
 
                 this.hub100List = [
-		{ code: 'CDG', city: 'Paris', country: 'France', region: 'Europe', price: 25000000, cargoCap: 500, fuelCap: 200000 },
-		{ code: 'JFK', city: 'New York', country: 'USA', region: 'Amérique du Nord', price: 30000000, cargoCap: 800, fuelCap: 350000 },
-		{ code: 'NCE', city: 'Nice', country: 'France', region: 'Europe', price: 2200000, cargoCap: 200, fuelCap: 90000 },
-		{ code: 'MIA', city: 'Miami', country: 'USA', region: 'Amérique du Nord', price: 11500000, cargoCap: 800, fuelCap: 350000 },
-		{ code: 'LFLB', city: 'Chambéry', country: 'France', region: 'Europe', price: 2500000, cargoCap: 150, fuelCap: 80000 },
-		{ code: 'LFLD', city: 'Bourges', country: 'France', region: 'Europe', price: 1800000, cargoCap: 100, fuelCap: 50000 },
-		{ code: 'NRT', city: 'Tokyo', country: 'Japon', region: 'Asie', price: 15000000, cargoCap: 900, fuelCap: 400000 },	
-		{ code: 'DXB', city: 'Dubai', country: 'Émirats arabes unis', region: 'Moyen-Orient', price: 18000000, cargoCap: 1200, fuelCap: 600000 },
-		{ code: 'LHR', city: 'Londres', country: 'Royaume-Uni', region: 'Europe', price: 16000000, cargoCap: 850, fuelCap: 380000 },
-	    { code: 'SIN', city: 'Singapour', country: 'Singapour', region: 'Asie', price: 14000000, cargoCap: 750, fuelCap: 320000 },
-	    { code: 'LAX', city: 'Los Angeles', country: 'USA', region: 'Amérique du Nord', price: 15000000, cargoCap: 950, fuelCap: 410000 },
+                    { code: 'LFLB', city: 'Chambéry-Savoie', country: 'France', region: 'Europe', price: 2500000, cargoCap: 150, fuelCap: 80000, lat: 45.6414, lon: 5.8794 },
+                    { code: 'CDG', city: 'Paris', country: 'France', region: 'Europe', price: 25000000, cargoCap: 500, fuelCap: 200000, lat: 49.0097, lon: 2.5479 },
+                    { code: 'JFK', city: 'New York', country: 'USA', region: 'Amérique du Nord', price: 30000000, cargoCap: 800, fuelCap: 350000, lat: 40.6413, lon: -73.7781 },
+                    { code: 'NCE', city: 'Nice', country: 'France', region: 'Europe', price: 2200000, cargoCap: 200, fuelCap: 90000, lat: 43.6653, lon: 7.2150 },
+                    { code: 'MIA', city: 'Miami', country: 'USA', region: 'Amérique du Nord', price: 11500000, cargoCap: 800, fuelCap: 350000, lat: 25.7959, lon: -80.2870 },
+                    { code: 'LFLD', city: 'Bourges', country: 'France', region: 'Europe', price: 1800000, cargoCap: 100, fuelCap: 50000, lat: 47.0561, lon: 2.3667 },
+                    { code: 'NRT', city: 'Tokyo', country: 'Japon', region: 'Asie', price: 15000000, cargoCap: 900, fuelCap: 400000, lat: 35.7720, lon: 140.3929 },	
+                    { code: 'DXB', city: 'Dubai', country: 'Émirats arabes unis', region: 'Moyen-Orient', price: 18000000, cargoCap: 1200, fuelCap: 600000, lat: 25.2532, lon: 55.3657 },
+                    { code: 'LHR', city: 'Londres', country: 'Royaume-Uni', region: 'Europe', price: 16000000, cargoCap: 850, fuelCap: 380000, lat: 51.4700, lon: -0.4543 },
+                    { code: 'SIN', city: 'Singapour', country: 'Singapour', region: 'Asie', price: 14000000, cargoCap: 750, fuelCap: 320000, lat: 1.3644, lon: 103.9915 },
+                    { code: 'LAX', city: 'Los Angeles', country: 'USA', region: 'Amérique du Nord', price: 15000000, cargoCap: 950, fuelCap: 410000, lat: 33.9416, lon: -118.4085 },
 
-	    // --- SÉOUL / GIMPO & INCHEON ---
-	    { code: 'GMP', city: 'Séoul (Gimpo)', country: 'Corée du Sud', region: 'Asie', price: 8500000, cargoCap: 450, fuelCap: 220000 },
-   	 { code: 'ICN', city: 'Séoul (Incheon)', country: 'Corée du Sud', region: 'Asie', price: 22000000, cargoCap: 1100, fuelCap: 500000 },
+                    // --- SÉOUL / GIMPO & INCHEON ---
+                    { code: 'GMP', city: 'Séoul (Gimpo)', country: 'Corée du Sud', region: 'Asie', price: 8500000, cargoCap: 450, fuelCap: 220000, lat: 37.5586, lon: 126.7906 },
+                    { code: 'ICN', city: 'Séoul (Incheon)', country: 'Corée du Sud', region: 'Asie', price: 22000000, cargoCap: 1100, fuelCap: 500000, lat: 37.4602, lon: 126.4407 },
 
-  	  // --- GRANDS HUBS ---
-  	  { code: 'FRA', city: 'Francfort', country: 'Allemagne', region: 'Europe', price: 20000000, cargoCap: 1000, fuelCap: 450000 },
-  	  { code: 'AMS', city: 'Amsterdam', country: 'Pays-Bas', region: 'Europe', price: 18500000, cargoCap: 850, fuelCap: 390000 },
-  	  { code: 'HND', city: 'Tokyo (Haneda)', country: 'Japon', region: 'Asie', price: 24000000, cargoCap: 700, fuelCap: 420000 },
-  	  { code: 'ORD', city: 'Chicago', country: 'USA', region: 'Amérique du Nord', price: 21000000, cargoCap: 900, fuelCap: 430000 },
-  	  { code: 'HKG', city: 'Hong Kong', country: 'Chine', region: 'Asie', price: 23000000, cargoCap: 1250, fuelCap: 550000 },
+                    // --- GRANDS HUBS ---
+                    { code: 'FRA', city: 'Francfort', country: 'Allemagne', region: 'Europe', price: 20000000, cargoCap: 1000, fuelCap: 450000, lat: 50.0333, lon: 8.5706 },
+                    { code: 'AMS', city: 'Amsterdam', country: 'Pays-Bas', region: 'Europe', price: 18500000, cargoCap: 850, fuelCap: 390000, lat: 52.3105, lon: 4.7683 },
+                    { code: 'HND', city: 'Tokyo (Haneda)', country: 'Japon', region: 'Asie', price: 24000000, cargoCap: 700, fuelCap: 420000, lat: 35.5494, lon: 139.7798 },
+                    { code: 'ORD', city: 'Chicago', country: 'USA', region: 'Amérique du Nord', price: 21000000, cargoCap: 900, fuelCap: 430000, lat: 41.9742, lon: -87.9073 },
+                    { code: 'HKG', city: 'Hong Kong', country: 'Chine', region: 'Asie', price: 23000000, cargoCap: 1250, fuelCap: 550000, lat: 22.3080, lon: 113.9185 },
 
-  	  // --- MOYENS HUBS ---
-  	  { code: 'LYS', city: 'Lyon', country: 'France', region: 'Europe', price: 4500000, cargoCap: 320, fuelCap: 140000 },
-  	  { code: 'BCN', city: 'Barcelone', country: 'Espagne', region: 'Europe', price: 9500000, cargoCap: 400, fuelCap: 200000 },
-  	  { code: 'GVA', city: 'Genève', country: 'Suisse', region: 'Europe', price: 8000000, cargoCap: 350, fuelCap: 180000 },
-  	  { code: 'LJU', city: 'Ljubljana', country: 'Slovénie', region: 'Europe', price: 3200000, cargoCap: 220, fuelCap: 110000 },
-  	  { code: 'BKK', city: 'Bangkok', country: 'Thaïlande', region: 'Asie', price: 12000000, cargoCap: 650, fuelCap: 290000 },
-  	  { code: 'PUS', city: 'Busan', country: 'Corée du Sud', region: 'Asie', price: 5500000, cargoCap: 300, fuelCap: 150000 },
-  	  { code: 'YYZ', city: 'Toronto', country: 'Canada', region: 'Amérique du Nord', price: 13000000, cargoCap: 600, fuelCap: 270000 },	
+                    // --- MOYENS HUBS ---
+                    { code: 'LYS', city: 'Lyon', country: 'France', region: 'Europe', price: 4500000, cargoCap: 320, fuelCap: 140000, lat: 45.7256, lon: 5.0811 },
+                    { code: 'BCN', city: 'Barcelone', country: 'Espagne', region: 'Europe', price: 9500000, cargoCap: 400, fuelCap: 200000, lat: 41.2971, lon: 2.0785 },
+                    { code: 'GVA', city: 'Genève', country: 'Suisse', region: 'Europe', price: 8000000, cargoCap: 350, fuelCap: 180000, lat: 46.2381, lon: 6.1089 },
+                    { code: 'LJU', city: 'Ljubljana', country: 'Slovénie', region: 'Europe', price: 3200000, cargoCap: 220, fuelCap: 110000, lat: 46.2237, lon: 14.4576 },
+                    { code: 'BKK', city: 'Bangkok', country: 'Thaïlande', region: 'Asie', price: 12000000, cargoCap: 650, fuelCap: 290000, lat: 13.6900, lon: 100.7501 },
+                    { code: 'PUS', city: 'Busan', country: 'Corée du Sud', region: 'Asie', price: 5500000, cargoCap: 300, fuelCap: 150000, lat: 35.1795, lon: 128.9382 },
+                    { code: 'YYZ', city: 'Toronto', country: 'Canada', region: 'Amérique du Nord', price: 13000000, cargoCap: 600, fuelCap: 270000, lat: 43.6777, lon: -79.6248 },	
 
-	    // --- PETITS HUBS ---
-	    { code: 'BES', city: 'Brest', country: 'France', region: 'Europe', price: 1600000, cargoCap: 110, fuelCap: 55000 },
-	    { code: 'CJS', city: 'Ciudad Juárez', country: 'Mexique', region: 'Amérique du Nord', price: 2800000, cargoCap: 210, fuelCap: 95000 },
-	    { code: 'CJU', city: 'Jeju', country: 'Corée du Sud', region: 'Asie', price: 4000000, cargoCap: 250, fuelCap: 120000 },
-	    { code: 'INN', city: 'Innsbruck', country: 'Autriche', region: 'Europe', price: 2100000, cargoCap: 130, fuelCap: 70000 },
+                    // --- PETITS HUBS ---
+                    { code: 'BES', city: 'Brest', country: 'France', region: 'Europe', price: 1600000, cargoCap: 110, fuelCap: 55000, lat: 48.4489, lon: -4.4161 },
+                    { code: 'CJS', city: 'Ciudad Juárez', country: 'Mexique', region: 'Amérique du Nord', price: 2800000, cargoCap: 210, fuelCap: 95000, lat: 31.6361, lon: -106.4289 },
+                    { code: 'CJU', city: 'Jeju', country: 'Corée du Sud', region: 'Asie', price: 4000000, cargoCap: 250, fuelCap: 120000, lat: 33.5113, lon: 126.4930 },
+                    { code: 'INN', city: 'Innsbruck', country: 'Autriche', region: 'Europe', price: 2100000, cargoCap: 130, fuelCap: 70000, lat: 47.2602, lon: 11.3440 },
 
-	    // --- PETITS HUBS - EUROPE DE L'EST ---
-	    { code: 'BTS', city: 'Bratislava', country: 'Slovaquie', region: 'Europe', price: 1900000, cargoCap: 120, fuelCap: 60000 },
-	    { code: 'KRK', city: 'Cracovie', country: 'Pologne', region: 'Europe', price: 2300000, cargoCap: 160, fuelCap: 75000 },
-	    { code: 'BUD', city: 'Budapest', country: 'Hongrie', region: 'Europe', price: 2800000, cargoCap: 190, fuelCap: 85000 },
-	    { code: 'PRG', city: 'Prague', country: 'Tchéquie', region: 'Europe', price: 3000000, cargoCap: 200, fuelCap: 90000 },
-   	 { code: 'ZAG', city: 'Zagreb', country: 'Croatie', region: 'Europe', price: 2100000, cargoCap: 140, fuelCap: 70000 },
-   	 { code: 'SOF', city: 'Sofia', country: 'Bulgarie', region: 'Europe', price: 2000000, cargoCap: 130, fuelCap: 65000 },
-   	 { code: 'RIX', city: 'Riga', country: 'Lettonie', region: 'Europe', price: 1700000, cargoCap: 110, fuelCap: 55000 },
-   	 { code: 'VNO', city: 'Vilnius', country: 'Lituanie', region: 'Europe', price: 1750000, cargoCap: 115, fuelCap: 58000 },
-   	 { code: 'BEG', city: 'Belgrade', country: 'Serbie', region: 'Europe', price: 2200000, cargoCap: 150, fuelCap: 72000 },
-   	 { code: 'TLL', city: 'Tallinn', country: 'Estonie', region: 'Europe', price: 1850000, cargoCap: 125, fuelCap: 62000 }
-
+                    // --- PETITS HUBS - EUROPE DE L'EST ---
+                    { code: 'BTS', city: 'Bratislava', country: 'Slovaquie', region: 'Europe', price: 1900000, cargoCap: 120, fuelCap: 60000, lat: 48.17, lon: 17.21 },
+                    { code: 'KRK', city: 'Cracovie', country: 'Pologne', region: 'Europe', price: 2300000, cargoCap: 160, fuelCap: 75000, lat: 50.0777, lon: 19.7848 },
+                    { code: 'BUD', city: 'Budapest', country: 'Hongrie', region: 'Europe', price: 2800000, cargoCap: 190, fuelCap: 85000, lat: 47.4369, lon: 19.2556 },
+                    { code: 'PRG', city: 'Prague', country: 'Tchéquie', region: 'Europe', price: 3000000, cargoCap: 200, fuelCap: 90000, lat: 50.1008, lon: 14.2600 },
+                    { code: 'ZAG', city: 'Zagreb', country: 'Croatie', region: 'Europe', price: 2100000, cargoCap: 140, fuelCap: 70000, lat: 45.7429, lon: 16.0688 },
+                    { code: 'SOF', city: 'Sofia', country: 'Bulgarie', region: 'Europe', price: 2000000, cargoCap: 130, fuelCap: 65000, lat: 42.6966, lon: 23.4114 },
+                    { code: 'RIX', city: 'Riga', country: 'Lettonie', region: 'Europe', price: 1700000, cargoCap: 110, fuelCap: 55000, lat: 56.9236, lon: 23.9711 },
+                    { code: 'VNO', city: 'Vilnius', country: 'Lituanie', region: 'Europe', price: 1750000, cargoCap: 115, fuelCap: 58000, lat: 54.6341, lon: 25.2858 },
+                    { code: 'BEG', city: 'Belgrade', country: 'Serbie', region: 'Europe', price: 2200000, cargoCap: 150, fuelCap: 72000, lat: 44.8184, lon: 20.3090 },
+                    { code: 'TLL', city: 'Tallinn', country: 'Estonie', region: 'Europe', price: 1850000, cargoCap: 125, fuelCap: 62000, lat: 59.4133, lon: 24.8328 }
                 ];
 
                 this.fleet = [];
@@ -696,14 +721,7 @@
 
             onCompanyNameInput() {
                 const cName = document.getElementById('create-company-name').value;
-                if (!this._baseGeneratedCodeTime) {
-                    this._baseGeneratedCodeTime = this.generateUniqueCompanyCode(cName);
-                } else {
-                    const cleanName = (cName || 'AERO').replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 4) || 'AERO';
-                    const parts = this._baseGeneratedCodeTime.split('-');
-                    parts[0] = cleanName;
-                    this._baseGeneratedCodeTime = parts.join('-');
-                }
+                this._baseGeneratedCodeTime = this.generateUniqueCompanyCode(cName);
                 document.getElementById('create-company-code').value = this._baseGeneratedCodeTime;
             }
 
@@ -749,6 +767,9 @@
                 if (isManage) {
                     this.renderSavedCompaniesList();
                 }
+                if (isCreate && !document.getElementById('create-company-code').value) {
+                    this.generateNewCode();
+                }
             }
 
             renderSavedCompaniesList() {
@@ -790,21 +811,32 @@
                     });
                 }
                 if (origins.length === 0) {
-                    origins = ['CDG'];
+                    origins = ['LFLB'];
                 }
                 return origins;
+            }
+
+            calculateDistance(lat1, lon1, lat2, lon2) {
+                const R = 6371;
+                const dLat = (lat2 - lat1) * Math.PI / 180;
+                const dLon = (lon2 - lon1) * Math.PI / 180;
+                const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                          Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                          Math.sin(dLon/2) * Math.sin(dLon/2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                return Math.round(R * c);
             }
 
             generateInitialContracts() {
                 this.availableContracts = [];
                 const tierList = [
-                    { type: 'Aviation Légère', minPax: 2, minCargo: 0, mult: 1, label: 'Léger / Régional court' },
-                    { type: 'Turboprop', minPax: 10, minCargo: 1, mult: 1.8, label: 'Turbopropulseur Régional' },
-                    { type: 'Régional', minPax: 40, minCargo: 4, mult: 3.5, label: 'Ligne Régionale PAX' },
-                    { type: 'Moyen-Porteur', minPax: 150, minCargo: 15, mult: 8, label: 'Moyen-Porteur International' },
-                    { type: 'Long-Courrier', minPax: 300, minCargo: 40, mult: 20, label: 'Long-Courrier Transcontinental' },
-                    { type: 'Cargo Lourd', minPax: 0, minCargo: 80, mult: 25, label: 'Fret Lourd / Cargo' },
-                    { type: 'Supersonique', minPax: 80, minCargo: 4, mult: 35, label: 'Express VIP Supersonique' }
+                    { type: 'Aviation Légère', minPax: 2, maxPax: 6, minCargo: 0.1, maxCargo: 0.5, maxDist: 900, mult: 1, label: 'Léger / Régional court' },
+                    { type: 'Turboprop', minPax: 8, maxPax: 19, minCargo: 0.8, maxCargo: 2.0, maxDist: 2200, mult: 1.8, label: 'Turbopropulseur Régional' },
+                    { type: 'Régional', minPax: 30, maxPax: 78, minCargo: 3.0, maxCargo: 8.0, maxDist: 1600, mult: 3.5, label: 'Ligne Régionale PAX' },
+                    { type: 'Moyen-Porteur', minPax: 120, maxPax: 210, minCargo: 12.0, maxCargo: 25.0, maxDist: 6600, mult: 8, label: 'Moyen-Porteur International' },
+                    { type: 'Long-Courrier', minPax: 250, maxPax: 360, minCargo: 30.0, maxCargo: 55.0, maxDist: 15000, mult: 20, label: 'Long-Courrier Transcontinental' },
+                    { type: 'Cargo Lourd', minPax: 0, maxPax: 0, minCargo: 60.0, maxCargo: 105.0, maxDist: 10000, mult: 25, label: 'Fret Lourd / Cargo' },
+                    { type: 'Supersonique', minPax: 60, maxPax: 100, minCargo: 2.0, maxCargo: 5.0, maxDist: 7500, mult: 35, label: 'Express VIP Supersonique' }
                 ];
 
                 const companyFactor = 1 + (this.company.hubs.length * 0.3) + (this.fleet.length * 0.15) + ((this.company.level || 1) * 0.2);
@@ -812,16 +844,30 @@
 
                 for (let i = 0; i < 20; i++) {
                     const origCode = activeOrigins[Math.floor(Math.random() * activeOrigins.length)];
-                    let destHub = this.hub100List[Math.floor(Math.random() * this.hub100List.length)];
-                    while (destHub.code === origCode) {
-                        destHub = this.hub100List[Math.floor(Math.random() * this.hub100List.length)];
-                    }
+                    const origHubObj = this.hub100List.find(h => h.code === origCode) || this.hub100List[0];
 
                     const targetTier = tierList[Math.floor(Math.random() * Math.min(tierList.length, 2 + Math.floor(this.company.hubs.length / 2) + Math.floor(this.fleet.length / 3)))];
-                    const reward = Math.round((Math.random() * 80000 + 70000) * targetTier.mult * companyFactor);
+                    
+                    let validDestHubs = this.hub100List.filter(h => {
+                        if (h.code === origCode) return false;
+                        const dist = this.calculateDistance(origHubObj.lat, origHubObj.lon, h.lat, h.lon);
+                        return dist <= targetTier.maxDist && dist > 80;
+                    });
 
-                    const hasTwoLegs = Math.random() < 0.3; // 30% de chance d'avoir une escale
-                    let routingTitle = `${targetTier.label} (${origCode} ➔ ${destHub.code})`;
+                    if (validDestHubs.length === 0) {
+                        validDestHubs = this.hub100List.filter(h => h.code !== origCode);
+                    }
+
+                    const destHub = validDestHubs[Math.floor(Math.random() * validDestHubs.length)];
+                    const distanceKm = this.calculateDistance(origHubObj.lat, origHubObj.lon, destHub.lat, destHub.lon);
+
+                    const paxCount = targetTier.minPax > 0 ? Math.floor(Math.random() * (targetTier.maxPax - targetTier.minPax + 1)) + targetTier.minPax : 0;
+                    const cargoTonnes = parseFloat((Math.random() * (targetTier.maxCargo - targetTier.minCargo) + targetTier.minCargo).toFixed(1));
+
+                    const reward = Math.round((Math.random() * 40000 + 40000 + (distanceKm * 40)) * targetTier.mult * companyFactor);
+
+                    const hasTwoLegs = distanceKm > 3500 && Math.random() < 0.3;
+                    let routingTitle = `${targetTier.label} (${origCode} ➔ ${destHub.code} • ${distanceKm} km)`;
                     let stopover = '';
 
                     if (hasTwoLegs) {
@@ -829,7 +875,7 @@
                         if (potentialStops.length > 0) {
                             const stopHub = potentialStops[Math.floor(Math.random() * potentialStops.length)];
                             stopover = stopHub.code;
-                            routingTitle = `${targetTier.label} (${origCode} ➔ ${stopover} [Escale] ➔ ${destHub.code})`;
+                            routingTitle = `${targetTier.label} (${origCode} ➔ ${stopover} [Escale] ➔ ${destHub.code} • ${distanceKm} km)`;
                         }
                     }
 
@@ -841,8 +887,9 @@
                         stopover: stopover,
                         reward: reward,
                         requiredType: targetTier.type,
-                        minPax: targetTier.minPax,
-                        minCargo: targetTier.minCargo,
+                        minPax: paxCount,
+                        minCargo: cargoTonnes,
+                        distanceKm: distanceKm,
                         ticksLeft: Math.floor(Math.random() * 4) + 4,
                         selectedPlaneId: ''
                     });
@@ -853,15 +900,19 @@
                 const pName = document.getElementById('create-player-name').value.trim();
                 const cName = document.getElementById('create-company-name').value.trim();
                 const cCode = document.getElementById('create-company-code').value.trim().toLowerCase();
+                const selectedHubCode = document.getElementById('create-hub-select').value;
 
                 if (!pName || !cName || !cCode) {
                     this.showToast("Veuillez remplir tous les champs.", "error");
                     return;
                 }
 
+                const hubObj = this.hub100List.find(h => h.code === selectedHubCode) || this.hub100List[0];
+
                 this.playerName = pName;
                 this.companyCode = cCode;
-                this.playerLocation = 'CDG';
+                this.playerLocation = hubObj.code;
+
                 this.company = {
                     name: cName,
                     cash: 4000000,
@@ -869,8 +920,8 @@
                     level: 1,
                     tickCount: 1,
                     lastTickDate: new Date().toDateString(),
-                    hubs: [],
-                    fuelReservesByHub: {},
+                    hubs: [hubObj.code],
+                    fuelReservesByHub: { [hubObj.code]: 100000 },
                     fuelHedgeActive: false
                 };
                 this.fleet = [];
@@ -879,7 +930,7 @@
                 this.passportStamps = [];
                 
                 this.team = [
-                    { id: Date.now(), name: pName, role: 'CEO', salary: 15000, exp: 100, location: 'CDG' }
+                    { id: Date.now(), name: pName, role: 'CEO', salary: 15000, exp: 100, location: hubObj.code }
                 ];
 
                 this.generateInitialContracts();
@@ -892,7 +943,7 @@
 
                 document.getElementById('auth-modal').classList.add('hidden');
                 document.getElementById('auth-modal').classList.remove('flex');
-                this.showToast(`Compagnie "${cName}" créée sur le Cloud ! Code : ${cCode}`, 'success');
+                this.showToast(`Compagnie "${cName}" créée au hub de ${hubObj.city} (${hubObj.code}) !`, 'success');
                 this.init();
             }
 
@@ -918,11 +969,12 @@
                 if (!member) {
                     const hasCLO = this.team.some(m => m.role === 'CLO');
                     const assignedRole = hasCLO ? 'Pilote' : 'CLO';
-                    member = { id: Date.now(), name: pName, role: assignedRole, salary: 8000, exp: 200, location: 'NCE' };
+                    const defaultLoc = this.company.hubs.length > 0 ? this.company.hubs[0] : 'LFLB';
+                    member = { id: Date.now(), name: pName, role: assignedRole, salary: 8000, exp: 200, location: defaultLoc };
                     this.team.push(member);
                 }
                 this.playerRole = member.role;
-                this.playerLocation = member.location || 'CDG';
+                this.playerLocation = member.location || (this.company.hubs[0] || 'LFLB');
 
                 await this.saveCompanyData();
                 localStorage.setItem('aerocareer_player_name', this.playerName);
@@ -952,6 +1004,7 @@
                     passportStamps: this.passportStamps,
                     lastUpdated: Date.now()
                 };
+                this._lastRemoteUpdate = state.lastUpdated;
                 try {
                     const { doc, setDoc } = window.FirebaseSDK;
                     await setDoc(doc(window.db, "companies", this.companyCode), state);
@@ -989,7 +1042,7 @@
                 const me = this.team.find(m => m.name === this.playerName);
                 if (me) {
                     this.playerRole = me.role;
-                    this.playerLocation = me.location || 'CDG';
+                    this.playerLocation = me.location || (this.company.hubs[0] || 'LFLB');
                 }
             }
 
@@ -1000,6 +1053,10 @@
                 this._unsubscribeSync = onSnapshot(docRef, (docSnap) => {
                     if (docSnap.exists()) {
                         const remoteData = docSnap.data();
+                        if (remoteData.lastUpdated && remoteData.lastUpdated <= this._lastRemoteUpdate) {
+                            return;
+                        }
+                        this._lastRemoteUpdate = remoteData.lastUpdated || Date.now();
                         this.applyLoadedData(remoteData);
                         if (typeof this.renderAll === 'function') {
                             this.renderAll();
@@ -1069,27 +1126,37 @@
                 const activeOrigins = this.getAvailableOrigins();
                 while (this.availableContracts.length < 20) {
                     const origCode = activeOrigins[Math.floor(Math.random() * activeOrigins.length)];
-                    let destHub = this.hub100List[Math.floor(Math.random() * this.hub100List.length)];
-                    while (destHub.code === origCode) {
-                        destHub = this.hub100List[Math.floor(Math.random() * this.hub100List.length)];
-                    }
+                    const origHubObj = this.hub100List.find(h => h.code === origCode) || this.hub100List[0];
 
                     const tierList = [
-                        { type: 'Aviation Légère', minPax: 2, minCargo: 0, mult: 1, label: 'Léger / Régional court' },
-                        { type: 'Turboprop', minPax: 10, minCargo: 1, mult: 1.8, label: 'Turbopropulseur Régional' },
-                        { type: 'Régional', minPax: 40, minCargo: 4, mult: 3.5, label: 'Ligne Régionale PAX' },
-                        { type: 'Moyen-Porteur', minPax: 150, minCargo: 15, mult: 8, label: 'Moyen-Porteur International' },
-                        { type: 'Long-Courrier', minPax: 300, minCargo: 40, mult: 20, label: 'Long-Courrier Transcontinental' },
-                        { type: 'Cargo Lourd', minPax: 0, minCargo: 80, mult: 25, label: 'Fret Lourd / Cargo' },
-                        { type: 'Supersonique', minPax: 80, minCargo: 4, mult: 35, label: 'Express VIP Supersonique' }
+                        { type: 'Aviation Légère', minPax: 2, maxPax: 6, minCargo: 0.1, maxCargo: 0.5, maxDist: 900, mult: 1, label: 'Léger / Régional court' },
+                        { type: 'Turboprop', minPax: 8, maxPax: 19, minCargo: 0.8, maxCargo: 2.0, maxDist: 2200, mult: 1.8, label: 'Turbopropulseur Régional' },
+                        { type: 'Régional', minPax: 30, maxPax: 78, minCargo: 3.0, maxCargo: 8.0, maxDist: 1600, mult: 3.5, label: 'Ligne Régionale PAX' },
+                        { type: 'Moyen-Porteur', minPax: 120, maxPax: 210, minCargo: 12.0, maxCargo: 25.0, maxDist: 6600, mult: 8, label: 'Moyen-Porteur International' },
+                        { type: 'Long-Courrier', minPax: 250, maxPax: 360, minCargo: 30.0, maxCargo: 55.0, maxDist: 15000, mult: 20, label: 'Long-Courrier Transcontinental' },
+                        { type: 'Cargo Lourd', minPax: 0, maxPax: 0, minCargo: 60.0, maxCargo: 105.0, maxDist: 10000, mult: 25, label: 'Fret Lourd / Cargo' },
+                        { type: 'Supersonique', minPax: 60, maxPax: 100, minCargo: 2.0, maxCargo: 5.0, maxDist: 7500, mult: 35, label: 'Express VIP Supersonique' }
                     ];
 
                     const companyFactor = 1 + (this.company.hubs.length * 0.3) + (this.fleet.length * 0.15) + ((this.company.level || 1) * 0.2);
-                    const targetTier = tierList[Math.floor(Math.random() * Math.min(tierList.length, 2 + Math.floor(this.company.hubs.length / 2) + Math.floor(this.fleet.length / 3)))] ;
-                    const reward = Math.round((Math.random() * 80000 + 70000) * targetTier.mult * companyFactor);
+                    const targetTier = tierList[Math.floor(Math.random() * Math.min(tierList.length, 2 + Math.floor(this.company.hubs.length / 2) + Math.floor(this.fleet.length / 3)))];
+                    
+                    let validDestHubs = this.hub100List.filter(h => {
+                        if (h.code === origCode) return false;
+                        const dist = this.calculateDistance(origHubObj.lat, origHubObj.lon, h.lat, h.lon);
+                        return dist <= targetTier.maxDist && dist > 80;
+                    });
+                    if (validDestHubs.length === 0) validDestHubs = this.hub100List.filter(h => h.code !== origCode);
 
-                    const hasTwoLegs = Math.random() < 0.3;
-                    let routingTitle = `${targetTier.label} (${origCode} ➔ ${destHub.code})`;
+                    const destHub = validDestHubs[Math.floor(Math.random() * validDestHubs.length)];
+                    const distanceKm = this.calculateDistance(origHubObj.lat, origHubObj.lon, destHub.lat, destHub.lon);
+
+                    const paxCount = targetTier.minPax > 0 ? Math.floor(Math.random() * (targetTier.maxPax - targetTier.minPax + 1)) + targetTier.minPax : 0;
+                    const cargoTonnes = parseFloat((Math.random() * (targetTier.maxCargo - targetTier.minCargo) + targetTier.minCargo).toFixed(1));
+                    const reward = Math.round((Math.random() * 40000 + 40000 + (distanceKm * 40)) * targetTier.mult * companyFactor);
+
+                    const hasTwoLegs = distanceKm > 3500 && Math.random() < 0.3;
+                    let routingTitle = `${targetTier.label} (${origCode} ➔ ${destHub.code} • ${distanceKm} km)`;
                     let stopover = '';
 
                     if (hasTwoLegs) {
@@ -1097,7 +1164,7 @@
                         if (potentialStops.length > 0) {
                             const stopHub = potentialStops[Math.floor(Math.random() * potentialStops.length)];
                             stopover = stopHub.code;
-                            routingTitle = `${targetTier.label} (${origCode} ➔ ${stopover} [Escale] ➔ ${destHub.code})`;
+                            routingTitle = `${targetTier.label} (${origCode} ➔ ${stopover} [Escale] ➔ ${destHub.code} • ${distanceKm} km)`;
                         }
                     }
 
@@ -1109,8 +1176,9 @@
                         stopover: stopover,
                         reward: reward,
                         requiredType: targetTier.type,
-                        minPax: targetTier.minPax,
-                        minCargo: targetTier.minCargo,
+                        minPax: paxCount,
+                        minCargo: cargoTonnes,
+                        distanceKm: distanceKm,
                         ticksLeft: Math.floor(Math.random() * 4) + 4,
                         selectedPlaneId: ''
                     });
@@ -1144,11 +1212,6 @@
                     total += this.company.fuelReservesByHub[code] || 0;
                 }
                 return total;
-            }
-
-            getHubFuelCapacity(code) {
-                const hub = this.hub100List.find(h => h.code === code);
-                return hub ? hub.fuelCap : 200000;
             }
 
             getRequiredFuelForFlight(plane) {
@@ -1262,7 +1325,7 @@
                                 </div>
                                 <div>
                                     <div class="text-xs font-bold uppercase tracking-wider ${textCol}">${roleKey}</div>
-                                    <div class="font-bold text-white text-base">${exec.name} <span class="text-xs text-emerald-400 font-mono">[📍 ${exec.location || 'CDG'}]</span></div>
+                                    <div class="font-bold text-white text-base">${exec.name} <span class="text-xs text-emerald-400 font-mono">[📍 ${exec.location || 'LFLB'}]</span></div>
                                     <div class="text-xs text-slate-400">Salaire: ${this.formatMoney(exec.salary)}/tick</div>
                                 </div>
                             </div>
@@ -1283,7 +1346,7 @@
                                 <i class="fa-solid fa-user-pilot text-slate-400 text-xs"></i>
                                 <div>
                                     <div class="font-bold text-slate-200 text-xs">${pilot.name}</div>
-                                    <div class="text-[10px] text-emerald-400 font-mono">📍 ${pilot.location || 'CDG'}</div>
+                                    <div class="text-[10px] text-emerald-400 font-mono">📍 ${pilot.location || 'LFLB'}</div>
                                 </div>
                             </div>
                             <span class="text-[10px] bg-slate-800 text-sky-400 px-2 py-0.5 rounded font-mono">${pilot.exp} h</span>
@@ -1299,7 +1362,7 @@
                     let planeOptions = '<option value="">-- Choisir un appareil --</option>';
                     parkedPlanes.forEach(p => {
                         const acDef = this.aircraftCatalog.find(a => a.name === p.name);
-                        const isCompatible = acDef && acDef.capacity >= contract.minPax && acDef.cargo >= contract.minCargo;
+                        const isCompatible = acDef && acDef.capacity >= contract.minPax && acDef.cargo >= contract.minCargo && acDef.range >= (contract.distanceKm || 0);
                         const badgeCompat = isCompatible ? '✅' : '⚠️';
                         const selected = contract.selectedPlaneId == p.id ? 'selected' : '';
                         planeOptions += `<option value="${p.id}" ${selected}>${badgeCompat} ${p.registration} (${p.name}) - [${p.location}]</option>`;
@@ -1313,8 +1376,17 @@
                                     <span class="text-xs text-amber-400 font-semibold font-mono">Exp: ${contract.ticksLeft} tick(s)</span>
                                 </div>
                                 <h4 class="font-bold text-white text-sm mt-3">${contract.title}</h4>
-                                <div class="text-[11px] text-slate-400 mt-1">Requis : Min ${contract.minPax} Pax | Min ${contract.minCargo}t Fret</div>
-                                <div class="text-xs text-slate-300 mt-1">Prime : <strong class="text-emerald-400 font-mono text-sm">${this.formatMoney(contract.reward)}</strong></div>
+                                <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800 mt-2 space-y-1 text-xs font-mono">
+                                    <div class="flex justify-between text-slate-300">
+                                        <span>👥 Passagers à transporter :</span>
+                                        <strong class="text-sky-400">${contract.minPax} PAX</strong>
+                                    </div>
+                                    <div class="flex justify-between text-slate-300">
+                                        <span>📦 Fret à transporter :</span>
+                                        <strong class="text-emerald-400">${contract.minCargo} tonnes</strong>
+                                    </div>
+                                </div>
+                                <div class="text-xs text-slate-300 mt-2">Prime nette : <strong class="text-emerald-400 font-mono text-sm">${this.formatMoney(contract.reward)}</strong></div>
                             </div>
                             <div class="space-y-2 pt-2 border-t border-slate-800">
                                 <select onchange="app.updateContractSelection(${contract.id}, this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200">${planeOptions}</select>
@@ -1336,6 +1408,16 @@
                     const valDisplay = plane.isLeased ? `<div class="text-xs font-mono text-amber-400 font-bold">${this.formatMoney(plane.leaseFee)}/tick</div>` : `<div class="text-xs font-mono text-emerald-400 font-bold">${this.formatMoney(resaleVal)}</div>`;
 
                     const currentHubFuel = this.company.fuelReservesByHub[plane.location] || 0;
+                    const assignedContract = this.activeContracts.find(c => c.id === plane.assignedContractId);
+                    const assignedPilotName = plane.assignedPilotName || 'Non assigné';
+
+                    let contractInfoDisplay = '<span class="text-slate-500">Aucun contrat</span>';
+                    if (assignedContract) {
+                        contractInfoDisplay = `
+                            <div class="text-[11px] text-sky-400 font-semibold">${assignedContract.title}</div>
+                            <div class="text-[10px] text-amber-400 font-mono">Pilote : ${assignedPilotName} | 👥 ${assignedContract.minPax} PAX | 📦 ${assignedContract.minCargo}t</div>
+                        `;
+                    }
 
                     const flightBtn = plane.status === 'En vol'
                         ? `<button onclick="app.openDebriefModal(${plane.id})" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer">Atterrir</button>`
@@ -1353,7 +1435,12 @@
                             <td class="py-3 px-3"><div class="text-xs font-bold text-white">📍 ${plane.location}</div><div class="text-[10px] text-slate-400">Stock Hub: ${currentHubFuel.toLocaleString()} Kg</div></td>
                             <td class="py-3 px-3"><div class="text-xs text-amber-400 font-bold">${plane.flightHours || 0} h</div></td>
                             <td class="py-3 px-3">${valDisplay}</td>
-                            <td class="py-3 px-3"><span class="px-2.5 py-1 rounded-full text-xs font-bold border ${statusClass}">${plane.status}</span></td>
+                            <td class="py-3 px-3">
+                                <div class="space-y-1">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${statusClass}">${plane.status}</span>
+                                    <div>${contractInfoDisplay}</div>
+                                </div>
+                            </td>
                             <td class="py-3 px-3 text-right space-x-2">${flightBtn}</td>
                         </tr>
                     `;
@@ -1371,10 +1458,36 @@
                                 <option value="CLO" ${member.role === 'CLO' ? 'selected' : ''}>Logisticien (CLO)</option>
                                 <option value="Pilote" ${member.role === 'Pilote' ? 'selected' : ''}>Pilote</option>
                             </select>
-                            <div class="text-[10px] text-emerald-400 font-mono pt-1">Position actuelle : 📍 ${member.location || 'CDG'}</div>
+                            <div class="text-[10px] text-emerald-400 font-mono pt-1">Position actuelle : 📍 ${member.location || 'LFLB'}</div>
                         </div>
                     `;
                 });
+
+                const pilotContractsContainer = document.getElementById('pilot-active-contracts-container');
+                pilotContractsContainer.innerHTML = '';
+                const myActivePlanes = this.fleet.filter(p => p.assignedContractId);
+                if (myActivePlanes.length === 0) {
+                    pilotContractsContainer.innerHTML = `<div class="text-slate-500 text-xs py-3 text-center">Aucun contrat en cours assigné à vos appareils.</div>`;
+                } else {
+                    myActivePlanes.forEach(p => {
+                        const contract = this.activeContracts.find(c => c.id === p.assignedContractId);
+                        if (contract) {
+                            pilotContractsContainer.innerHTML += `
+                                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+                                    <div>
+                                        <div class="font-bold text-white">${contract.title}</div>
+                                        <div class="text-sky-400 font-mono text-[10px]">Appareil : ${p.registration} (${p.name}) | Pilote : ${p.assignedPilotName || 'Non assigné'}</div>
+                                        <div class="text-slate-300 font-mono text-[10px]">Détails : 👥 ${contract.minPax} Passagers | 📦 ${contract.minCargo} t de fret</div>
+                                    </div>
+                                    <div class="text-right font-mono">
+                                        <div class="text-emerald-400 font-bold">${this.formatMoney(contract.reward)}</div>
+                                        <div class="text-amber-400 text-[10px]">📍 ${p.location} ➔ ${contract.destination}</div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    });
+                }
 
                 document.getElementById('hubs-acquired-count').innerText = this.company.hubs.length + ' Hub(s) Acquis';
                 this.renderHubs();
@@ -1393,7 +1506,7 @@
                             <div>
                                 <span class="bg-sky-950 text-sky-400 text-[10px] font-bold px-2 py-0.5 rounded border border-sky-800">${ac.type}</span>
                                 <h4 class="font-bold text-white text-base mt-2">${ac.name}</h4>
-                                <div class="text-xs text-slate-400 mt-1">Capacité: ${ac.capacity} Pax | Fret: ${ac.cargo}t</div>
+                                <div class="text-xs text-slate-400 mt-1">Capacité: ${ac.capacity} Pax | Fret: ${ac.cargo}t | Autonomie: ${ac.range} km</div>
                                 <div class="text-xs text-slate-400">Prix Neuf: <strong class="text-emerald-400 font-mono">${this.formatMoney(ac.price)}</strong></div>
                             </div>
                             <div class="flex space-x-2 pt-2 border-t border-slate-800">
@@ -1406,11 +1519,18 @@
 
                 const loansContainer = document.getElementById('active-loans-container');
                 loansContainer.innerHTML = '';
+                if (this.activeLoans.length === 0) {
+                    loansContainer.innerHTML = `<div class="text-slate-500 text-xs py-4 col-span-2 text-center">Aucun emprunt en cours.</div>`;
+                }
                 this.activeLoans.forEach(loan => {
                     loansContainer.innerHTML += `
                         <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
-                            <div class="font-bold text-white text-sm">${loan.title}</div>
-                            <div class="text-xs text-emerald-400 font-mono">${this.formatMoney(loan.remainingAmount)} restants</div>
+                            <div class="flex justify-between items-center">
+                                <div class="font-bold text-white text-sm">${loan.title}</div>
+                                <span class="text-xs bg-slate-900 text-amber-400 px-2.5 py-0.5 rounded border border-slate-800 font-mono">${loan.ticksLeft} ticks restants</span>
+                            </div>
+                            <div class="text-xs text-emerald-400 font-mono">Dette restante : ${this.formatMoney(loan.remainingAmount)}</div>
+                            <div class="text-[10px] text-slate-400">Mensualité / tick : ${this.formatMoney(loan.installment)}</div>
                         </div>
                     `;
                 });
@@ -1477,12 +1597,13 @@
                 if (!plane) return;
 
                 const acDef = this.aircraftCatalog.find(a => a.name === plane.name);
-                if (!acDef || acDef.capacity < c.minPax || acDef.cargo < c.minCargo) {
-                    this.showToast(`Cet appareil (${plane.name}) n'a pas la capacité requise pour ce contrat !`, "error");
+                if (!acDef || acDef.capacity < c.minPax || acDef.cargo < c.minCargo || acDef.range < (c.distanceKm || 0)) {
+                    this.showToast(`Cet appareil (${plane.name}) ne remplit pas les critères (Pax, Fret ou Autonomie max de ${acDef.range} km) !`, "error");
                     return;
                 }
 
                 plane.assignedContractId = c.id;
+                plane.assignedPilotName = this.playerName;
                 this.availableContracts = this.availableContracts.filter(item => item.id !== contractId);
                 this.activeContracts.push(c);
                 this.showToast("Contrat accepté et assigné avec succès !", "success");
@@ -1494,15 +1615,24 @@
                 if (!p) return;
                 const contract = this.activeContracts.find(c => c.id === p.assignedContractId);
                 
-                // Si le contrat a une escale non effectuée, la destination de cette première étape est l'escale. Sinon c'est la destination finale.
                 let targetDest = contract ? (contract.stopover ? contract.stopover : contract.destination) : p.location;
 
                 const reqFuel = this.getRequiredFuelForFlight(p);
-                const currentHubStock = this.company.fuelReservesByHub[p.location] || 0;
+                let currentHubStock = this.company.fuelReservesByHub[p.location] || 0;
 
                 if (currentHubStock < reqFuel) {
-                    this.showToast(`Kérosène insuffisant au Hub (${p.location}) pour lancer le vol !`, "error");
-                    return;
+                    const missingFuel = reqFuel - currentHubStock;
+                    const pricePerKg = this.company.fuelHedgeActive ? 1.50 : this.currentFuelPrice;
+                    const spotCost = Math.round(missingFuel * pricePerKg);
+
+                    if (this.company.cash < spotCost) {
+                        this.showToast(`Kérosène insuffisant et trésorerie trop faible pour acheter ${missingFuel.toLocaleString()} Kg au prix spot (${this.formatMoney(spotCost)}) !`, "error");
+                        return;
+                    }
+
+                    this.company.cash -= spotCost;
+                    this.company.fuelReservesByHub[p.location] = currentHubStock + missingFuel;
+                    this.showToast(`Approvisionnement spot automatique : ${missingFuel.toLocaleString()} Kg achetés pour ${this.formatMoney(spotCost)} au hub ${p.location}.`, "info");
                 }
 
                 this.company.fuelReservesByHub[p.location] -= reqFuel;
@@ -1545,19 +1675,18 @@
                 delete p.currentLegTarget;
 
                 if (contract) {
-                    // Vérifie si on vient d'arriver à l'escale
                     if (contract.stopover && targetDest === contract.stopover) {
                         const oldStop = contract.stopover;
                         contract.origin = oldStop;
-                        contract.stopover = ''; // Escale validée, prochaine étape = destination finale directe
+                        contract.stopover = '';
                         contract.title = contract.title.replace(`➔ ${oldStop} [Escale] ➔`, `(Escale ${oldStop} validée) ➔`);
                         this.showToast(`Escale à ${oldStop} réussie ! Ravitaillez l'appareil et repartez quand vous voulez.`, 'success');
                     } else {
-                        // Arrivée à destination finale !
                         this.company.cash += contract.reward;
                         this.showToast(`Contrat entièrement réussi ! +${this.formatMoney(contract.reward)}`, 'success');
                         this.activeContracts = this.activeContracts.filter(c => c.id !== contract.id);
                         p.assignedContractId = '';
+                        p.assignedPilotName = '';
                     }
                 }
 
@@ -1576,7 +1705,7 @@
                 const name = nameInput.value.trim();
                 if (!name || this.company.cash < 50000) return;
                 this.company.cash -= 50000;
-                this.team.push({ id: Date.now(), name: name, role: 'Pilote', salary: 8000, exp: 100, location: 'CDG' });
+                this.team.push({ id: Date.now(), name: name, role: 'Pilote', salary: 8000, exp: 100, location: this.playerLocation });
                 nameInput.value = '';
                 this.renderAll();
             }
@@ -1620,6 +1749,7 @@
                     fuelOnBoard: 0,
                     status: 'Parked',
                     assignedContractId: '',
+                    assignedPilotName: '',
                     flightHours: 0,
                     originalPrice: ac.price,
                     isLeased: false,
@@ -1652,6 +1782,7 @@
                     fuelOnBoard: 0,
                     status: 'Parked',
                     assignedContractId: '',
+                    assignedPilotName: '',
                     flightHours: 0,
                     originalPrice: ac.price,
                     isLeased: true,
@@ -1713,19 +1844,28 @@
             }
 
             confirmLoan() {
-                const amount = parseInt(document.getElementById('loan-amount-select').value);
-                const ticks = parseInt(document.getElementById('loan-term-select').value);
-                const total = Math.round(amount * 1.15);
+                const amount = parseInt(document.getElementById('loan-amount-select').value, 10);
+                const ticks = parseInt(document.getElementById('loan-term-select').value, 10);
+                
+                let interestRate = 0.12;
+                if (ticks === 5) interestRate = 0.05;
+                else if (ticks === 10) interestRate = 0.12;
+                else if (ticks === 20) interestRate = 0.25;
+
+                const total = Math.round(amount * (1 + interestRate));
+                
                 this.company.cash += amount;
                 this.activeLoans.push({
                     id: Date.now(),
-                    title: `Emprunt ${this.formatMoney(amount)}`,
+                    title: `Emprunt ${this.formatMoney(amount)} (${ticks} Ticks)`,
                     remainingAmount: total,
                     installment: Math.round(total / ticks),
                     ticksLeft: ticks,
                     totalTicks: ticks
                 });
+
                 this.closeLoanModal();
+                this.showToast(`Emprunt de ${this.formatMoney(amount)} accordé avec succès !`, 'success');
                 this.renderAll();
             }
         }
