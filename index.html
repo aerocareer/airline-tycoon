@@ -610,28 +610,66 @@
                     { type: 'Turboprop', name: 'Beechcraft King Air 350i', capacity: 11, cargo: 1.5, range: 2200, fuelBurn: 380, price: 7500000, allowLease: true },
                     { type: 'Régional', name: 'ATR 42-600', capacity: 48, cargo: 5.0, range: 1300, fuelBurn: 550, price: 21000000, allowLease: true },
                     { type: 'Régional', name: 'ATR 72-600', capacity: 72, cargo: 7.5, range: 1500, fuelBurn: 720, price: 26000000, allowLease: true },
-                    { type: 'Moyen-Porteur', name: 'Airbus A320neo', capacity: 180, cargo: 20.0, range: 6500, fuelBurn: 2100, price: 110000000, allowLease: true },
-                    { type: 'Moyen-Porteur', name: 'Boeing 737-800', capacity: 189, cargo: 20.0, range: 5400, fuelBurn: 2300, price: 100000000, allowLease: true },
-                    { type: 'Moyen-Porteur', name: 'Boeing 737 MAX 8', capacity: 210, cargo: 22.0, range: 6570, fuelBurn: 1900, price: 121000000, allowLease: true },
-                    { type: 'Long-Courrier', name: 'Airbus A350-900', capacity: 315, cargo: 45.0, range: 15000, fuelBurn: 4800, price: 317000000, allowLease: true },
-                    { type: 'Long-Courrier', name: 'Boeing 787-10 Dreamliner', capacity: 336, cargo: 50.0, range: 11910, fuelBurn: 5100, price: 338000000, allowLease: true },
-                    { type: 'Très Long Courrier', name: 'Airbus A380-800', capacity: 555, cargo: 65.0, range: 14800, fuelBurn: 10500, price: 445000000, allowLease: true },
-                    { type: 'Cargo Lourd', name: 'Boeing 777F', capacity: 0, cargo: 102.0, range: 9200, fuelBurn: 6800, price: 350000000, allowLease: true },
-                    { type: 'Supersonique', name: 'Concorde SST', capacity: 100, cargo: 5.0, range: 7250, fuelBurn: 22000, price: 600000000, allowLease: true }
+                    { type: 'Moyen-Porteur', name: 'Airbus A320neo', capacity: 180, cargo: 20.0, range: 6500, fuelBurn: 2100, price: 110000000, allowLease: false },
+                    { type: 'Moyen-Porteur', name: 'Boeing 737-800', capacity: 189, cargo: 20.0, range: 5400, fuelBurn: 2300, price: 100000000, allowLease: false },
+                    { type: 'Moyen-Porteur', name: 'Boeing 737 MAX 8', capacity: 210, cargo: 22.0, range: 6570, fuelBurn: 1900, price: 121000000, allowLease: false },
+                    { type: 'Long-Courrier', name: 'Airbus A350-900', capacity: 315, cargo: 45.0, range: 15000, fuelBurn: 4800, price: 317000000, allowLease: false },
+                    { type: 'Long-Courrier', name: 'Boeing 787-10 Dreamliner', capacity: 336, cargo: 50.0, range: 11910, fuelBurn: 5100, price: 338000000, allowLease: false },
+                    { type: 'Très Long Courrier', name: 'Airbus A380-800', capacity: 555, cargo: 65.0, range: 14800, fuelBurn: 10500, price: 445000000, allowLease: false },
+                    { type: 'Cargo Lourd', name: 'Boeing 777F', capacity: 0, cargo: 102.0, range: 9200, fuelBurn: 6800, price: 350000000, allowLease: false },
                 ];
 
                 this.hub100List = [
-                    { code: 'CDG', city: 'Paris', country: 'France', region: 'Europe', price: 25000000, cargoCap: 500, fuelCap: 200000 },
-                    { code: 'JFK', city: 'New York', country: 'USA', region: 'Amérique du Nord', price: 30000000, cargoCap: 800, fuelCap: 350000 },
-                    { code: 'NCE', city: 'Nice', country: 'France', region: 'Europe', price: 2200000, cargoCap: 200, fuelCap: 90000 },
-                    { code: 'MIA', city: 'Miami', country: 'USA', region: 'Amérique du Nord', price: 11500000, cargoCap: 800, fuelCap: 350000 },
-                    { code: 'LFLB', city: 'Chambéry', country: 'France', region: 'Europe', price: 2500000, cargoCap: 150, fuelCap: 80000 },
-                    { code: 'LFLD', city: 'Bourges', country: 'France', region: 'Europe', price: 1800000, cargoCap: 100, fuelCap: 50000 },
-                    { code: 'NRT', city: 'Tokyo', country: 'Japon', region: 'Asie', price: 15000000, cargoCap: 900, fuelCap: 400000 },
-                    { code: 'DXB', city: 'Dubai', country: 'Émirats arabes unis', region: 'Moyen-Orient', price: 18000000, cargoCap: 1200, fuelCap: 600000 },
-                    { code: 'LHR', city: 'Londres', country: 'Royaume-Uni', region: 'Europe', price: 16000000, cargoCap: 850, fuelCap: 380000 },
-                    { code: 'SIN', city: 'Singapour', country: 'Singapour', region: 'Asie', price: 14000000, cargoCap: 750, fuelCap: 320000 },
-                    { code: 'LAX', city: 'Los Angeles', country: 'USA', region: 'Amérique du Nord', price: 15000000, cargoCap: 950, fuelCap: 410000 }
+		{ code: 'CDG', city: 'Paris', country: 'France', region: 'Europe', price: 25000000, cargoCap: 500, fuelCap: 200000 },
+		{ code: 'JFK', city: 'New York', country: 'USA', region: 'Amérique du Nord', price: 30000000, cargoCap: 800, fuelCap: 350000 },
+		{ code: 'NCE', city: 'Nice', country: 'France', region: 'Europe', price: 2200000, cargoCap: 200, fuelCap: 90000 },
+		{ code: 'MIA', city: 'Miami', country: 'USA', region: 'Amérique du Nord', price: 11500000, cargoCap: 800, fuelCap: 350000 },
+		{ code: 'LFLB', city: 'Chambéry', country: 'France', region: 'Europe', price: 2500000, cargoCap: 150, fuelCap: 80000 },
+		{ code: 'LFLD', city: 'Bourges', country: 'France', region: 'Europe', price: 1800000, cargoCap: 100, fuelCap: 50000 },
+		{ code: 'NRT', city: 'Tokyo', country: 'Japon', region: 'Asie', price: 15000000, cargoCap: 900, fuelCap: 400000 },	
+		{ code: 'DXB', city: 'Dubai', country: 'Émirats arabes unis', region: 'Moyen-Orient', price: 18000000, cargoCap: 1200, fuelCap: 600000 },
+		{ code: 'LHR', city: 'Londres', country: 'Royaume-Uni', region: 'Europe', price: 16000000, cargoCap: 850, fuelCap: 380000 },
+	    { code: 'SIN', city: 'Singapour', country: 'Singapour', region: 'Asie', price: 14000000, cargoCap: 750, fuelCap: 320000 },
+	    { code: 'LAX', city: 'Los Angeles', country: 'USA', region: 'Amérique du Nord', price: 15000000, cargoCap: 950, fuelCap: 410000 },
+
+	    // --- SÉOUL / GIMPO & INCHEON ---
+	    { code: 'GMP', city: 'Séoul (Gimpo)', country: 'Corée du Sud', region: 'Asie', price: 8500000, cargoCap: 450, fuelCap: 220000 },
+   	 { code: 'ICN', city: 'Séoul (Incheon)', country: 'Corée du Sud', region: 'Asie', price: 22000000, cargoCap: 1100, fuelCap: 500000 },
+
+  	  // --- GRANDS HUBS ---
+  	  { code: 'FRA', city: 'Francfort', country: 'Allemagne', region: 'Europe', price: 20000000, cargoCap: 1000, fuelCap: 450000 },
+  	  { code: 'AMS', city: 'Amsterdam', country: 'Pays-Bas', region: 'Europe', price: 18500000, cargoCap: 850, fuelCap: 390000 },
+  	  { code: 'HND', city: 'Tokyo (Haneda)', country: 'Japon', region: 'Asie', price: 24000000, cargoCap: 700, fuelCap: 420000 },
+  	  { code: 'ORD', city: 'Chicago', country: 'USA', region: 'Amérique du Nord', price: 21000000, cargoCap: 900, fuelCap: 430000 },
+  	  { code: 'HKG', city: 'Hong Kong', country: 'Chine', region: 'Asie', price: 23000000, cargoCap: 1250, fuelCap: 550000 },
+
+  	  // --- MOYENS HUBS ---
+  	  { code: 'LYS', city: 'Lyon', country: 'France', region: 'Europe', price: 4500000, cargoCap: 320, fuelCap: 140000 },
+  	  { code: 'BCN', city: 'Barcelone', country: 'Espagne', region: 'Europe', price: 9500000, cargoCap: 400, fuelCap: 200000 },
+  	  { code: 'GVA', city: 'Genève', country: 'Suisse', region: 'Europe', price: 8000000, cargoCap: 350, fuelCap: 180000 },
+  	  { code: 'LJU', city: 'Ljubljana', country: 'Slovénie', region: 'Europe', price: 3200000, cargoCap: 220, fuelCap: 110000 },
+  	  { code: 'BKK', city: 'Bangkok', country: 'Thaïlande', region: 'Asie', price: 12000000, cargoCap: 650, fuelCap: 290000 },
+  	  { code: 'PUS', city: 'Busan', country: 'Corée du Sud', region: 'Asie', price: 5500000, cargoCap: 300, fuelCap: 150000 },
+  	  { code: 'YYZ', city: 'Toronto', country: 'Canada', region: 'Amérique du Nord', price: 13000000, cargoCap: 600, fuelCap: 270000 },	
+
+	    // --- PETITS HUBS ---
+	    { code: 'BES', city: 'Brest', country: 'France', region: 'Europe', price: 1600000, cargoCap: 110, fuelCap: 55000 },
+	    { code: 'CJS', city: 'Ciudad Juárez', country: 'Mexique', region: 'Amérique du Nord', price: 2800000, cargoCap: 210, fuelCap: 95000 },
+	    { code: 'CJU', city: 'Jeju', country: 'Corée du Sud', region: 'Asie', price: 4000000, cargoCap: 250, fuelCap: 120000 },
+	    { code: 'INN', city: 'Innsbruck', country: 'Autriche', region: 'Europe', price: 2100000, cargoCap: 130, fuelCap: 70000 },
+
+	    // --- PETITS HUBS - EUROPE DE L'EST ---
+	    { code: 'BTS', city: 'Bratislava', country: 'Slovaquie', region: 'Europe', price: 1900000, cargoCap: 120, fuelCap: 60000 },
+	    { code: 'KRK', city: 'Cracovie', country: 'Pologne', region: 'Europe', price: 2300000, cargoCap: 160, fuelCap: 75000 },
+	    { code: 'BUD', city: 'Budapest', country: 'Hongrie', region: 'Europe', price: 2800000, cargoCap: 190, fuelCap: 85000 },
+	    { code: 'PRG', city: 'Prague', country: 'Tchéquie', region: 'Europe', price: 3000000, cargoCap: 200, fuelCap: 90000 },
+   	 { code: 'ZAG', city: 'Zagreb', country: 'Croatie', region: 'Europe', price: 2100000, cargoCap: 140, fuelCap: 70000 },
+   	 { code: 'SOF', city: 'Sofia', country: 'Bulgarie', region: 'Europe', price: 2000000, cargoCap: 130, fuelCap: 65000 },
+   	 { code: 'RIX', city: 'Riga', country: 'Lettonie', region: 'Europe', price: 1700000, cargoCap: 110, fuelCap: 55000 },
+   	 { code: 'VNO', city: 'Vilnius', country: 'Lituanie', region: 'Europe', price: 1750000, cargoCap: 115, fuelCap: 58000 },
+   	 { code: 'BEG', city: 'Belgrade', country: 'Serbie', region: 'Europe', price: 2200000, cargoCap: 150, fuelCap: 72000 },
+   	 { code: 'TLL', city: 'Tallinn', country: 'Estonie', region: 'Europe', price: 1850000, cargoCap: 125, fuelCap: 62000 }
+
                 ];
 
                 this.fleet = [];
