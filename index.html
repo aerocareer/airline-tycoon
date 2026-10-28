@@ -246,7 +246,7 @@
             </div>
             <div class="p-3 border-t border-slate-800 bg-slate-950/40 rounded-xl text-xs text-slate-500 space-y-1">
                 <div class="flex justify-between"><span>Cloud Firestore:</span> <span class="text-emerald-400 font-mono">Connecté (Live)</span></div>
-                <div class="flex justify-between"><span>Version:</span> <span class="text-sky-400 font-mono">6.1.0 Ravitaillement Intelligent</span></div>
+                <div class="flex justify-between"><span>Version:</span> <span class="text-sky-400 font-mono">6.2.0 Carburant Intelligent</span></div>
             </div>
         </nav>
 
@@ -591,7 +591,7 @@
                 <div>
                     <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Combien de carburant as-tu besoin pour ce vol (Kg) ? :</label>
                     <input type="number" id="flight-needed-fuel-input" value="3000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-sky-500">
-                    <p class="text-[10px] text-slate-500 mt-1">Si le réservoir contient déjà assez, rien n'est prélevé. Sinon, la différence est prise sur le Hub (ou achetée au spot).</p>
+                    <p class="text-[10px] text-slate-500 mt-1">Si le réservoir contient trop de carburant, l'excédent est remis dans les cuves du Hub ou revendu à 50%.</p>
                 </div>
             </div>
             <div class="flex justify-end space-x-3 pt-2">
@@ -1693,7 +1693,6 @@
                 const p = this.fleet.find(item => item.id === planeId);
                 if (!p) return;
 
-                // Contrôle de taille d'aérodrome pour les gros porteurs
                 const acDef = this.aircraftCatalog.find(a => a.name === p.name);
                 const currentHubObj = this.hub100List.find(h => h.code === p.location);
                 if (acDef && (acDef.type === 'Moyen-Porteur' || acDef.type === 'Long-Courrier' || acDef.type === 'Cargo Lourd')) {
@@ -1709,7 +1708,6 @@
                     return;
                 }
 
-                // Ouvrir la modale de carburant pour les missions
                 this.openFlightFuelModal(planeId, contract.stopover ? contract.stopover : contract.destination);
             }
 
@@ -1721,7 +1719,6 @@
                 document.getElementById('fuel-modal-plane-reg').innerText = p.registration;
                 document.getElementById('fuel-modal-onboard').innerText = (p.fuelOnBoard || 0).toLocaleString();
                 
-                // Pré-remplir avec une estimation standard basée sur la consommation
                 const acDef = this.aircraftCatalog.find(a => a.name === p.name);
                 const defaultNeed = acDef ? Math.round(acDef.fuelBurn * 3.5) : 3000;
                 document.getElementById('flight-needed-fuel-input').value = defaultNeed;
@@ -1746,33 +1743,66 @@
                 const currentOnBoard = p.fuelOnBoard || 0;
 
                 if (currentOnBoard >= neededFuel) {
-                    // Assez à bord, pas de ravitaillement nécessaire
-                    p.fuelOnBoard = neededFuel; // ou on garde tout si on veut
-                    this.showToast(`Vol ${p.registration} vers ${targetDest} lancé (Réservoirs suffisants à bord) !`, "success");
+                    const excessFuel = currentOnBoard - neededFuel;
+                    p.fuelOnBoard = neededFuel;
+
+                    if (excessFuel > 0) {
+                        const currentHubStock = this.company.fuelReservesByHub[p.location] || 0;
+                        const hubObj = this.hub100List.find(h => h.code === p.location);
+                        const isCompanyHub = this.company.hubs.includes(p.location);
+
+                        if (isCompanyHub) {
+                            const maxCap = hubObj ? hubObj.fuelCap : 80000;
+                            const availableSpace = Math.max(0, maxCap - currentHubStock);
+                            const toHub = Math.min(excessFuel, availableSpace);
+                            const toSell = excessFuel - toHub;
+
+                            if (toHub > 0) {
+                                this.company.fuelReservesByHub[p.location] = currentHubStock + toHub;
+                            }
+
+                            if (toSell > 0) {
+                                const pricePerKg = this.company.fuelHedgeActive ? 1.50 : this.currentFuelPrice;
+                                const resaleValue = Math.round(toSell * (pricePerKg / 2));
+                                this.company.cash += resaleValue;
+                                this.showToast(`Réservoirs ajustés : ${toHub.toLocaleString()} Kg remis au Hub ${p.location} et ${toSell.toLocaleString()} Kg revendu à 50% (+${this.formatMoney(resaleValue)}).`, "info");
+                            } else {
+                                this.showToast(`Réservoirs ajustés : ${toHub.toLocaleString()} Kg réinjectés dans les cuves du Hub ${p.location}.`, "info");
+                            }
+                        } else {
+                            const pricePerKg = this.company.fuelHedgeActive ? 1.50 : this.currentFuelPrice;
+                            const resaleValue = Math.round(excessFuel * (pricePerKg / 2));
+                            this.company.cash += resaleValue;
+                            this.showToast(`Réservoirs ajustés hors Hub : ${excessFuel.toLocaleString()} Kg de surplus revendus à 50% (+${this.formatMoney(resaleValue)}).`, "info");
+                        }
+                    } else {
+                        this.showToast(`Vol ${p.registration} vers ${targetDest} lancé (Masse réservoir exacte) !`, "success");
+                    }
                 } else {
                     const missingFuel = neededFuel - currentOnBoard;
-                    const hubStock = this.company.fuelReservesByHub[p.location] || 0;
+                    let hubStock = this.company.fuelReservesByHub[p.location] || 0;
 
                     if (hubStock >= missingFuel) {
-                        // Prélèvement dans les stocks du hub
                         this.company.fuelReservesByHub[p.location] -= missingFuel;
                         p.fuelOnBoard = neededFuel;
                         this.showToast(`Ravitaillement de ${missingFuel.toLocaleString()} Kg depuis les stocks du Hub ${p.location}.`, "info");
                     } else {
-                        // Stock hub insuffisant, achat spot du reste
-                        const spotToBuy = missingFuel - hubStock;
+                        const deficitAfterHub = missingFuel - hubStock;
+                        if (hubStock > 0) {
+                            this.company.fuelReservesByHub[p.location] = 0;
+                        }
+
                         const pricePerKg = this.company.fuelHedgeActive ? 1.50 : this.currentFuelPrice;
-                        const spotCost = Math.round(spotToBuy * pricePerKg);
+                        const spotCost = Math.round(deficitAfterHub * pricePerKg);
 
                         if (this.company.cash < spotCost) {
-                            this.showToast(`Trésorerie insuffisante pour acheter ${spotToBuy.toLocaleString()} Kg au prix spot (${this.formatMoney(spotCost)}) !`, "error");
+                            this.showToast(`Trésorerie insuffisante pour acheter ${deficitAfterHub.toLocaleString()} Kg au prix spot (${this.formatMoney(spotCost)}) !`, "error");
                             return;
                         }
 
                         this.company.cash -= spotCost;
-                        this.company.fuelReservesByHub[p.location] = 0; // tout vidé
                         p.fuelOnBoard = neededFuel;
-                        this.showToast(`Achat spot de complément : ${spotToBuy.toLocaleString()} Kg achetés pour ${this.formatMoney(spotCost)}.`, "info");
+                        this.showToast(`Complément spot : ${hubStock > 0 ? hubStock.toLocaleString() + ' Kg du Hub + ' : ''}${deficitAfterHub.toLocaleString()} Kg achetés au spot (${this.formatMoney(spotCost)}).`, "info");
                     }
                 }
 
