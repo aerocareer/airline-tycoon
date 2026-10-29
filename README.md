@@ -1,5 +1,7 @@
 # ✈️ AeroCareer Airline Tycoon
 
+https://aerocareer.github.io/airline-tycoon/
+
 **AeroCareer Airline Tycoon** est une plateforme web interactive et coopérative de gestion de compagnie aérienne (Airline Tycoon), conçue spécialement pour accompagner, enrichir et donner un objectif économique concret à vos sessions de simulation de vol réalistes (**Microsoft Flight Simulator 2024 / 2020**, **X-Plane 12**, **DCS World**, **IL-2 Sturmovik**, etc.).
 
 Développé avec des technologies web modernes (HTML5, JavaScript ES6+, Tailwind CSS) et entièrement synchronisé en temps réel via **Google Firebase Firestore**, AeroCareer vous permet de créer un véritable salon coopératif virtuel avec vos amis. Vous gérez ensemble la croissance d'une flotte, la rentabilité financière, les stocks de carburant et la conquête d'un réseau mondial de 100 hubs internationaux.
