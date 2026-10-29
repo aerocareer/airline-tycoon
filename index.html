@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts Inter & JetBrains Mono -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js pour le graphique du Pétrole -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <!-- FIREBASE SDK MODULAR -->
     <script type="module">
@@ -203,7 +205,7 @@
 
             <div class="bg-slate-950/90 px-4 py-1.5 rounded-xl border border-slate-800 flex items-center space-x-4 shadow-inner">
                 <div>
-                    <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Cycle Simulation (Auto à Minuit)</div>
+                    <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Cycle Simulation (Minuit / 24h)</div>
                     <div class="font-bold text-sky-400 flex items-center space-x-2 font-mono text-xs">
                         <i class="fa-solid fa-clock text-sky-400"></i>
                         <span>Tick #<span id="company-tick">1</span></span>
@@ -246,7 +248,7 @@
             </div>
             <div class="p-3 border-t border-slate-800 bg-slate-950/40 rounded-xl text-xs text-slate-500 space-y-1">
                 <div class="flex justify-between"><span>Cloud Firestore:</span> <span class="text-emerald-400 font-mono">Connecté (Live)</span></div>
-                <div class="flex justify-between"><span>Version:</span> <span class="text-sky-400 font-mono">6.2.0 Carburant Intelligent</span></div>
+                <div class="flex justify-between"><span>Unité Carburant:</span> <span class="text-sky-400 font-mono">Kilogramme (Kg)</span></div>
             </div>
         </nav>
 
@@ -281,7 +283,7 @@
                     <div class="glass-card p-4 rounded-2xl">
                         <div class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Réserves Kérosène Totales</div>
                         <div class="text-2xl font-extrabold text-white font-mono mt-1" id="dash-fuel-reserves">0 Kg</div>
-                        <div class="text-xs text-sky-400 mt-1" id="dash-fuel-hedge-status">Prix spot marché actif</div>
+                        <div class="text-xs text-sky-400 mt-1 font-semibold" id="dash-fuel-hedge-status">Prix spot marché actif</div>
                     </div>
                 </div>
 
@@ -298,12 +300,26 @@
                 </div>
 
                 <div class="glass-card rounded-2xl p-5 shadow-xl space-y-4">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-lg font-bold text-white flex items-center space-x-2">
-                            <i class="fa-solid fa-file-contract text-emerald-400"></i>
-                            <span>Marché Public des Contrats (Directs & avec Escales)</span>
-                        </h3>
-                        <span class="text-xs bg-slate-800 text-emerald-400 font-mono px-2.5 py-1 rounded-lg border border-slate-700" id="available-contracts-badge">20 contrats</span>
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div class="flex items-center space-x-3">
+                            <h3 class="text-lg font-bold text-white flex items-center space-x-2">
+                                <i class="fa-solid fa-file-contract text-emerald-400"></i>
+                                <span>Marché Public des Contrats</span>
+                            </h3>
+                            <span class="text-xs bg-slate-800 text-emerald-400 font-mono px-2.5 py-1 rounded-lg border border-slate-700" id="available-contracts-badge">20 contrats</span>
+                        </div>
+                        
+                        <div class="flex items-center space-x-2">
+                            <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+                                <button onclick="app.setContractFilter('current')" id="btn-filter-current" class="px-3 py-1 rounded-lg bg-sky-600 text-white font-bold transition">Au Hub Actuel (<span id="current-filter-loc">LFLB</span>)</button>
+                                <button onclick="app.setContractFilter('all')" id="btn-filter-all" class="px-3 py-1 rounded-lg text-slate-400 hover:text-white transition">Tous les Hubs</button>
+                            </div>
+                            
+                            <button onclick="app.manualRefreshContracts()" class="bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 cursor-pointer">
+                                <i class="fa-solid fa-rotate"></i>
+                                <span>Actualiser (5 000 €)</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[500px] overflow-y-auto pr-1" id="available-contracts-container"></div>
                 </div>
@@ -328,7 +344,7 @@
                                     <th class="pb-3 px-3">Immatriculation & Modèle</th>
                                     <th class="pb-3 px-3">Position & Réservoir de l'Avion</th>
                                     <th class="pb-3 px-3">Heures de Vol (Usure)</th>
-                                    <th class="pb-3 px-3">Valeur Argus / Loyer</th>
+                                    <th class="pb-3 px-3">Valeur Argus / Loyer (24h)</th>
                                     <th class="pb-3 px-3">Statut & Contrat</th>
                                     <th class="pb-3 px-3 text-right">Actions</th>
                                 </tr>
@@ -358,11 +374,6 @@
                             <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Recruter un nouveau Pilote</h4>
                             <input type="text" id="new-pilot-name" placeholder="Nom du Pilote..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-sky-500">
                             <button onclick="app.hirePilot()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-2 rounded-xl text-xs transition shadow cursor-pointer">Recruter le Pilote (50 000 €)</button>
-                        </div>
-                        <div class="pt-3 border-t border-slate-800 space-y-3">
-                            <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Couverture Kérosène (Fuel Hedging)</h4>
-                            <p class="text-xs text-slate-400">Verrouillez le prix mondial à 1.50 €/Kg.</p>
-                            <button onclick="app.toggleFuelHedge()" id="hedge-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs transition shadow cursor-pointer">Activer Hedging (200 000 €)</button>
                         </div>
                     </div>
                     <div class="lg:col-span-2 glass-card p-5 rounded-2xl shadow-xl space-y-4">
@@ -395,7 +406,7 @@
                 <div class="flex justify-between items-center">
                     <div>
                         <h2 class="text-2xl font-extrabold text-white tracking-tight">Bureau du Trésorier (CFO) & Bilan Comptable</h2>
-                        <p class="text-sm text-slate-400">Supervision financière et flux de trésorerie à ce tick.</p>
+                        <p class="text-sm text-slate-400">Supervision financière et flux de trésorerie par cycle de 24h (1 tick).</p>
                     </div>
                 </div>
                 <div class="glass-card p-5 rounded-2xl shadow-xl space-y-6 border border-emerald-500/20">
@@ -406,7 +417,7 @@
                             </div>
                             <div>
                                 <h3 class="text-lg font-bold text-white">Bilan Comptable & Flux Financiers</h3>
-                                <p class="text-xs text-slate-400">Situation arrêtée au Tick #<span id="balance-sheet-tick">1</span></p>
+                                <p class="text-xs text-slate-400">Situation arrêtée au Tick #<span id="balance-sheet-tick">1</span> (Cycle 24h)</p>
                             </div>
                         </div>
                     </div>
@@ -428,13 +439,13 @@
                         <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
                             <div class="flex justify-between items-center border-b border-slate-800 pb-2">
                                 <span class="font-extrabold text-amber-400 text-sm uppercase tracking-wider flex items-center space-x-2">
-                                    <i class="fa-solid fa-circle-arrow-up text-amber-400"></i><span>Dettes & Charges</span>
+                                    <i class="fa-solid fa-circle-arrow-up text-amber-400"></i><span>Dettes & Charges (24h)</span>
                                 </span>
                             </div>
                             <div class="space-y-2 text-xs font-mono">
                                 <div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Dettes Bancaires</span><strong class="text-rose-400" id="liability-loans">0 €</strong></div>
-                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Charges du Prochain Tick</span><strong class="text-amber-400" id="liability-salaries">0 €</strong></div>
-                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Total Prévu Prochain Tick</span><strong class="text-sky-400" id="liability-next-total">0 €</strong></div>
+                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Charges Fixes / 24h</span><strong class="text-amber-400" id="liability-salaries">0 €</strong></div>
+                                <div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Total Prévu Prochain Cycle</span><strong class="text-sky-400" id="liability-next-total">0 €</strong></div>
                             </div>
                         </div>
 
@@ -442,7 +453,7 @@
                         <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
                             <div class="flex justify-between items-center border-b border-slate-800 pb-2">
                                 <span class="font-extrabold text-emerald-400 text-sm uppercase tracking-wider flex items-center space-x-2">
-                                    <i class="fa-solid fa-chart-line text-emerald-400"></i><span>Activité à ce Tick</span>
+                                    <i class="fa-solid fa-chart-line text-emerald-400"></i><span>Activité sur ce cycle (24h)</span>
                                 </span>
                             </div>
                             <div class="space-y-2 text-xs font-mono">
@@ -455,7 +466,7 @@
 
                 <div class="glass-card p-5 rounded-2xl shadow-xl space-y-4">
                     <h3 class="text-lg font-bold text-white flex items-center space-x-2">
-                        <i class="fa-solid fa-plane-circle-check text-sky-400"></i><span>Catalogue Appareils (Achat Cash & Leasing)</span>
+                        <i class="fa-solid fa-plane-circle-check text-sky-400"></i><span>Catalogue Appareils (Achat Cash & Leasing / 24h)</span>
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[520px] overflow-y-auto pr-1" id="aircraft-catalog-container"></div>
                 </div>
@@ -471,44 +482,97 @@
                 </div>
             </div>
 
-            <!-- TAB 5: TERMINAL LOGISTIQUE (CLO) -->
+            <!-- TAB 5: TERMINAL LOGISTIQUE & FUEL MARKET (CLO) -->
             <div id="tab-clo" class="space-y-6 hidden-tab">
                 <div class="flex justify-between items-center">
                     <div>
-                        <h2 class="text-2xl font-extrabold text-white tracking-tight">Terminal Logistique (CLO)</h2>
-                        <p class="text-sm text-slate-400">Ravitaillement carburant et gestion des capacités par hub.</p>
+                        <h2 class="text-2xl font-extrabold text-white tracking-tight">Terminal Logistique & Marché Énergétique</h2>
+                        <p class="text-sm text-slate-400">Graphique du kérosène (mis à jour chaque heure en €/Kg), couverture de prix (Fuel Hedging 12 ticks) et ravitaillement des cuves.</p>
                     </div>
                 </div>
+
+                <!-- SECTION MARCHÉ PÉTROLE & HEDGING -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- GRAPHIQUE DES COURS (HORAIRE / 24H) -->
+                    <div class="lg:col-span-2 glass-card p-5 rounded-2xl shadow-xl space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-lg font-bold text-white flex items-center space-x-2">
+                                <i class="fa-solid fa-chart-line text-sky-400"></i><span>Cours du Kérosène (Fluctuation 1h • Expressed en € / Kg)</span>
+                            </h3>
+                            <div class="flex items-center space-x-3">
+                                <div class="text-[11px] text-amber-400 font-mono font-semibold">
+                                    Prochaine var: <span id="fuel-hourly-countdown">59m 59s</span>
+                                </div>
+                                <div class="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/80 px-3 py-1 rounded-lg border border-emerald-800">
+                                    Prix Spot : <span id="fuel-spot-price-chart">1.85 €</span> / Kg
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-full h-56 relative bg-slate-950/80 p-2 rounded-xl border border-slate-800/80">
+                            <canvas id="fuelPriceChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- BOURSE & CONTRAT HEDGING -->
+                    <div class="lg:col-span-1 glass-card p-5 rounded-2xl shadow-xl space-y-4 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold text-white flex items-center space-x-2">
+                                <i class="fa-solid fa-file-contract text-amber-400"></i><span>Fuel Hedging (Risque & Pari)</span>
+                            </h3>
+                            <p class="text-xs text-slate-400 mt-2">
+                                Bloquez le prix spot **actuel (€/Kg)** du kérosène pour **12 ticks (12 jours / 288h)**.
+                            </p>
+                            <ul class="text-[11px] text-slate-300 space-y-1 mt-3 bg-slate-950 p-3 rounded-xl border border-slate-800">
+                                <li>📈 <strong class="text-emerald-400">Si le marché monte :</strong> Économies sur chaque Kg acheté !</li>
+                                <li>📉 <strong class="text-rose-400">Si le marché descend :</strong> Vous payez plus cher au Kg.</li>
+                                <li>🔒 <strong class="text-amber-400">Engagement :</strong> Bloqué pendant 12 ticks complets de 24h.</li>
+                            </ul>
+                        </div>
+
+                        <div class="space-y-3 pt-3 border-t border-slate-800">
+                            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+                                <span class="text-xs text-slate-400">Statut actuel :</span>
+                                <span id="hedging-status-badge" class="text-xs font-bold font-mono text-slate-400">Inactif</span>
+                            </div>
+
+                            <button onclick="app.toggleFuelHedge12Ticks()" id="hedge-toggle-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs transition shadow cursor-pointer flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-lock"></i>
+                                <span id="hedge-btn-text">Verrouiller au prix actuel (120 000 €)</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="glass-card p-5 rounded-2xl shadow-xl space-y-4">
                         <h3 class="text-lg font-bold text-white flex items-center space-x-2">
-                            <i class="fa-solid fa-gas-pump text-sky-400"></i><span>Ravitaillement Kérosène (Prix Spot)</span>
+                            <i class="fa-solid fa-gas-pump text-sky-400"></i><span>Ravitaillement Direct des Cuves</span>
                         </h3>
                         <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-4">
                             <div class="flex justify-between items-center">
-                                <span class="text-xs text-slate-300">Prix Spot Actuel:</span>
-                                <span class="text-sky-400 font-bold font-mono text-sm" id="fuel-spot-price">1.85 € / Kg</span>
+                                <span class="text-xs text-slate-300">Prix de facturation appliqué :</span>
+                                <span class="text-sky-400 font-bold font-mono text-sm" id="fuel-effective-price">1.85 € / Kg</span>
                             </div>
                             <div class="space-y-1">
-                                <label class="block text-xs text-slate-400">Hub Cible:</label>
+                                <label class="block text-xs text-slate-400">Hub Cible pour les Cuves :</label>
                                 <select id="fuel-target-hub-select" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-sky-500"></select>
                             </div>
                             <div class="space-y-2">
                                 <div class="flex justify-between text-xs text-slate-400">
-                                    <span>Masse à commander:</span>
-                                    <span class="text-white font-mono font-bold text-sm" id="fuel-qty-label">10,000 Kg</span>
+                                    <span>Masse de Kérosène à commander :</span>
+                                    <span class="text-white font-mono font-bold text-sm" id="fuel-qty-label">10 000 Kg</span>
                                 </div>
                                 <input type="range" id="fuel-qty-slider" min="1000" max="100000" step="1000" value="10000" oninput="app.updateFuelSlider(this.value)" class="w-full accent-sky-500 cursor-pointer">
                             </div>
                             <div class="flex items-center justify-between pt-2 border-t border-slate-800">
-                                <span class="text-xs text-slate-300">Coût Total: <strong class="text-emerald-400 font-mono text-sm" id="fuel-total-cost">18 500 €</strong></span>
-                                <button onclick="app.buyFuelSpot()" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow cursor-pointer">Remplir les Cuves</button>
+                                <span class="text-xs text-slate-300">Coût Total Calculé : <strong class="text-emerald-400 font-mono text-sm" id="fuel-total-cost">18 500 €</strong></span>
+                                <button onclick="app.buyFuelSpot()" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow cursor-pointer">Remplir les Cuves du Hub</button>
                             </div>
                         </div>
                     </div>
                     <div class="glass-card p-5 rounded-2xl shadow-xl space-y-4">
                         <h3 class="text-lg font-bold text-white flex items-center space-x-2">
-                            <i class="fa-solid fa-warehouse text-indigo-400"></i><span>Stocks & Capacité des Cuves par Hub (Kg)</span>
+                            <i class="fa-solid fa-warehouse text-indigo-400"></i><span>Stocks & Capacité des Cuves par Hub (en Kg)</span>
                         </h3>
                         <div class="space-y-3 max-h-[320px] overflow-y-auto pr-1" id="hub-fuel-inventory-container"></div>
                     </div>
@@ -582,16 +646,16 @@
         </div>
     </div>
 
-    <!-- MODAL DÉPART / BESOIN CARBURANT -->
+    <!-- MODAL DÉPART / BESOIN CARBURANT (EN KG) -->
     <div id="flight-fuel-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
             <h3 class="text-lg font-bold text-white flex items-center space-x-2"><i class="fa-solid fa-gas-pump text-sky-400"></i><span>Préparation du Carburant — Décollage</span></h3>
             <p class="text-xs text-slate-300">Appareil : <strong id="fuel-modal-plane-reg" class="text-sky-400"></strong> | Actuellement à bord : <strong id="fuel-modal-onboard" class="text-emerald-400"></strong> Kg</p>
             <div class="space-y-3 bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs">
                 <div>
-                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Combien de carburant as-tu besoin pour ce vol (Kg) ? :</label>
+                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Masse de carburant requise pour ce vol (en Kg) :</label>
                     <input type="number" id="flight-needed-fuel-input" value="3000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-sky-500">
-                    <p class="text-[10px] text-slate-500 mt-1">Si le réservoir contient trop de carburant, l'excédent est remis dans les cuves du Hub ou revendu à 50%.</p>
+                    <p class="text-[10px] text-slate-500 mt-1">Si le départ se fait depuis un hub tiers (non possédé), le complément acheté inclut une taxe FBO (+25%).</p>
                 </div>
             </div>
             <div class="flex justify-end space-x-3 pt-2">
@@ -614,7 +678,7 @@
             </div>
             <div class="flex justify-end space-x-3 pt-2">
                 <button onclick="app.closeFreeFlightModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">Annuler</button>
-                <button onclick="app.proceedToFuelModal()" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow cursor-pointer">Suivant (Carburant)</button>
+                <button onclick="app.proceedToFuelModal()" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow cursor-pointer">Suivant (Carburant en Kg)</button>
             </div>
         </div>
     </div>
@@ -630,14 +694,34 @@
                     <option value="10000000">10 000 000 €</option>
                 </select>
                 <select id="loan-term-select" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">
-                    <option value="5">Court terme — 5 Ticks (5%)</option>
-                    <option value="10" selected>Moyen terme — 10 Ticks (12%)</option>
-                    <option value="20">Long terme — 20 Ticks (25%)</option>
+                    <option value="5">Court terme — 5 Ticks / 5 Jours (5%)</option>
+                    <option value="10" selected>Moyen terme — 10 Ticks / 10 Jours (12%)</option>
+                    <option value="20">Long terme — 20 Ticks / 20 Jours (25%)</option>
                 </select>
             </div>
             <div class="flex justify-end space-x-3 pt-2">
                 <button onclick="app.closeLoanModal()" class="bg-slate-800 text-slate-300 px-4 py-2 rounded-xl text-xs font-semibold">Annuler</button>
                 <button onclick="app.confirmLoan()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold">Valider</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL GESTION D'INCIDENT / ANNULATION DE CONTRAT -->
+    <div id="flight-incident-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <h3 class="text-lg font-bold text-white flex items-center space-x-2"><i class="fa-solid fa-triangle-exclamation text-rose-400"></i><span>Gestion d'Incident & Annulation</span></h3>
+            <p class="text-xs text-slate-300">Vous êtes sur le point d'annuler ou de déclarer un incident pour le contrat associé à l'appareil <strong id="incident-plane-reg" class="text-sky-400"></strong>.</p>
+            <div class="space-y-3 bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs">
+                <div class="text-slate-300 font-mono" id="incident-contract-desc">--</div>
+                <div class="p-3 bg-rose-950/40 border border-rose-900/50 rounded-xl space-y-1 text-rose-300">
+                    <div class="font-bold">Pénalités estimées :</div>
+                    <div>• Indemnité d'annulation : <strong id="incident-penalty-cash" class="text-white font-mono">0 €</strong></div>
+                    <div>• Impact Réputation : <strong id="incident-penalty-rep" class="text-white font-mono">-5 %</strong></div>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 pt-2">
+                <button onclick="app.closeIncidentModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">Conserver le vol</button>
+                <button onclick="app.confirmFlightIncident()" class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow cursor-pointer">Confirmer l'Annulation / Incident</button>
             </div>
         </div>
     </div>
@@ -652,6 +736,9 @@
                 this.landingPlaneId = null;
                 this.freeFlightPlaneId = null;
                 this.pendingFlightData = null;
+                this.pendingIncidentData = null;
+                this.contractFilterMode = 'current';
+                this.fuelChartInstance = null;
 
                 this.playerName = '';
                 this.companyCode = '';
@@ -668,9 +755,18 @@
                     level: 1,
                     tickCount: 1,
                     lastTickDate: new Date().toDateString(),
+                    lastHourlyUpdateHour: new Date().getHours(),
                     hubs: ['LFLB'],
                     fuelReservesByHub: { 'LFLB': 100000 },
+                    
+                    // GESTION DU FUEL HEDGING 12 TICKS (PRIX BLOQUÉ EN €/KG)
                     fuelHedgeActive: false,
+                    fuelHedgePrice: 1.85,
+                    fuelHedgeTicksLeft: 0,
+
+                    // HISTORIQUE DU PÉTROLE EN €/KG (24 POINTS HORAIRES)
+                    fuelPriceHistory: [1.70, 1.72, 1.75, 1.78, 1.80, 1.82, 1.85, 1.83, 1.81, 1.85],
+
                     tickContractsCompleted: 0,
                     tickEarnedAmount: 0
                 };
@@ -704,19 +800,13 @@
                     { code: 'LHR', city: 'Londres', country: 'Royaume-Uni', region: 'Europe', price: 16000000, cargoCap: 850, fuelCap: 380000, lat: 51.4700, lon: -0.4543 },
                     { code: 'SIN', city: 'Singapour', country: 'Singapour', region: 'Asie', price: 14000000, cargoCap: 750, fuelCap: 320000, lat: 1.3644, lon: 103.9915 },
                     { code: 'LAX', city: 'Los Angeles', country: 'USA', region: 'Amérique du Nord', price: 15000000, cargoCap: 950, fuelCap: 410000, lat: 33.9416, lon: -118.4085 },
-
-                    // --- SÉOUL / GIMPO & INCHEON ---
                     { code: 'GMP', city: 'Séoul (Gimpo)', country: 'Corée du Sud', region: 'Asie', price: 8500000, cargoCap: 450, fuelCap: 220000, lat: 37.5586, lon: 126.7906 },
                     { code: 'ICN', city: 'Séoul (Incheon)', country: 'Corée du Sud', region: 'Asie', price: 22000000, cargoCap: 1100, fuelCap: 500000, lat: 37.4602, lon: 126.4407 },
-
-                    // --- GRANDS HUBS ---
                     { code: 'FRA', city: 'Francfort', country: 'Allemagne', region: 'Europe', price: 20000000, cargoCap: 1000, fuelCap: 450000, lat: 50.0333, lon: 8.5706 },
                     { code: 'AMS', city: 'Amsterdam', country: 'Pays-Bas', region: 'Europe', price: 18500000, cargoCap: 850, fuelCap: 390000, lat: 52.3105, lon: 4.7683 },
                     { code: 'HND', city: 'Tokyo (Haneda)', country: 'Japon', region: 'Asie', price: 24000000, cargoCap: 700, fuelCap: 420000, lat: 35.5494, lon: 139.7798 },
                     { code: 'ORD', city: 'Chicago', country: 'USA', region: 'Amérique du Nord', price: 21000000, cargoCap: 900, fuelCap: 430000, lat: 41.9742, lon: -87.9073 },
                     { code: 'HKG', city: 'Hong Kong', country: 'Chine', region: 'Asie', price: 23000000, cargoCap: 1250, fuelCap: 550000, lat: 22.3080, lon: 113.9185 },
-
-                    // --- MOYENS HUBS ---
                     { code: 'LYS', city: 'Lyon', country: 'France', region: 'Europe', price: 4500000, cargoCap: 320, fuelCap: 140000, lat: 45.7256, lon: 5.0811 },
                     { code: 'BCN', city: 'Barcelone', country: 'Espagne', region: 'Europe', price: 9500000, cargoCap: 400, fuelCap: 200000, lat: 41.2971, lon: 2.0785 },
                     { code: 'GVA', city: 'Genève', country: 'Suisse', region: 'Europe', price: 8000000, cargoCap: 350, fuelCap: 180000, lat: 46.2381, lon: 6.1089 },
@@ -724,15 +814,11 @@
                     { code: 'BKK', city: 'Bangkok', country: 'Thaïlande', region: 'Asie', price: 12000000, cargoCap: 650, fuelCap: 290000, lat: 13.6900, lon: 100.7501 },
                     { code: 'PUS', city: 'Busan', country: 'Corée du Sud', region: 'Asie', price: 5500000, cargoCap: 300, fuelCap: 150000, lat: 35.1795, lon: 128.9382 },
                     { code: 'YYZ', city: 'Toronto', country: 'Canada', region: 'Amérique du Nord', price: 13000000, cargoCap: 600, fuelCap: 270000, lat: 43.6777, lon: -79.6248 },	
-
-                    // --- PETITS HUBS ---
                     { code: 'BES', city: 'Brest', country: 'France', region: 'Europe', price: 1600000, cargoCap: 110, fuelCap: 55000, lat: 48.4489, lon: -4.4161 },
                     { code: 'LFLP', city: 'Annecy', country: 'France', region: 'Europe', price: 1900000, cargoCap: 120, fuelCap: 60000, lat: 45.9272, lon: 6.1031 },
                     { code: 'CJS', city: 'Ciudad Juárez', country: 'Mexique', region: 'Amérique du Nord', price: 2800000, cargoCap: 210, fuelCap: 95000, lat: 31.6361, lon: -106.4289 },
                     { code: 'CJU', city: 'Jeju', country: 'Corée du Sud', region: 'Asie', price: 4000000, cargoCap: 250, fuelCap: 120000, lat: 33.5113, lon: 126.4930 },
                     { code: 'INN', city: 'Innsbruck', country: 'Autriche', region: 'Europe', price: 2100000, cargoCap: 130, fuelCap: 70000, lat: 47.2602, lon: 11.3440 },
-
-                    // --- PETITS HUBS - EUROPE DE L'EST ---
                     { code: 'BTS', city: 'Bratislava', country: 'Slovaquie', region: 'Europe', price: 1900000, cargoCap: 120, fuelCap: 60000, lat: 48.17, lon: 17.21 },
                     { code: 'KRK', city: 'Cracovie', country: 'Pologne', region: 'Europe', price: 2300000, cargoCap: 160, fuelCap: 75000, lat: 50.0777, lon: 19.7848 },
                     { code: 'BUD', city: 'Budapest', country: 'Hongrie', region: 'Europe', price: 2800000, cargoCap: 190, fuelCap: 85000, lat: 47.4369, lon: 19.2556 },
@@ -883,26 +969,17 @@
 
             getAvailableOrigins() {
                 let origins = [];
+                if (this.playerLocation) origins.push(this.playerLocation);
                 if (this.company.hubs && this.company.hubs.length > 0) {
-                    origins = origins.concat(this.company.hubs);
+                    this.company.hubs.forEach(h => { if (!origins.includes(h)) origins.push(h); });
                 }
                 if (this.fleet && this.fleet.length > 0) {
-                    this.fleet.forEach(p => {
-                        if (p.location && !origins.includes(p.location)) {
-                            origins.push(p.location);
-                        }
-                    });
+                    this.fleet.forEach(p => { if (p.location && !origins.includes(p.location)) origins.push(p.location); });
                 }
                 if (this.team && this.team.length > 0) {
-                    this.team.forEach(m => {
-                        if (m.location && !origins.includes(m.location)) {
-                            origins.push(m.location);
-                        }
-                    });
+                    this.team.forEach(m => { if (m.location && !origins.includes(m.location)) origins.push(m.location); });
                 }
-                if (origins.length === 0) {
-                    origins = ['LFLB'];
-                }
+                if (origins.length === 0) origins = ['LFLB'];
                 return origins;
             }
 
@@ -919,6 +996,10 @@
 
             generateInitialContracts() {
                 this.availableContracts = [];
+                this.generateContractsForCount(20);
+            }
+
+            generateContractsForCount(countToGenerate, forceOrigin = null) {
                 const tierList = [
                     { type: 'Aviation Légère', minPax: 2, maxPax: 6, minCargo: 0.1, maxCargo: 0.5, maxDist: 900, mult: 1, label: 'Léger / Régional court' },
                     { type: 'Turboprop', minPax: 8, maxPax: 19, minCargo: 0.8, maxCargo: 2.0, maxDist: 2200, mult: 1.8, label: 'Turbopropulseur Régional' },
@@ -932,8 +1013,8 @@
                 const companyFactor = 1 + (this.company.hubs.length * 0.3) + (this.fleet.length * 0.15) + ((this.company.level || 1) * 0.2);
                 const activeOrigins = this.getAvailableOrigins();
 
-                for (let i = 0; i < 20; i++) {
-                    const origCode = activeOrigins[Math.floor(Math.random() * activeOrigins.length)];
+                for (let i = 0; i < countToGenerate; i++) {
+                    const origCode = forceOrigin || activeOrigins[Math.floor(Math.random() * activeOrigins.length)];
                     const origHubObj = this.hub100List.find(h => h.code === origCode) || this.hub100List[0];
 
                     const targetTier = tierList[Math.floor(Math.random() * Math.min(tierList.length, 2 + Math.floor(this.company.hubs.length / 2) + Math.floor(this.fleet.length / 3)))];
@@ -970,7 +1051,7 @@
                     }
 
                     this.availableContracts.push({
-                        id: Date.now() + i + Math.floor(Math.random() * 1000),
+                        id: Date.now() + i + Math.floor(Math.random() * 100000),
                         title: routingTitle,
                         origin: origCode,
                         destination: destHub.code,
@@ -984,6 +1065,32 @@
                         selectedPlaneId: ''
                     });
                 }
+            }
+
+            refreshContractsForLocation(locCode) {
+                const localContractsCount = this.availableContracts.filter(c => c.origin === locCode).length;
+                if (localContractsCount < 6) {
+                    const needed = 6 - localContractsCount;
+                    this.generateContractsForCount(needed, locCode);
+                }
+            }
+
+            setContractFilter(mode) {
+                this.contractFilterMode = mode;
+                document.getElementById('btn-filter-current').className = mode === 'current' ? "px-3 py-1 rounded-lg bg-sky-600 text-white font-bold transition" : "px-3 py-1 rounded-lg text-slate-400 hover:text-white transition";
+                document.getElementById('btn-filter-all').className = mode === 'all' ? "px-3 py-1 rounded-lg bg-sky-600 text-white font-bold transition" : "px-3 py-1 rounded-lg text-slate-400 hover:text-white transition";
+                this.renderAll();
+            }
+
+            manualRefreshContracts() {
+                if (this.company.cash < 5000) {
+                    this.showToast("Trésorerie insuffisante (5 000 € requis) !", "error");
+                    return;
+                }
+                this.company.cash -= 5000;
+                this.generateContractsForCount(8, this.playerLocation);
+                this.showToast(`Offres de contrats actualisées pour ${this.playerLocation} (-5 000 €) !`, "success");
+                this.renderAll();
             }
 
             async submitCreateCompany() {
@@ -1010,9 +1117,13 @@
                     level: 1,
                     tickCount: 1,
                     lastTickDate: new Date().toDateString(),
+                    lastHourlyUpdateHour: new Date().getHours(),
                     hubs: [hubObj.code],
                     fuelReservesByHub: { [hubObj.code]: 100000 },
                     fuelHedgeActive: false,
+                    fuelHedgePrice: 1.85,
+                    fuelHedgeTicksLeft: 0,
+                    fuelPriceHistory: [1.70, 1.72, 1.75, 1.78, 1.80, 1.82, 1.85, 1.83, 1.81, 1.85],
                     tickContractsCompleted: 0,
                     tickEarnedAmount: 0
                 };
@@ -1124,6 +1235,11 @@
             applyLoadedData(data) {
                 this.company = data.company || this.company;
                 if (!this.company.lastTickDate) this.company.lastTickDate = new Date().toDateString();
+                if (this.company.lastHourlyUpdateHour === undefined) this.company.lastHourlyUpdateHour = new Date().getHours();
+                if (!this.company.fuelPriceHistory) this.company.fuelPriceHistory = [1.70, 1.72, 1.75, 1.78, 1.80, 1.82, 1.85, 1.83, 1.81, 1.85];
+                
+                this.currentFuelPrice = this.company.fuelPriceHistory[this.company.fuelPriceHistory.length - 1] || 1.85;
+
                 this.fleet = data.fleet || this.fleet;
                 this.team = data.team || this.team;
                 this.activeContracts = data.activeContracts || this.activeContracts;
@@ -1172,23 +1288,65 @@
             checkAutoTick() {
                 const now = new Date();
                 const currentDateStr = now.toDateString();
+                const currentHour = now.getHours();
 
+                // 1. TICK JOURNALIER (CYCLE 24H À MINUIT)
                 if (this.company.lastTickDate && this.company.lastTickDate !== currentDateStr) {
                     this.company.lastTickDate = currentDateStr;
                     this.advanceTick();
                 }
 
+                // 2. FLUCTUATION HORAIRE DU PÉTROLE (EN €/KG)
+                if (this.company.lastHourlyUpdateHour !== currentHour) {
+                    this.company.lastHourlyUpdateHour = currentHour;
+                    this.updateHourlyFuelPrice();
+                }
+
+                // COMPTE À REBOURS MINUIT
                 const midnight = new Date();
                 midnight.setHours(24, 0, 0, 0);
-                const diff = midnight - now;
+                const diffMidnight = midnight - now;
 
-                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                const hoursM = Math.floor((diffMidnight % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutesM = Math.floor((diffMidnight % (1000 * 60 * 60)) / (1000 * 60));
+                const secondsM = Math.floor((diffMidnight % (1000 * 60)) / 1000);
 
                 const countdownEl = document.getElementById('midnight-countdown');
                 if (countdownEl) {
-                    countdownEl.innerText = `${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`;
+                    countdownEl.innerText = `${String(hoursM).padStart(2, '0')}h ${String(minutesM).padStart(2, '0')}m ${String(secondsM).padStart(2, '0')}s`;
+                }
+
+                // COMPTE À REBOURS PROCHAINE HEURE PÉTROLE
+                const nextHour = new Date();
+                nextHour.setHours(currentHour + 1, 0, 0, 0);
+                const diffHour = nextHour - now;
+
+                const minutesH = Math.floor((diffHour % (1000 * 60 * 60)) / (1000 * 60));
+                const secondsH = Math.floor((diffHour % (1000 * 60)) / 1000);
+
+                const hourlyCountdownEl = document.getElementById('fuel-hourly-countdown');
+                if (hourlyCountdownEl) {
+                    hourlyCountdownEl.innerText = `${String(minutesH).padStart(2, '0')}m ${String(secondsH).padStart(2, '0')}s`;
+                }
+            }
+
+            // MISE À JOUR DU PRIX SPOT TOUTES LES HEURES EN € / KG
+            updateHourlyFuelPrice() {
+                const fluctuation = (Math.random() * 0.18 - 0.09); // Fluctuation fine horaire (-0.09€/Kg à +0.09€/Kg)
+                let newSpotPrice = parseFloat((this.currentFuelPrice + fluctuation).toFixed(2));
+                newSpotPrice = Math.max(1.10, Math.min(3.20, newSpotPrice)); // Min 1.10 €/Kg, Max 3.20 €/Kg
+                this.currentFuelPrice = newSpotPrice;
+
+                if (!this.company.fuelPriceHistory) this.company.fuelPriceHistory = [];
+                this.company.fuelPriceHistory.push(newSpotPrice);
+                if (this.company.fuelPriceHistory.length > 24) {
+                    this.company.fuelPriceHistory.shift(); // Garde les 24 dernières heures
+                }
+
+                this.showToast(`📈 Cours du Kérosène ajusté : ${newSpotPrice} € / Kg !`, 'info');
+                this.renderAll();
+                if (this.activeTab === 'clo') {
+                    this.renderFuelChart();
                 }
             }
 
@@ -1197,6 +1355,17 @@
                 this.company.tickContractsCompleted = 0;
                 this.company.tickEarnedAmount = 0;
 
+                // 1. DÉCOMPTE DÉCURATION FUEL HEDGING (12 TICKS DE 24H)
+                if (this.company.fuelHedgeActive) {
+                    this.company.fuelHedgeTicksLeft--;
+                    if (this.company.fuelHedgeTicksLeft <= 0) {
+                        this.company.fuelHedgeActive = false;
+                        this.company.fuelHedgeTicksLeft = 0;
+                        this.showToast("Expiration de votre contrat de Fuel Hedging sur 12 ticks !", "info");
+                    }
+                }
+
+                // 2. REMBOURSEMENT EMPRUNTS
                 this.activeLoans.forEach(loan => {
                     loan.ticksLeft--;
                     loan.remainingAmount -= loan.installment;
@@ -1204,80 +1373,26 @@
                 });
                 this.activeLoans = this.activeLoans.filter(l => l.ticksLeft > 0 && l.remainingAmount > 0);
 
+                // 3. EXPIRATION DES CONTRATS
                 this.activeContracts.forEach(c => c.ticksLeft--);
                 this.availableContracts.forEach(c => c.ticksLeft--);
 
                 this.activeContracts = this.activeContracts.filter(c => c.ticksLeft > 0);
                 this.availableContracts = this.availableContracts.filter(c => c.ticksLeft > 0);
 
-                const activeOrigins = this.getAvailableOrigins();
-                while (this.availableContracts.length < 20) {
-                    const origCode = activeOrigins[Math.floor(Math.random() * activeOrigins.length)];
-                    const origHubObj = this.hub100List.find(h => h.code === origCode) || this.hub100List[0];
-
-                    const tierList = [
-                        { type: 'Aviation Légère', minPax: 2, maxPax: 6, minCargo: 0.1, maxCargo: 0.5, maxDist: 900, mult: 1, label: 'Léger / Régional court' },
-                        { type: 'Turboprop', minPax: 8, maxPax: 19, minCargo: 0.8, maxCargo: 2.0, maxDist: 2200, mult: 1.8, label: 'Turbopropulseur Régional' },
-                        { type: 'Régional', minPax: 30, maxPax: 78, minCargo: 3.0, maxCargo: 8.0, maxDist: 1600, mult: 3.5, label: 'Ligne Régionale PAX' },
-                        { type: 'Moyen-Porteur', minPax: 120, maxPax: 210, minCargo: 12.0, maxCargo: 25.0, maxDist: 6600, mult: 8, label: 'Moyen-Porteur International' },
-                        { type: 'Long-Courrier', minPax: 250, maxPax: 360, minCargo: 30.0, maxCargo: 55.0, maxDist: 15000, mult: 20, label: 'Long-Courrier Transcontinental' },
-                        { type: 'Cargo Lourd', minPax: 0, maxPax: 0, minCargo: 60.0, maxCargo: 105.0, maxDist: 10000, mult: 25, label: 'Fret Lourd / Cargo' },
-                        { type: 'Supersonique', minPax: 60, maxPax: 100, minCargo: 2.0, maxCargo: 5.0, maxDist: 7500, mult: 35, label: 'Express VIP Supersonique' }
-                    ];
-
-                    const companyFactor = 1 + (this.company.hubs.length * 0.3) + (this.fleet.length * 0.15) + ((this.company.level || 1) * 0.2);
-                    const targetTier = tierList[Math.floor(Math.random() * Math.min(tierList.length, 2 + Math.floor(this.company.hubs.length / 2) + Math.floor(this.fleet.length / 3)))];
-                    
-                    let validDestHubs = this.hub100List.filter(h => {
-                        if (h.code === origCode) return false;
-                        const dist = this.calculateDistance(origHubObj.lat, origHubObj.lon, h.lat, h.lon);
-                        return dist <= targetTier.maxDist && dist > 80;
-                    });
-                    if (validDestHubs.length === 0) validDestHubs = this.hub100List.filter(h => h.code !== origCode);
-
-                    const destHub = validDestHubs[Math.floor(Math.random() * validDestHubs.length)];
-                    const distanceKm = this.calculateDistance(origHubObj.lat, origHubObj.lon, destHub.lat, destHub.lon);
-
-                    const paxCount = targetTier.minPax > 0 ? Math.floor(Math.random() * (targetTier.maxPax - targetTier.minPax + 1)) + targetTier.minPax : 0;
-                    const cargoTonnes = parseFloat((Math.random() * (targetTier.maxCargo - targetTier.minCargo) + targetTier.minCargo).toFixed(1));
-                    const reward = Math.round((Math.random() * 40000 + 40000 + (distanceKm * 40)) * targetTier.mult * companyFactor);
-
-                    const hasTwoLegs = distanceKm > 3500 && Math.random() < 0.3;
-                    let routingTitle = `${targetTier.label} (${origCode} ➔ ${destHub.code} • ${distanceKm} km)`;
-                    let stopover = '';
-
-                    if (hasTwoLegs) {
-                        let potentialStops = this.hub100List.filter(h => h.code !== origCode && h.code !== destHub.code);
-                        if (potentialStops.length > 0) {
-                            const stopHub = potentialStops[Math.floor(Math.random() * potentialStops.length)];
-                            stopover = stopHub.code;
-                            routingTitle = `${targetTier.label} (${origCode} ➔ ${stopover} [Escale] ➔ ${destHub.code} • ${distanceKm} km)`;
-                        }
-                    }
-
-                    this.availableContracts.push({
-                        id: Date.now() + Math.floor(Math.random() * 10000),
-                        title: routingTitle,
-                        origin: origCode,
-                        destination: destHub.code,
-                        stopover: stopover,
-                        reward: reward,
-                        requiredType: targetTier.type,
-                        minPax: paxCount,
-                        minCargo: cargoTonnes,
-                        distanceKm: distanceKm,
-                        ticksLeft: Math.floor(Math.random() * 4) + 4,
-                        selectedPlaneId: ''
-                    });
+                const missingCount = 20 - this.availableContracts.length;
+                if (missingCount > 0) {
+                    this.generateContractsForCount(missingCount);
                 }
 
+                // 4. CHARGES SALAIRES ET LEASINGS DE 24H (1 TICK)
                 const totalSalaries = this.team.reduce((acc, m) => acc + m.salary, 0);
                 const totalLeaseFees = this.fleet.reduce((acc, p) => acc + (p.isLeased ? p.leaseFee : 0), 0);
                 const totalExpenses = totalSalaries + totalLeaseFees;
 
                 this.company.cash -= totalExpenses;
 
-                this.showToast(`Minuit dépassé ! Tick #${this.company.tickCount}. Salaires & Leasings prélevés (${this.formatMoney(totalExpenses)}).`, 'info');
+                this.showToast(`Cycle de 24h révolu ! Tick #${this.company.tickCount}. Charges : ${this.formatMoney(totalExpenses)}.`, 'info');
                 this.renderAll();
             }
 
@@ -1330,6 +1445,10 @@
                         navBtn.className = "w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-sm transition cursor-pointer";
                     }
                 });
+                
+                if (tabId === 'clo') {
+                    setTimeout(() => this.renderFuelChart(), 50);
+                }
                 this.renderAll();
             }
 
@@ -1359,12 +1478,90 @@
                 document.getElementById('tick-earned-amount').innerText = this.formatMoney(this.company.tickEarnedAmount || 0);
             }
 
+            // RENDU DU GRAPHIQUE DES COURS DU PÉTROLE EN € / KG
+            renderFuelChart() {
+                const canvas = document.getElementById('fuelPriceChart');
+                if (!canvas) return;
+
+                const history = this.company.fuelPriceHistory || [1.70, 1.72, 1.75, 1.78, 1.80, 1.82, 1.85, 1.83, 1.81, 1.85];
+                const labels = history.map((_, idx) => `H-${history.length - 1 - idx}`);
+
+                if (this.fuelChartInstance) {
+                    this.fuelChartInstance.destroy();
+                }
+
+                const ctx = canvas.getContext('2d');
+                this.fuelChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Prix Kérosène Spot (€ / Kg)',
+                            data: history,
+                            borderColor: '#38bdf8',
+                            backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.3,
+                            pointBackgroundColor: '#38bdf8',
+                            pointRadius: 3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: {
+                                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                                ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 10 } }
+                            },
+                            y: {
+                                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                                ticks: { color: '#38bdf8', font: { family: 'JetBrains Mono', size: 10 } }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // ACTIVATION DU HEDGING BLOQUÉ SUR 12 TICKS EN €/KG
+            toggleFuelHedge12Ticks() {
+                if (this.company.fuelHedgeActive) {
+                    this.showToast(`Contrat engagé ! Résiliation impossible avant la fin des ${this.company.fuelHedgeTicksLeft} ticks restants.`, "error");
+                    return;
+                }
+
+                if (this.company.cash < 120000) {
+                    this.showToast("Trésorerie insuffisante (120 000 € d'acompte requis) !", "error");
+                    return;
+                }
+
+                this.company.cash -= 120000;
+                this.company.fuelHedgeActive = true;
+                this.company.fuelHedgePrice = this.currentFuelPrice;
+                this.company.fuelHedgeTicksLeft = 12;
+
+                this.showToast(`Prix du kérosène verrouillé à ${this.company.fuelHedgePrice} €/Kg pour les 12 prochains ticks !`, "success");
+                this.renderAll();
+            }
+
+            getEffectiveFuelPrice(hubCode = 'LFLB') {
+                const basePrice = this.company.fuelHedgeActive ? this.company.fuelHedgePrice : this.currentFuelPrice;
+                const isCompanyHub = this.company.hubs.includes(hubCode);
+                // Si l'on achète depuis un hub que l'on ne possède pas, taxe FBO de +25%
+                return isCompanyHub ? basePrice : parseFloat((basePrice * 1.25).toFixed(2));
+            }
+
             renderAll() {
                 document.getElementById('company-name-header').innerText = this.company.name;
                 document.getElementById('company-cash').innerText = this.formatMoney(this.company.cash);
                 document.getElementById('company-rep').innerText = this.company.reputation + '%';
                 document.getElementById('company-tick').innerText = this.company.tickCount;
                 document.getElementById('header-player-loc').innerText = this.playerLocation;
+                document.getElementById('current-filter-loc').innerText = this.playerLocation;
 
                 let totalFleetArgus = 0;
                 this.fleet.forEach(p => totalFleetArgus += this.calculateResaleValue(p));
@@ -1376,7 +1573,49 @@
                 document.getElementById('dash-team-count').innerText = totalTeam;
                 document.getElementById('dash-pilots-count').innerText = pilotsCount + ' Pilote(s) sous contrat';
                 document.getElementById('dash-fuel-reserves').innerText = this.getTotalFuelReserves().toLocaleString() + ' Kg';
-                document.getElementById('dash-fuel-hedge-status').innerText = this.company.fuelHedgeActive ? 'Hedging Actif (1.50 €/Kg)' : 'Prix spot marché actif';
+
+                // AFFICHAGE DU STATUT HEDGING EN € / KG
+                const targetHub = document.getElementById('fuel-target-hub-select')?.value || this.playerLocation;
+                const effectivePrice = this.getEffectiveFuelPrice(targetHub);
+
+                if (this.company.fuelHedgeActive) {
+                    const statusText = `Hedging BLOQUÉ (${this.company.fuelHedgePrice} €/Kg • ${this.company.fuelHedgeTicksLeft}/12 ticks restants)`;
+                    document.getElementById('dash-fuel-hedge-status').innerText = statusText;
+                    document.getElementById('dash-fuel-hedge-status').className = "text-xs text-amber-400 font-bold";
+                } else {
+                    document.getElementById('dash-fuel-hedge-status').innerText = `Prix spot marché actif (${this.currentFuelPrice} €/Kg - Maj /1h)`;
+                    document.getElementById('dash-fuel-hedge-status').className = "text-xs text-sky-400 font-semibold";
+                }
+
+                // MISE À JOUR SECTION FUEL DE L'ONGLET LOGISTIQUE (CLO)
+                const spotChartPriceEl = document.getElementById('fuel-spot-price-chart');
+                if (spotChartPriceEl) spotChartPriceEl.innerText = `${this.currentFuelPrice} €`;
+
+                const effectivePriceEl = document.getElementById('fuel-effective-price');
+                if (effectivePriceEl) {
+                    const isOwned = this.company.hubs.includes(targetHub);
+                    effectivePriceEl.innerText = `${effectivePrice} € / Kg ${isOwned ? '(Tarif Hub)' : '(Tarif Tiers + 25% FBO)'}`;
+                }
+
+                const hedgeStatusBadge = document.getElementById('hedging-status-badge');
+                if (hedgeStatusBadge) {
+                    if (this.company.fuelHedgeActive) {
+                        hedgeStatusBadge.innerText = `Actif (${this.company.fuelHedgePrice} €/Kg • ${this.company.fuelHedgeTicksLeft} ticks restants)`;
+                        hedgeStatusBadge.className = "text-xs font-bold font-mono text-emerald-400";
+                    } else {
+                        hedgeStatusBadge.innerText = "Inactif";
+                        hedgeStatusBadge.className = "text-xs font-bold font-mono text-slate-400";
+                    }
+                }
+
+                const hedgeBtnText = document.getElementById('hedge-btn-text');
+                if (hedgeBtnText) {
+                    hedgeBtnText.innerText = this.company.fuelHedgeActive 
+                        ? `Prix Bloqué (${this.company.fuelHedgePrice} €/Kg • ${this.company.fuelHedgeTicksLeft}/12 ticks)` 
+                        : `Verrouiller au prix actuel (${this.currentFuelPrice} €/Kg) — 120 000 €`;
+                }
+
+                this.updateFuelSlider(this.fuelPurchaseQty);
 
                 const execContainer = document.getElementById('executives-container');
                 execContainer.innerHTML = '';
@@ -1394,7 +1633,7 @@
                                 <div>
                                     <div class="text-xs font-bold uppercase tracking-wider ${textCol}">${roleKey}</div>
                                     <div class="font-bold text-white text-base">${exec.name} <span class="text-xs text-emerald-400 font-mono">[📍 ${exec.location || 'LFLB'}]</span></div>
-                                    <div class="text-xs text-slate-400">Salaire: ${this.formatMoney(exec.salary)}/tick</div>
+                                    <div class="text-xs text-slate-400">Salaire: ${this.formatMoney(exec.salary)} / 24h</div>
                                 </div>
                             </div>
                         `;
@@ -1422,47 +1661,66 @@
                     `;
                 });
 
-                document.getElementById('available-contracts-badge').innerText = this.availableContracts.length + ' contrats';
+                // CONTRATS
+                let displayedContracts = this.availableContracts;
+                if (this.contractFilterMode === 'current') {
+                    displayedContracts = this.availableContracts.filter(c => c.origin === this.playerLocation);
+                }
+
+                document.getElementById('available-contracts-badge').innerText = displayedContracts.length + ' contrat(s)';
                 const contractsContainer = document.getElementById('available-contracts-container');
                 contractsContainer.innerHTML = '';
-                this.availableContracts.forEach(contract => {
-                    const parkedPlanes = this.fleet.filter(p => p.status === 'Parked');
-                    let planeOptions = '<option value="">-- Choisir un appareil --</option>';
-                    parkedPlanes.forEach(p => {
-                        const acDef = this.aircraftCatalog.find(a => a.name === p.name);
-                        const isCompatible = acDef && acDef.capacity >= contract.minPax && acDef.cargo >= contract.minCargo && acDef.range >= (contract.distanceKm || 0);
-                        const badgeCompat = isCompatible ? '✅' : '⚠️';
-                        const selected = contract.selectedPlaneId == p.id ? 'selected' : '';
-                        planeOptions += `<option value="${p.id}" ${selected}>${badgeCompat} ${p.registration} (${p.name}) - [${p.location}]</option>`;
-                    });
 
-                    contractsContainer.innerHTML += `
-                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between space-y-3 h-full">
-                            <div>
-                                <div class="flex justify-between items-center">
-                                    <span class="bg-slate-900 text-sky-400 px-2.5 py-1 rounded-lg border border-slate-800 text-xs font-mono font-bold">${contract.stopover ? '🗺️ Avec Escale' : '📍 Vol Direct'}</span>
-                                    <span class="text-xs text-amber-400 font-semibold font-mono">Exp: ${contract.ticksLeft} tick(s)</span>
-                                </div>
-                                <h4 class="font-bold text-white text-sm mt-3">${contract.title}</h4>
-                                <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800 mt-2 space-y-1 text-xs font-mono">
-                                    <div class="flex justify-between text-slate-300">
-                                        <span>👥 Passagers à transporter :</span>
-                                        <strong class="text-sky-400">${contract.minPax} PAX</strong>
-                                    </div>
-                                    <div class="flex justify-between text-slate-300">
-                                        <span>📦 Fret à transporter :</span>
-                                        <strong class="text-emerald-400">${contract.minCargo} tonnes</strong>
-                                    </div>
-                                </div>
-                                <div class="text-xs text-slate-300 mt-2">Prime nette : <strong class="text-emerald-400 font-mono text-sm">${this.formatMoney(contract.reward)}</strong></div>
-                            </div>
-                            <div class="space-y-2 pt-2 border-t border-slate-800">
-                                <select onchange="app.updateContractSelection(${contract.id}, this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200">${planeOptions}</select>
-                                <button onclick="app.acceptContractWithPlane(${contract.id})" class="w-full bg-emerald-600 hover:bg-emerald-500 font-bold text-white py-2 rounded-xl text-xs transition shadow cursor-pointer">Valider & Accepter</button>
-                            </div>
+                if (displayedContracts.length === 0) {
+                    contractsContainer.innerHTML = `
+                        <div class="col-span-full text-center py-12 glass-card rounded-xl space-y-3">
+                            <i class="fa-solid fa-plane-slash text-3xl text-slate-600"></i>
+                            <div class="text-slate-400 text-sm font-semibold">Aucun contrat au départ de ${this.playerLocation} pour le moment.</div>
+                            <button onclick="app.manualRefreshContracts()" class="bg-sky-600 hover:bg-sky-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition cursor-pointer">
+                                Générer des contrats pour ${this.playerLocation} (5 000 €)
+                            </button>
                         </div>
                     `;
-                });
+                } else {
+                    displayedContracts.forEach(contract => {
+                        const parkedPlanes = this.fleet.filter(p => p.status === 'Parked');
+                        let planeOptions = '<option value="">-- Choisir un appareil --</option>';
+                        parkedPlanes.forEach(p => {
+                            const acDef = this.aircraftCatalog.find(a => a.name === p.name);
+                            const isCompatible = acDef && acDef.capacity >= contract.minPax && acDef.cargo >= contract.minCargo && acDef.range >= (contract.distanceKm || 0);
+                            const badgeCompat = isCompatible ? '✅' : '⚠️';
+                            const selected = contract.selectedPlaneId == p.id ? 'selected' : '';
+                            planeOptions += `<option value="${p.id}" ${selected}>${badgeCompat} ${p.registration} (${p.name}) - [${p.location}]</option>`;
+                        });
+
+                        contractsContainer.innerHTML += `
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between space-y-3 h-full">
+                                <div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="bg-slate-900 text-sky-400 px-2.5 py-1 rounded-lg border border-slate-800 text-xs font-mono font-bold">${contract.stopover ? '🗺️ Avec Escale' : '📍 Vol Direct'}</span>
+                                        <span class="text-xs text-amber-400 font-semibold font-mono">Exp: ${contract.ticksLeft} tick(s)</span>
+                                    </div>
+                                    <h4 class="font-bold text-white text-sm mt-3">${contract.title}</h4>
+                                    <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800 mt-2 space-y-1 text-xs font-mono">
+                                        <div class="flex justify-between text-slate-300">
+                                            <span>👥 Passagers à transporter :</span>
+                                            <strong class="text-sky-400">${contract.minPax} PAX</strong>
+                                        </div>
+                                        <div class="flex justify-between text-slate-300">
+                                            <span>📦 Fret à transporter :</span>
+                                            <strong class="text-emerald-400">${contract.minCargo} tonnes</strong>
+                                        </div>
+                                    </div>
+                                    <div class="text-xs text-slate-300 mt-2">Prime nette : <strong class="text-emerald-400 font-mono text-sm">${this.formatMoney(contract.reward)}</strong></div>
+                                </div>
+                                <div class="space-y-2 pt-2 border-t border-slate-800">
+                                    <select onchange="app.updateContractSelection(${contract.id}, this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200">${planeOptions}</select>
+                                    <button onclick="app.acceptContractWithPlane(${contract.id})" class="w-full bg-emerald-600 hover:bg-emerald-500 font-bold text-white py-2 rounded-xl text-xs transition shadow cursor-pointer">Valider & Accepter</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
 
                 const fleetBody = document.getElementById('fleet-table-body');
                 fleetBody.innerHTML = '';
@@ -1473,7 +1731,7 @@
                 this.fleet.forEach(plane => {
                     const statusClass = plane.status === 'En vol' ? 'bg-sky-950 text-sky-400 border-sky-800' : 'bg-emerald-950 text-emerald-400 border-emerald-800';
                     const resaleVal = this.calculateResaleValue(plane);
-                    const valDisplay = plane.isLeased ? `<div class="text-xs font-mono text-amber-400 font-bold">${this.formatMoney(plane.leaseFee)}/tick</div>` : `<div class="text-xs font-mono text-emerald-400 font-bold">${this.formatMoney(resaleVal)}</div>`;
+                    const valDisplay = plane.isLeased ? `<div class="text-xs font-mono text-amber-400 font-bold">${this.formatMoney(plane.leaseFee)} / 24h</div>` : `<div class="text-xs font-mono text-emerald-400 font-bold">${this.formatMoney(resaleVal)}</div>`;
 
                     const assignedContract = this.activeContracts.find(c => c.id === plane.assignedContractId);
                     const assignedPilotName = plane.assignedPilotName || 'Non assigné';
@@ -1525,7 +1783,7 @@
                             <div class="flex justify-between items-center">
                                 <span class="font-bold text-white text-sm">${member.name} ${isMe ? '<span class="text-[10px] text-sky-400">(Vous)</span>' : ''}</span>
                                 <div class="flex items-center space-x-2">
-                                    <span class="text-xs font-mono text-slate-400">${this.formatMoney(member.salary)}/tick</span>
+                                    <span class="text-xs font-mono text-slate-400">${this.formatMoney(member.salary)} / 24h</span>
                                     ${!isMe ? `<button onclick="app.fireMember(${member.id})" class="bg-rose-950 hover:bg-rose-800 text-rose-300 px-2 py-1 rounded text-[10px] font-bold cursor-pointer" title="Virer / Licencier"><i class="fa-solid fa-user-minus"></i> Virer</button>` : ''}
                                 </div>
                             </div>
@@ -1556,9 +1814,14 @@
                                         <div class="text-sky-400 font-mono text-[10px]">Appareil : ${p.registration} (${p.name}) | Pilote : ${p.assignedPilotName || 'Non assigné'}</div>
                                         <div class="text-slate-300 font-mono text-[10px]">Détails : 👥 ${contract.minPax} Passagers | 📦 ${contract.minCargo} t de fret</div>
                                     </div>
-                                    <div class="text-right font-mono">
-                                        <div class="text-emerald-400 font-bold">${this.formatMoney(contract.reward)}</div>
-                                        <div class="text-amber-400 text-[10px]">📍 ${p.location} ➔ ${contract.destination}</div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="text-right font-mono">
+                                            <div class="text-emerald-400 font-bold">${this.formatMoney(contract.reward)}</div>
+                                            <div class="text-amber-400 text-[10px]">📍 ${p.location} ➔ ${contract.destination}</div>
+                                        </div>
+                                        <button onclick="app.openIncidentModal(${p.id})" class="bg-rose-950 hover:bg-rose-800 text-rose-300 border border-rose-800/60 px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer" title="Déclarer un incident / Annuler le vol">
+                                            <i class="fa-solid fa-triangle-exclamation"></i> Annuler
+                                        </button>
                                     </div>
                                 </div>
                             `;
@@ -1575,7 +1838,7 @@
                 this.aircraftCatalog.forEach(ac => {
                     const leaseFee = Math.round(ac.price * 0.02);
                     const leaseBtn = ac.allowLease
-                        ? `<button onclick="app.leaseAircraft('${ac.name}')" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 rounded-lg text-xs cursor-pointer text-center">Louer (${this.formatMoney(leaseFee)}/tick)</button>`
+                        ? `<button onclick="app.leaseAircraft('${ac.name}')" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 rounded-lg text-xs cursor-pointer text-center">Louer (${this.formatMoney(leaseFee)} / 24h)</button>`
                         : '';
 
                     catalogContainer.innerHTML += `
@@ -1604,10 +1867,10 @@
                         <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
                             <div class="flex justify-between items-center">
                                 <div class="font-bold text-white text-sm">${loan.title}</div>
-                                <span class="text-xs bg-slate-900 text-amber-400 px-2.5 py-0.5 rounded border border-slate-800 font-mono">${loan.ticksLeft} ticks restants</span>
+                                <span class="text-xs bg-slate-900 text-amber-400 px-2.5 py-0.5 rounded border border-slate-800 font-mono">${loan.ticksLeft} cycles (24h) restants</span>
                             </div>
                             <div class="text-xs text-emerald-400 font-mono">Dette restante : ${this.formatMoney(loan.remainingAmount)}</div>
-                            <div class="text-[10px] text-slate-400">Mensualité / tick : ${this.formatMoney(loan.installment)}</div>
+                            <div class="text-[10px] text-slate-400">Mensualité / 24h : ${this.formatMoney(loan.installment)}</div>
                         </div>
                     `;
                 });
@@ -1741,6 +2004,7 @@
 
                 const neededFuel = parseInt(document.getElementById('flight-needed-fuel-input').value) || 0;
                 const currentOnBoard = p.fuelOnBoard || 0;
+                const pricePerKg = this.getEffectiveFuelPrice(p.location);
 
                 if (currentOnBoard >= neededFuel) {
                     const excessFuel = currentOnBoard - neededFuel;
@@ -1754,6 +2018,8 @@
                         if (isCompanyHub) {
                             const maxCap = hubObj ? hubObj.fuelCap : 80000;
                             const availableSpace = Math.max(0, maxCap - currentHubStock);
+                            
+                            // Respect strict du plafond max des cuves !
                             const toHub = Math.min(excessFuel, availableSpace);
                             const toSell = excessFuel - toHub;
 
@@ -1762,21 +2028,19 @@
                             }
 
                             if (toSell > 0) {
-                                const pricePerKg = this.company.fuelHedgeActive ? 1.50 : this.currentFuelPrice;
                                 const resaleValue = Math.round(toSell * (pricePerKg / 2));
                                 this.company.cash += resaleValue;
-                                this.showToast(`Réservoirs ajustés : ${toHub.toLocaleString()} Kg remis au Hub ${p.location} et ${toSell.toLocaleString()} Kg revendu à 50% (+${this.formatMoney(resaleValue)}).`, "info");
+                                this.showToast(`Cuves pleines (Max ${maxCap.toLocaleString()} Kg) : ${toHub.toLocaleString()} Kg réinjectés et ${toSell.toLocaleString()} Kg de surplus revendus (+${this.formatMoney(resaleValue)}).`, "info");
                             } else {
                                 this.showToast(`Réservoirs ajustés : ${toHub.toLocaleString()} Kg réinjectés dans les cuves du Hub ${p.location}.`, "info");
                             }
                         } else {
-                            const pricePerKg = this.company.fuelHedgeActive ? 1.50 : this.currentFuelPrice;
                             const resaleValue = Math.round(excessFuel * (pricePerKg / 2));
                             this.company.cash += resaleValue;
                             this.showToast(`Réservoirs ajustés hors Hub : ${excessFuel.toLocaleString()} Kg de surplus revendus à 50% (+${this.formatMoney(resaleValue)}).`, "info");
                         }
                     } else {
-                        this.showToast(`Vol ${p.registration} vers ${targetDest} lancé (Masse réservoir exacte) !`, "success");
+                        this.showToast(`Vol ${p.registration} vers ${targetDest} lancé (${neededFuel.toLocaleString()} Kg en réservoir) !`, "success");
                     }
                 } else {
                     const missingFuel = neededFuel - currentOnBoard;
@@ -1792,17 +2056,17 @@
                             this.company.fuelReservesByHub[p.location] = 0;
                         }
 
-                        const pricePerKg = this.company.fuelHedgeActive ? 1.50 : this.currentFuelPrice;
                         const spotCost = Math.round(deficitAfterHub * pricePerKg);
 
                         if (this.company.cash < spotCost) {
-                            this.showToast(`Trésorerie insuffisante pour acheter ${deficitAfterHub.toLocaleString()} Kg au prix spot (${this.formatMoney(spotCost)}) !`, "error");
+                            this.showToast(`Trésorerie insuffisante pour acheter ${deficitAfterHub.toLocaleString()} Kg au tarif effectif (${this.formatMoney(spotCost)}) !`, "error");
                             return;
                         }
 
                         this.company.cash -= spotCost;
                         p.fuelOnBoard = neededFuel;
-                        this.showToast(`Complément spot : ${hubStock > 0 ? hubStock.toLocaleString() + ' Kg du Hub + ' : ''}${deficitAfterHub.toLocaleString()} Kg achetés au spot (${this.formatMoney(spotCost)}).`, "info");
+                        const isOwnedHub = this.company.hubs.includes(p.location);
+                        this.showToast(`Complément : ${hubStock > 0 ? hubStock.toLocaleString() + ' Kg du Hub + ' : ''}${deficitAfterHub.toLocaleString()} Kg achetés ${isOwnedHub ? '' : '(Tarif FBO +25%)'} (${this.formatMoney(spotCost)}).`, "info");
                     }
                 }
 
@@ -1903,6 +2167,8 @@
                 }
                 this.playerLocation = targetDest;
 
+                this.refreshContractsForLocation(targetDest);
+
                 if (contract) {
                     if (isStopover && contract.stopover) {
                         const oldStop = contract.stopover;
@@ -1925,6 +2191,61 @@
                 }
 
                 this.closeDebriefModal();
+                this.renderAll();
+            }
+
+            openIncidentModal(planeId) {
+                const p = this.fleet.find(item => item.id === planeId);
+                if (!p || !p.assignedContractId) return;
+                
+                const contract = this.activeContracts.find(c => c.id === p.assignedContractId);
+                if (!contract) return;
+
+                this.incidentPlaneId = planeId;
+                
+                // Calcul des pénalités (ex: 25% de la prime du contrat en dédommagement)
+                const penaltyCash = Math.round(contract.reward * 0.25);
+                const penaltyRep = Math.max(2, Math.round(contract.minPax > 100 ? 8 : 4));
+
+                document.getElementById('incident-plane-reg').innerText = p.registration;
+                document.getElementById('incident-contract-desc').innerText = contract.title;
+                document.getElementById('incident-penalty-cash').innerText = this.formatMoney(penaltyCash);
+                document.getElementById('incident-penalty-rep').innerText = `-${penaltyRep} %`;
+
+                this.pendingIncidentData = { planeId, contractId: contract.id, penaltyCash, penaltyRep };
+
+                document.getElementById('flight-incident-modal').classList.remove('hidden');
+                document.getElementById('flight-incident-modal').classList.add('flex');
+            }
+
+            closeIncidentModal() {
+                document.getElementById('flight-incident-modal').classList.add('hidden');
+                document.getElementById('flight-incident-modal').classList.remove('flex');
+                this.pendingIncidentData = null;
+            }
+
+            confirmFlightIncident() {
+                if (!this.pendingIncidentData) return;
+                const { planeId, contractId, penaltyCash, penaltyRep } = this.pendingIncidentData;
+
+                const p = this.fleet.find(item => item.id === planeId);
+                if (p) {
+                    p.assignedContractId = '';
+                    p.assignedPilotName = '';
+                    if (p.status === 'En vol') {
+                        p.status = 'Parked';
+                        delete p.currentLegTarget;
+                    }
+                }
+
+                this.activeContracts = this.activeContracts.filter(c => c.id !== contractId);
+
+                // Application des pénalités financières et de réputation
+                this.company.cash -= penaltyCash;
+                this.company.reputation = Math.max(0, this.company.reputation - penaltyRep);
+
+                this.closeIncidentModal();
+                this.showToast(`Incident enregistré : Vol annulé. Pénalité de ${this.formatMoney(penaltyCash)} et -${penaltyRep}% de réputation.`, 'error');
                 this.renderAll();
             }
 
@@ -1967,6 +2288,9 @@
                 this.company.cash -= hub.price;
                 this.company.hubs.push(hub.code);
                 this.company.fuelReservesByHub[hub.code] = 50000;
+
+                this.refreshContractsForLocation(hub.code);
+
                 this.showToast(`Hub ${hub.city} (${hub.code}) acquis avec succès !`, "success");
                 this.renderAll();
             }
@@ -2032,27 +2356,23 @@
                     isLeased: true,
                     leaseFee: leaseFee
                 });
-                this.showToast(`Appareil ${ac.name} (${reg}) pris en leasing (${this.formatMoney(leaseFee)}/tick) !`, "success");
-                this.renderAll();
-            }
-
-            toggleFuelHedge() {
-                if (this.company.cash < 200000) return;
-                this.company.cash -= 200000;
-                this.company.fuelHedgeActive = true;
+                this.showToast(`Appareil ${ac.name} (${reg}) pris en leasing (${this.formatMoney(leaseFee)} / 24h) !`, "success");
                 this.renderAll();
             }
 
             updateFuelSlider(val) {
                 this.fuelPurchaseQty = parseInt(val);
                 document.getElementById('fuel-qty-label').innerText = this.fuelPurchaseQty.toLocaleString() + ' Kg';
-                const cost = this.fuelPurchaseQty * (this.company.fuelHedgeActive ? 1.50 : this.currentFuelPrice);
+                const targetHub = document.getElementById('fuel-target-hub-select')?.value || this.playerLocation;
+                const effectivePrice = this.getEffectiveFuelPrice(targetHub);
+                const cost = Math.round(this.fuelPurchaseQty * effectivePrice);
                 document.getElementById('fuel-total-cost').innerText = this.formatMoney(cost);
             }
 
             buyFuelSpot() {
                 const targetHub = document.getElementById('fuel-target-hub-select').value;
-                const cost = this.fuelPurchaseQty * (this.company.fuelHedgeActive ? 1.50 : this.currentFuelPrice);
+                const effectivePrice = this.getEffectiveFuelPrice(targetHub);
+                const cost = Math.round(this.fuelPurchaseQty * effectivePrice);
                 if (this.company.cash < cost || !targetHub) return;
                 
                 const hubObj = this.hub100List.find(h => h.code === targetHub);
@@ -2060,12 +2380,15 @@
                 const currentStock = this.company.fuelReservesByHub[targetHub] || 0;
 
                 if (currentStock + this.fuelPurchaseQty > maxCap) {
-                    this.showToast(`Capacité maximale des cuves dépassée à ${targetHub} (${maxCap.toLocaleString()} Kg max) !`, "error");
+                    const allowedMax = maxCap - currentStock;
+                    this.showToast(`Impossible : Il reste seulement de la place pour ${allowedMax.toLocaleString()} Kg dans les cuves de ${targetHub} (Max ${maxCap.toLocaleString()} Kg) !`, "error");
                     return;
                 }
 
                 this.company.cash -= cost;
                 this.company.fuelReservesByHub[targetHub] = currentStock + this.fuelPurchaseQty;
+                const isOwned = this.company.hubs.includes(targetHub);
+                this.showToast(`${this.fuelPurchaseQty.toLocaleString()} Kg ajoutés aux cuves de ${targetHub} ${isOwned ? '' : '(avec taxe FBO +25%)'} pour ${this.formatMoney(cost)} !`, "success");
                 this.renderAll();
             }
 
@@ -2083,7 +2406,9 @@
                     me.location = dest;
                 }
 
-                this.showToast(`Relocalisé avec succès à ${dest} ! De nouveaux contrats vont apparaître ici.`, "success");
+                this.refreshContractsForLocation(dest);
+
+                this.showToast(`Relocalisé avec succès à ${dest} ! De nouveaux contrats ont été générés sur place.`, "success");
                 this.renderAll();
             }
 
@@ -2111,7 +2436,7 @@
                 this.company.cash += amount;
                 this.activeLoans.push({
                     id: Date.now(),
-                    title: `Emprunt ${this.formatMoney(amount)} (${ticks} Ticks)`,
+                    title: `Emprunt ${this.formatMoney(amount)} (${ticks} Ticks / ${ticks} Jours)`,
                     remainingAmount: total,
                     installment: Math.round(total / ticks),
                     ticksLeft: ticks,
