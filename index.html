@@ -820,7 +820,7 @@
                     lastTickDate: new Date().toDateString(),
                     lastHourlyUpdateHour: new Date().getHours(),
                     hubs: ['LFLB'],
-                    fuelReservesByHub: { 'LFLB': 40000 }, // <--- Mis à 50% de la capacité max de LFLB (80000 / 2)
+                    fuelReservesByHub: { 'LFLB': 40000 },
                     
                     fuelHedgeActive: false,
                     fuelHedgePrice: 1.85,
@@ -839,7 +839,7 @@
                     { type: 'Turboprop', name: 'Cessna 208B Grand Caravan', capacity: 14, cargo: 1.2, range: 1200, fuelBurn: 200, price: 2100000, allowLease: true },
                     { type: 'Turboprop', name: 'Daher TBM 930', capacity: 6, cargo: 0.5, range: 1600, fuelBurn: 250, price: 4100000, allowLease: true },
                     { type: 'Turboprop', name: 'Beechcraft King Air 350i', capacity: 11, cargo: 1.5, range: 2200, fuelBurn: 380, price: 7500000, allowLease: true },
-		    { type: 'Turboprop', name: 'De Havilland DHC-6-300', capacity: 17, cargo: 2, range: 1700, fuelBurn: 280, price: 3200000, allowLease: true },
+                    { type: 'Turboprop', name: 'De Havilland DHC-6-300', capacity: 17, cargo: 2, range: 1700, fuelBurn: 280, price: 3200000, allowLease: true },
                     { type: 'Régional', name: 'ATR 42-600', capacity: 48, cargo: 5.0, range: 1300, fuelBurn: 550, price: 21000000, allowLease: true },
                     { type: 'Régional', name: 'ATR 72-600', capacity: 72, cargo: 7.5, range: 1500, fuelBurn: 720, price: 26000000, allowLease: true },
                     { type: 'Moyen-Porteur', name: 'Airbus A320neo', capacity: 180, cargo: 20.0, range: 6500, fuelBurn: 2100, price: 110000000, allowLease: false },
@@ -1184,7 +1184,6 @@
                 this.companyCode = cCode;
                 this.playerLocation = hubObj.code;
 
-                // Calcul automatique du carburant initial à 50% de la capacité maximale du hub choisi
                 const startingFuel = Math.round(hubObj.fuelCap / 2);
 
                 this.company = {
@@ -1215,7 +1214,7 @@
                         name: pName, 
                         role: 'CEO', 
                         salary: 15000, 
-                        exp: 0, // <--- Corrigé à 0 h au lancement
+                        exp: 0,
                         location: hubObj.code,
                         stats: {
                             totalHours: 0,
@@ -1534,6 +1533,29 @@
                 const hours = plane.flightHours || 0;
                 const depreciationFactor = Math.max(0.12, 0.85 * Math.pow(0.992, hours));
                 return Math.round(base * depreciationFactor);
+            }
+
+            // MÉTHODE DE REVENTE ET DE RÉSILIATION DU LEASING
+            sellOrTermLease(planeId) {
+                const idx = this.fleet.findIndex(p => p.id === planeId);
+                if (idx < 0) return;
+                const plane = this.fleet[idx];
+
+                if (plane.status === 'En vol') {
+                    this.showToast("Impossible de revendre un appareil actuellement en vol !", "error");
+                    return;
+                }
+
+                if (plane.isLeased) {
+                    this.fleet.splice(idx, 1);
+                    this.showToast(`Contrat de leasing résilié pour l'appareil ${plane.registration} (${plane.name}).`, "info");
+                } else {
+                    const resaleVal = this.calculateResaleValue(plane);
+                    this.company.cash += resaleVal;
+                    this.fleet.splice(idx, 1);
+                    this.showToast(`Appareil ${plane.registration} (${plane.name}) revendu avec succès pour ${this.formatMoney(resaleVal)} !`, "success");
+                }
+                this.renderAll();
             }
 
             getTotalFuelReserves() {
@@ -1876,6 +1898,8 @@
                         ? `<button onclick="app.openDebriefModal(${plane.id})" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer">Atterrir</button>`
                         : `<button onclick="app.startFlight(${plane.id})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer">Lancer Vol</button>`;
 
+                    const sellOrLeaseBtn = `<button onclick="app.sellOrTermLease(${plane.id})" class="bg-rose-950 hover:bg-rose-800 text-rose-300 border border-rose-800/60 px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition">${plane.isLeased ? 'Résilier' : 'Revendre'}</button>`;
+
                     fleetBody.innerHTML += `
                         <tr class="hover:bg-slate-900/40 transition">
                             <td class="py-3 px-3">
@@ -1897,7 +1921,7 @@
                                     <div>${contractInfoDisplay}</div>
                                 </div>
                             </td>
-                            <td class="py-3 px-3 text-right space-x-2">${flightBtn}</td>
+                            <td class="py-3 px-3 text-right space-x-2">${flightBtn} ${sellOrLeaseBtn}</td>
                         </tr>
                     `;
                 });
@@ -2090,7 +2114,6 @@
                     `;
                 });
 
-                // RENDU DU CLASSEMENT DES PILOTES
                 const leaderboardBody = document.getElementById('leaderboard-table-body');
                 leaderboardBody.innerHTML = '';
                 
@@ -2129,7 +2152,6 @@
                     `;
                 });
 
-                // RENDU DE L'HISTORIQUE DES VOLS
                 const historyBody = document.getElementById('flight-history-table-body');
                 historyBody.innerHTML = '';
                 const historyList = this.company.flightHistory || [];
@@ -2472,7 +2494,6 @@
                     this.showToast(`Vol libre validé à ${targetDest} ! +${this.formatMoney(earnedReward)} de prime d'exploration.`, 'success');
                 }
 
-                // Enregistrement dans l'historique des vols de la compagnie
                 if (!this.company.flightHistory) this.company.flightHistory = [];
                 this.company.flightHistory.push({
                     dateStr: `Tick #${this.company.tickCount}`,
@@ -2535,7 +2556,7 @@
                 }
                 this.company.cash -= hub.price;
                 this.company.hubs.push(hub.code);
-                this.company.fuelReservesByHub[hub.code] = Math.round(hub.fuelCap / 2); // Également rempli à 50% pour les nouveaux hubs achetés
+                this.company.fuelReservesByHub[hub.code] = Math.round(hub.fuelCap / 2);
 
                 this.refreshContractsForLocation(hub.code);
 
