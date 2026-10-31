@@ -1535,6 +1535,7 @@
                 return Math.round(base * depreciationFactor);
             }
 
+            // MÉTHODE DE REVENTE ET DE RÉSILIATION DU LEASING
             sellOrTermLease(planeId) {
                 const idx = this.fleet.findIndex(p => p.id === planeId);
                 if (idx < 0) return;
@@ -2194,12 +2195,9 @@
                 });
             }
 
-            // CORRECTION DE L'ÉVÉNEMENT DU MENU DÉROULANT (SANS RE-RENDU DÉTRUISANT LE DOM)
             updateContractSelection(contractId, planeId) {
                 const c = this.availableContracts.find(item => item.id === contractId);
-                if (c) {
-                    c.selectedPlaneId = planeId;
-                }
+                if (c) c.selectedPlaneId = planeId;
             }
 
             acceptContractWithPlane(contractId) {
