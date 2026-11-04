@@ -373,7 +373,7 @@
                                     <th class="pb-3 px-3">Position & Réservoir</th>
                                     <th class="pb-3 px-3">HdV Totales / Visite (25h)</th>
                                     <th class="pb-3 px-3">Dérogations MEL</th>
-                                    <th class="pb-3 px-3">Statut & Temps Immobilisation IRL</th>
+                                    <th class="pb-3 px-3">Statut & Mission Actuelle (PAX / Cargo)</th>
                                     <th class="pb-3 px-3 text-right">Actions Maintenance & Vol</th>
                                 </tr>
                             </thead>
@@ -986,7 +986,7 @@
                     lastHourlyUpdateHour: new Date().getHours(),
                     hubs: ['LFLB'],
                     fuelReservesByHub: { 'LFLB': 40000 },
-                    hubParkingLeases: {}, // format: { 'LFLB': { listedGates: 4, activeContracts: [ {id, airlineName, ratePerTick, ticksLeft, occupied} ] } }
+                    hubParkingLeases: {},
                     
                     fuelHedgeActive: false,
                     fuelHedgePrice: 1.85,
@@ -1638,7 +1638,6 @@
                 this.company.tickContractsCompleted = 0;
                 this.company.tickEarnedAmount = 0;
 
-                // LOGIQUE DE CALCUL DU REVENU DES PARKINGS EN LOCATION PAR TICK
                 let totalParkingRevenue = 0;
                 if (this.company.hubParkingLeases) {
                     for (let hCode in this.company.hubParkingLeases) {
@@ -1646,16 +1645,13 @@
                         if (hubLeaseData && hubLeaseData.activeContracts) {
                             hubLeaseData.activeContracts.forEach(contract => {
                                 contract.ticksLeft--;
-                                // Si le contrat est occupé, on perçoit le loyer
                                 if (contract.occupied) {
                                     totalParkingRevenue += contract.ratePerTick;
                                 }
                             });
-                            // Filtrer les contrats expirés
                             hubLeaseData.activeContracts = hubLeaseData.activeContracts.filter(c => c.ticksLeft > 0);
                         }
 
-                        // Simulation de recherche de nouveaux preneurs pour les places listées non occupées
                         const hubObj = this.hub100List.find(h => h.code === hCode);
                         const totalHubGates = hubObj ? hubObj.totalGates : 15;
                         const myFleetCountAtHub = this.fleet.filter(p => p.location === hCode).length;
@@ -1666,12 +1662,11 @@
                         if (currentListed > currentActiveCount) {
                             const vacantCount = currentListed - currentActiveCount;
                             for (let i = 0; i < vacantCount; i++) {
-                                // Probabilité de 60% qu'une compagnie tierce loue la place pour un certain nombre de ticks (1 à 4)
                                 if (Math.random() < 0.60) {
                                     const airlineNames = ['Air Europa Express', 'Skyline Cargo', 'Nordic Wings', 'Alpine Charter', 'Balkan Airways', 'Corsica Jet', 'Trans-Med Logistics', 'Danube Air'];
                                     const randomAirline = airlineNames[Math.floor(Math.random() * airlineNames.length)];
-                                    const rate = Math.floor(Math.random() * 2500 + 1500); // 1500€ à 4000€ par tick
-                                    const duration = Math.floor(Math.random() * 3) + 2; // 2 à 4 ticks
+                                    const rate = Math.floor(Math.random() * 2500 + 1500);
+                                    const duration = Math.floor(Math.random() * 3) + 2;
 
                                     if (!hubLeaseData.activeContracts) hubLeaseData.activeContracts = [];
                                     hubLeaseData.activeContracts.push({
@@ -1932,7 +1927,6 @@
                 return isCompanyHub ? basePrice : parseFloat((basePrice * 1.25).toFixed(2));
             }
 
-            // GESTION DU LISTING DES PARKINGS
             updateParkingListing(hCode, delta) {
                 if (!this.company.hubParkingLeases) this.company.hubParkingLeases = {};
                 if (!this.company.hubParkingLeases[hCode]) {
@@ -2239,10 +2233,16 @@
                     const assignedContract = this.activeContracts.find(c => c.id === plane.assignedContractId);
                     const assignedPilotName = plane.assignedPilotName || 'Non assigné';
 
+                    // AFFICHAGE MIS À JOUR AVEC PASSAGERS ET CARGO DÈS QU'UN CONTRAT EST ASSIGNÉ
                     let contractInfoDisplay = '<span class="text-slate-500">Vol libre</span>';
                     if (assignedContract) {
                         contractInfoDisplay = `
                             <div class="text-[11px] text-sky-400 font-semibold">${assignedContract.title}</div>
+                            <div class="text-[10px] text-emerald-400 font-mono font-bold flex space-x-2">
+                                <span>👥 ${assignedContract.minPax} PAX</span>
+                                <span>•</span>
+                                <span>📦 ${assignedContract.minCargo} t</span>
+                            </div>
                             <div class="text-[10px] text-amber-400 font-mono">Pilote : ${assignedPilotName}</div>
                         `;
                     }
@@ -3154,7 +3154,7 @@
                 this.company.fuelReservesByHub[targetHub] = currentStock + this.fuelPurchaseQty;
                 const isOwned = this.company.hubs.includes(targetHub);
                 this.showToast(`${this.fuelPurchaseQty.toLocaleString()} Kg ajoutés aux cuves de ${targetHub} ${isOwned ? '' : '(avec taxe FBO +25%)'} pour ${this.formatMoney(cost)} !`, "success");
-                    this.renderAll();
+                this.renderAll();
             }
 
             relocatePlayer() {
