@@ -12,6 +12,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Leaflet.js pour la Carte NOTAM & FIR -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <!-- FIREBASE SDK MODULAR -->
     <script type="module">
@@ -270,6 +273,9 @@
                 <button onclick="app.switchTab('clo')" id="nav-clo" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-sm transition cursor-pointer">
                     <i class="fa-solid fa-boxes-packing w-5 text-center"></i><span>Terminal Logistique (CLO)</span>
                 </button>
+                <button onclick="app.switchTab('notam-map')" id="nav-notam-map" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-sm transition cursor-pointer">
+                    <i class="fa-solid fa-earth-europe w-5 text-center text-rose-400"></i><span>NOTAM & Carte FIR</span>
+                </button>
                 <button onclick="app.switchTab('pilot')" id="nav-pilot" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-sm transition cursor-pointer">
                     <i class="fa-solid fa-id-card w-5 text-center"></i><span>Carnet & Passeport Pilote</span>
                 </button>
@@ -374,7 +380,7 @@
                                     <th class="pb-3 px-3">HdV Totales / Visite (25h)</th>
                                     <th class="pb-3 px-3">Dérogations MEL</th>
                                     <th class="pb-3 px-3">Statut & Mission Actuelle (PAX / Cargo)</th>
-                                    <th class="pb-3 px-3 text-right">Actions Maintenance & Vol</th>
+                                    <th class="pb-3 px-3 text-right">Actions Maintenance, OFP & Vol</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-800/60" id="fleet-table-body"></tbody>
@@ -620,7 +626,49 @@
                 </div>
             </div>
 
-            <!-- TAB 6: CARNET, PASSEPORT & CLASSEMENT PILOTE -->
+            <!-- TAB 6: NOTAM & CARTE DES RESTRICTIONS FIR -->
+            <div id="tab-notam-map" class="space-y-6 hidden-tab">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-extrabold text-white tracking-tight flex items-center space-x-3">
+                            <i class="fa-solid fa-triangle-exclamation text-rose-500"></i>
+                            <span>Gestion des Crises & Espaces Aériens Fermés (NOTAM)</span>
+                        </h2>
+                        <p class="text-sm text-slate-400">Suivi en temps réel des zones de restriction FIR et de leur impact sur vos plans de vol SimBrief</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="app.toggleHubMarkersOnMap()" id="map-toggle-hubs-btn" class="bg-sky-900/40 hover:bg-sky-800/60 text-sky-300 border border-sky-700/60 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">
+                            <i class="fa-solid fa-map-pin"></i> Afficher / Masquer mes Hubs
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Conteneur Carte Interactive Leaflet -->
+                    <div class="lg:col-span-2 glass-card p-4 rounded-2xl border border-slate-800 space-y-3">
+                        <div class="flex items-center justify-between text-xs text-slate-300 font-bold px-1">
+                            <span><i class="fa-solid fa-map"></i> Carte Interactive Satellite des Espaces Aériens & FIRs</span>
+                            <span class="text-rose-400 animate-pulse">● Feed Live NOTAM / EASA Active</span>
+                        </div>
+                        <div id="airspaceMap" class="w-full h-[520px] rounded-xl border border-slate-800/80 z-10 bg-slate-950"></div>
+                    </div>
+
+                    <!-- Liste des NOTAMs Actifs sur le Côté -->
+                    <div class="glass-card p-4 rounded-2xl border border-slate-800 flex flex-col justify-between space-y-4">
+                        <div>
+                            <h3 class="text-sm font-bold text-white border-b border-slate-800 pb-2 flex items-center space-x-2">
+                                <i class="fa-solid fa-list-check text-rose-400"></i>
+                                <span>Restrictions FIR Actives</span>
+                            </h3>
+                            <div id="notam-list-container" class="mt-3 space-y-3 max-h-[440px] overflow-y-auto pr-1">
+                                <!-- Généré dynamiquement -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 7: CARNET, PASSEPORT & CLASSEMENT PILOTE -->
             <div id="tab-pilot" class="space-y-6 hidden-tab">
                 <div class="flex justify-between items-center">
                     <div>
@@ -753,7 +801,6 @@
                     <strong class="text-emerald-400 font-mono" id="preflight-route">LFLB ➔ LFPG</strong>
                 </div>
 
-                <!-- SECTION GESTION / SAISIE CARBURANT AU DEPART -->
                 <div class="pt-2 border-t border-slate-900 space-y-2">
                     <h4 class="text-[10px] uppercase font-bold text-sky-400 tracking-wider">Avitaillement & Réservoir au Décollage (Kg)</h4>
                     <div class="flex justify-between text-slate-300">
@@ -812,7 +859,6 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- COLONNE GAUCHE: TIMINGS ET CARBURANT TECH LOG -->
                 <div class="space-y-3 bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs">
                     <h4 class="text-[10px] uppercase font-bold text-sky-400 tracking-wider">1. Horaires & Heures de Vol (Secteur)</h4>
                     <div class="grid grid-cols-2 gap-2 font-mono">
@@ -856,7 +902,6 @@
                     </div>
                 </div>
 
-                <!-- COLONNE DROITE: INSPECTION AF/BF ET PANNES -->
                 <div class="space-y-3 bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs flex flex-col justify-between">
                     <div>
                         <h4 class="text-[10px] uppercase font-bold text-amber-400 tracking-wider mb-2">3. Contrôle technique AF/BF à l'Arrivée</h4>
@@ -953,7 +998,7 @@
         </div>
     </div>
 
-    <!-- APP CONTROLLER SCRIPT (FIREBASE CLOUD SYNC) -->
+    <!-- APP CONTROLLER SCRIPT (FIREBASE CLOUD SYNC & NOTAM LOGIC) -->
     <script>
         class AirlineTycoonApp {
             constructor() {
@@ -968,6 +1013,8 @@
                 this.contractFilterMode = 'current';
                 this.leaderboardSortMode = 'hours';
                 this.fuelChartInstance = null;
+                this.airspaceMapInstance = null;
+                this.showHubsOnMap = false;
 
                 this.playerName = '';
                 this.companyCode = '';
@@ -975,6 +1022,11 @@
                 this.playerLocation = 'LFLB';
                 this._unsubscribeSync = null;
                 this._lastRemoteUpdate = 0;
+
+                this.activeRestrictedAirspaces = [
+                    { id: 1, name: "Zone FIR Vienne / Bratislava", firCode: "LOVV,LZBB", lat: 48.11, lon: 16.56, radius: 350000, reason: "Conflit militaire & exercices interalliés", ticksLeft: 4 },
+                    { id: 2, name: "Secteur Volcanique Islande", firCode: "BIRD", lat: 64.12, lon: -21.82, radius: 450000, reason: "Émission majeure de cendres volcaniques", ticksLeft: 2 }
+                ];
 
                 this.company = {
                     name: 'AeroCareer Airlines',
@@ -999,26 +1051,27 @@
                 };
 
                 this.aircraftCatalog = [
-                    { type: 'Aviation Légère', name: 'Cessna 172 Skyhawk', capacity: 3, cargo: 0.3, range: 550, fuelBurn: 35, price: Math.round(320000 * 0.75), allowLease: true },
-                    { type: 'Aviation Légère', name: 'Diamond DA62', capacity: 6, cargo: 0.5, range: 900, fuelBurn: 55, price: Math.round(850000 * 0.75), allowLease: true },
-                    { type: 'Turboprop', name: 'Cessna 208B Grand Caravan', capacity: 14, cargo: 1.2, range: 1200, fuelBurn: 200, price: Math.round(1500000 * 0.75), allowLease: true },
-                    { type: 'Turboprop', name: 'De Havilland DHC-6-300', capacity: 17, cargo: 2.0, range: 1700, fuelBurn: 280, price: Math.round(2300000 * 0.75), allowLease: true },
-                    { type: 'Turboprop', name: 'Daher TBM 930', capacity: 6, cargo: 0.5, range: 1600, fuelBurn: 250, price: Math.round(3000000 * 0.75), allowLease: true },
-                    { type: 'Turboprop', name: 'Beechcraft King Air 350i', capacity: 11, cargo: 1.5, range: 2200, fuelBurn: 380, price: Math.round(5500000 * 0.75), allowLease: true },
-                    { type: 'Business Jet', name: 'Cessna Citation CJ4', capacity: 10, cargo: 1.0, range: 3700, fuelBurn: 650, price: Math.round(7800000 * 0.75), allowLease: true },
-                    { type: 'Cargo / Militaire', name: 'C-160 Transall', capacity: 40, cargo: 16.0, range: 3500, fuelBurn: 900, price: Math.round(13000000 * 0.75), allowLease: true },
-                    { type: 'Régional', name: 'ATR 42-600', capacity: 48, cargo: 5.0, range: 1300, fuelBurn: 550, price: Math.round(15000000 * 0.75), allowLease: true },
-                    { type: 'Régional', name: 'ATR 72-600', capacity: 72, cargo: 7.5, range: 1500, fuelBurn: 720, price: Math.round(19500000 * 0.75), allowLease: true },
-                    { type: 'Moyen-Porteur', name: 'Airbus A310', capacity: 220, cargo: 25.0, range: 8000, fuelBurn: 2900, price: 65000000, allowLease: false },
-                    { type: 'Moyen-Porteur', name: 'Airbus A300', capacity: 266, cargo: 30.0, range: 5400, fuelBurn: 3200, price: 72000000, allowLease: false },
-                    { type: 'Moyen-Porteur', name: 'Boeing 737-800', capacity: 189, cargo: 20.0, range: 5400, fuelBurn: 2300, price: 75000000, allowLease: false },
-                    { type: 'Moyen-Porteur', name: 'Airbus A320neo', capacity: 180, cargo: 20.0, range: 6500, fuelBurn: 2100, price: 82000000, allowLease: false },
-                    { type: 'Moyen-Porteur', name: 'Boeing 737 MAX 8', capacity: 210, cargo: 22.0, range: 6570, fuelBurn: 1900, price: 90000000, allowLease: false },
-                    { type: 'Long-Courrier', name: 'McDonnell Douglas MD-11', capacity: 310, cargo: 53.0, range: 10700, fuelBurn: 5900, price: 215000000, allowLease: false },
-                    { type: 'Long-Courrier', name: 'Airbus A350-900', capacity: 315, cargo: 45.0, range: 15000, fuelBurn: 4800, price: 235000000, allowLease: false },
-                    { type: 'Long-Courrier', name: 'Boeing 787-10 Dreamliner', capacity: 336, cargo: 50.0, range: 11910, fuelBurn: 5100, price: 250000000, allowLease: false },
-                    { type: 'Cargo Lourd', name: 'Boeing 777F', capacity: 0, cargo: 102.0, range: 9200, fuelBurn: 6800, price: 260000000, allowLease: false },
-                    { type: 'Très Long Courrier', name: 'Airbus A380-800', capacity: 555, cargo: 65.0, range: 14800, fuelBurn: 10500, price: 330000000, allowLease: false },
+                    { type: 'Aviation Légère', name: 'Cessna 172 Skyhawk', typeICAO: 'C172', capacity: 3, cargo: 0.3, range: 550, fuelBurn: 35, price: Math.round(320000 * 0.75), allowLease: true },
+                    { type: 'Aviation Légère', name: 'Diamond DA62', typeICAO: 'DA62', capacity: 6, cargo: 0.5, range: 900, fuelBurn: 55, price: Math.round(850000 * 0.75), allowLease: true },
+                    { type: 'Turboprop', name: 'Cessna 208B Grand Caravan', typeICAO: 'C208', capacity: 14, cargo: 1.2, range: 1200, fuelBurn: 200, price: Math.round(1500000 * 0.75), allowLease: true },
+                    { type: 'Turboprop', name: 'De Havilland DHC-6-300', typeICAO: 'DHC6', capacity: 17, cargo: 2.0, range: 1700, fuelBurn: 280, price: Math.round(2300000 * 0.75), allowLease: true },
+                    { type: 'Turboprop', name: 'Daher TBM 930', typeICAO: 'TBM9', capacity: 6, cargo: 0.5, range: 1600, fuelBurn: 250, price: Math.round(3000000 * 0.75), allowLease: true },
+                    { type: 'Turboprop', name: 'Beechcraft King Air 350i', typeICAO: 'B350', capacity: 11, cargo: 1.5, range: 2200, fuelBurn: 380, price: Math.round(5500000 * 0.75), allowLease: true },
+                    { type: 'Business Jet', name: 'Cessna Citation CJ4', typeICAO: 'C25C', capacity: 10, cargo: 1.0, range: 3700, fuelBurn: 650, price: Math.round(7800000 * 0.75), allowLease: true },
+                    { type: 'Business Jet', name: 'Cessna Citation Longitude', typeICAO: 'C700', capacity: 10, cargo: 3.4, range: 6482, fuelBurn: 1100, price: Math.round(7800000 * 0.75), allowLease: true },
+                    { type: 'Cargo / Militaire', name: 'C-160 Transall', typeICAO: 'C160', capacity: 40, cargo: 16.0, range: 3500, fuelBurn: 900, price: Math.round(13000000 * 0.75), allowLease: true },
+                    { type: 'Régional', name: 'ATR 42-600', typeICAO: 'AT46', capacity: 48, cargo: 5.0, range: 1300, fuelBurn: 550, price: Math.round(15000000 * 0.75), allowLease: true },
+                    { type: 'Régional', name: 'ATR 72-600', typeICAO: 'AT76', capacity: 72, cargo: 7.5, range: 1500, fuelBurn: 720, price: Math.round(19500000 * 0.75), allowLease: true },
+                    { type: 'Moyen-Porteur', name: 'Airbus A310', typeICAO: 'A310', capacity: 220, cargo: 25.0, range: 8000, fuelBurn: 2900, price: 65000000, allowLease: false },
+                    { type: 'Moyen-Porteur', name: 'Airbus A300', typeICAO: 'A300', capacity: 266, cargo: 30.0, range: 5400, fuelBurn: 3200, price: 72000000, allowLease: false },
+                    { type: 'Moyen-Porteur', name: 'Boeing 737-800', typeICAO: 'B738', capacity: 189, cargo: 20.0, range: 5400, fuelBurn: 2300, price: 75000000, allowLease: false },
+                    { type: 'Moyen-Porteur', name: 'Airbus A320neo', typeICAO: 'A20N', capacity: 180, cargo: 20.0, range: 6500, fuelBurn: 2100, price: 82000000, allowLease: false },
+                    { type: 'Moyen-Porteur', name: 'Boeing 737 MAX 8', typeICAO: 'B38M', capacity: 210, cargo: 22.0, range: 6570, fuelBurn: 1900, price: 90000000, allowLease: false },
+                    { type: 'Long-Courrier', name: 'McDonnell Douglas MD-11', typeICAO: 'MD11', capacity: 310, cargo: 53.0, range: 10700, fuelBurn: 5900, price: 215000000, allowLease: false },
+                    { type: 'Long-Courrier', name: 'Airbus A350-900', typeICAO: 'A359', capacity: 315, cargo: 45.0, range: 15000, fuelBurn: 4800, price: 235000000, allowLease: false },
+                    { type: 'Long-Courrier', name: 'Boeing 787-10 Dreamliner', typeICAO: 'B78X', capacity: 336, cargo: 50.0, range: 11910, fuelBurn: 5100, price: 250000000, allowLease: false },
+                    { type: 'Cargo Lourd', name: 'Boeing 777F', typeICAO: 'B77F', capacity: 0, cargo: 102.0, range: 9200, fuelBurn: 6800, price: 260000000, allowLease: false },
+                    { type: 'Très Long Courrier', name: 'Airbus A380-800', typeICAO: 'A388', capacity: 555, cargo: 65.0, range: 14800, fuelBurn: 10500, price: 330000000, allowLease: false },
                 ];
 
                 this.faultsCatalog = [
@@ -1089,6 +1142,111 @@
                 this.activeLoans = [];
 
                 this.checkStoredAuth();
+            }
+
+            // GESTION ET GÉNÉRATION ALÉATOIRE DES FIRs (MAX 20)
+            generateRandomFIR() {
+                const pool = [
+                    { name: "Zone FIR Vienne / Bratislava", firCode: "LOVV,LZBB", lat: 48.11, lon: 16.56, radius: 350000, reason: "Conflit militaire & exercices interalliés" },
+                    { name: "Secteur Volcanique Islande", firCode: "BIRD", lat: 64.12, lon: -21.82, radius: 450000, reason: "Émission majeure de cendres volcaniques" },
+                    { name: "Secteur Restriction Milan / Rome", firCode: "LIMM,LIRR", lat: 43.50, lon: 12.30, radius: 300000, reason: "Intense activité d'essais balistiques & tempête" },
+                    { name: "Zone Militaire Mer du Nord", firCode: "EGPX,EHAA", lat: 55.20, lon: 4.10, radius: 400000, reason: "Exercices navaux de défense aérienne OTAN" },
+                    { name: "Espace Restreint Madrid / Barcelone", firCode: "LECM,LECB", lat: 40.41, lon: -3.70, radius: 320000, reason: "Incidents de brouillage GPS civil intensif" },
+                    { name: "Zone Alerte Détroit de Floride", firCode: "KZMA", lat: 24.55, lon: -81.78, radius: 380000, reason: "Opérations spatiales et lancements de fusées" },
+                    { name: "Secteur Sibérie Occidentale", firCode: "UNNT,USSS", lat: 58.01, lon: 73.40, radius: 500000, reason: "Conditions météorologiques extrêmes de gel severe" },
+                    { name: "Zone Contrôlée Tokyo / Fukuoka", firCode: "RJJJ", lat: 35.68, lon: 139.65, radius: 280000, reason: "Alerte typhon et cisaillement de vent extrême" },
+                    { name: "Secteur Golfe Persique", firCode: "OMAE,OKAC", lat: 26.06, lon: 50.55, radius: 350000, reason: "Tensions géopolitiques et interdiction temporaire IFR" },
+                    { name: "Espace Aérien Montréal / Toronto", firCode: "CZVR,CZUL", lat: 45.50, lon: -73.56, radius: 420000, reason: "Tempête de neige massive et visibilité nulle" }
+                ];
+
+                const template = pool[Math.floor(Math.random() * pool.length)];
+                return {
+                    id: Date.now() + Math.random(),
+                    name: template.name + ` (${Math.floor(Math.random() * 900 + 100)})`,
+                    firCode: template.firCode,
+                    lat: template.lat + (Math.random() * 2 - 1),
+                    lon: template.lon + (Math.random() * 2 - 1),
+                    radius: template.radius,
+                    reason: template.reason,
+                    ticksLeft: Math.floor(Math.random() * 5) + 2
+                };
+            }
+
+            ensureFIRCount() {
+                if (!this.activeRestrictedAirspaces) this.activeRestrictedAirspaces = [];
+                const targetMax = 20;
+                while (this.activeRestrictedAirspaces.length < targetMax && Math.random() < 0.85) {
+                    const newFir = this.generateRandomFIR();
+                    if (!this.activeRestrictedAirspaces.some(f => f.name === newFir.name)) {
+                        this.activeRestrictedAirspaces.push(newFir);
+                    }
+                    if (this.activeRestrictedAirspaces.length >= targetMax) break;
+                }
+            }
+
+            isAirspaceClosed(airportCode) {
+                if (!this.activeRestrictedAirspaces || this.activeRestrictedAirspaces.length === 0) return false;
+                const airport = this.hub100List.find(h => h.code === airportCode);
+                if (!airport) return false;
+
+                for (let zone of this.activeRestrictedAirspaces) {
+                    const distKm = this.calculateDistance(airport.lat, airport.lon, zone.lat, zone.lon);
+                    const radiusKm = (zone.radius || 400000) / 1000;
+                    if (distKm <= radiusKm) return true;
+                }
+                return false;
+            }
+
+            // INTÉGRATION MISE À JOUR DE SIMBRIEF VIA /options/custom
+            openSimBriefForContract(contractId, planeId) {
+                const contract = this.activeContracts.find(c => c.id === contractId) || this.availableContracts.find(c => c.id === contractId);
+                const plane = this.fleet.find(p => p.id == planeId);
+
+                if (!contract) {
+                    this.showToast("Contrat introuvable !", "error");
+                    return;
+                }
+
+                const orig = contract.origin;
+                const dest = contract.stopover ? contract.stopover : contract.destination;
+                
+                // Récupération du type OACI exact depuis le catalogue si disponible, ou fallback
+                const acDef = plane ? this.aircraftCatalog.find(a => a.name === plane.name) : null;
+                const type = acDef ? (acDef.typeICAO || 'C172') : 'C172';
+                const reg = plane ? plane.registration.replace('-', '') : 'FABCD';
+                const pax = contract.minPax || 0;
+                const cargoTons = contract.minCargo || 0;
+
+                // Collecte des codes FIR des espaces aériens actifs pour transmission
+                let activeFirsArray = [];
+                if (this.activeRestrictedAirspaces && this.activeRestrictedAirspaces.length > 0) {
+                    this.activeRestrictedAirspaces.forEach(zone => {
+                        if (zone.firCode) {
+                            zone.firCode.split(',').forEach(code => {
+                                if (!activeFirsArray.includes(code.trim())) activeFirsArray.push(code.trim());
+                            });
+                        }
+                    });
+                }
+
+                const params = new URLSearchParams({
+                    airline: (this.company.name || "AERO").replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 3),
+                    fltnum: Math.floor(Math.random() * 8999 + 1000).toString(),
+                    type: type,
+                    orig: orig,
+                    dest: dest,
+                    reg: reg,
+                    pax: pax.toString(),
+                    cargo: cargoTons.toString(),
+                    units: "KGS"
+                });
+
+                if (activeFirsArray.length > 0) {
+                    params.append("avoid_fir", activeFirsArray.join(","));
+                }
+
+                const simbriefCustomUrl = `https://dispatch.simbrief.com/options/custom?${params.toString()}`;
+                window.open(simbriefCustomUrl, '_blank');
             }
 
             saveSessionToHistory(pName, cCode, cName) {
@@ -1252,17 +1410,22 @@
 
                 for (let i = 0; i < countToGenerate; i++) {
                     const origCode = forceOrigin || activeOrigins[Math.floor(Math.random() * activeOrigins.length)];
-                    const origHubObj = this.hub100List.find(h => h.code === origCode) || this.hub100List[0];
+                    
+                    if (this.isAirspaceClosed(origCode)) continue;
 
+                    const origHubObj = this.hub100List.find(h => h.code === origCode) || this.hub100List[0];
                     const targetTier = tierList[Math.floor(Math.random() * Math.min(tierList.length, 2 + Math.floor(this.company.hubs.length / 2) + Math.floor(this.fleet.length / 3)))];
                     
                     let validDestHubs = this.hub100List.filter(h => {
                         if (h.code === origCode) return false;
+                        if (this.isAirspaceClosed(h.code)) return false;
+
                         const dist = this.calculateDistance(origHubObj.lat, origHubObj.lon, h.lat, h.lon);
                         return dist <= targetTier.maxDist && dist > 80;
                     });
 
-                    if (validDestHubs.length === 0) validDestHubs = this.hub100List.filter(h => h.code !== origCode);
+                    if (validDestHubs.length === 0) validDestHubs = this.hub100List.filter(h => h.code !== origCode && !this.isAirspaceClosed(h.code));
+                    if (validDestHubs.length === 0) continue;
 
                     const destHub = validDestHubs[Math.floor(Math.random() * validDestHubs.length)];
                     const distanceKm = this.calculateDistance(origHubObj.lat, origHubObj.lon, destHub.lat, destHub.lon);
@@ -1276,7 +1439,7 @@
                     let stopover = '';
 
                     if (hasTwoLegs) {
-                        let potentialStops = this.hub100List.filter(h => h.code !== origCode && h.code !== destHub.code);
+                        let potentialStops = this.hub100List.filter(h => h.code !== origCode && h.code !== destHub.code && !this.isAirspaceClosed(h.code));
                         if (potentialStops.length > 0) {
                             const stopHub = potentialStops[Math.floor(Math.random() * potentialStops.length)];
                             stopover = stopHub.code;
@@ -1299,6 +1462,13 @@
                         selectedPlaneId: ''
                     });
                 }
+            }
+
+            purgeClosedAirspaceContracts() {
+                if (!this.activeRestrictedAirspaces || this.activeRestrictedAirspaces.length === 0) return;
+                this.availableContracts = this.availableContracts.filter(c => {
+                    return !this.isAirspaceClosed(c.origin) && !this.isAirspaceClosed(c.destination) && (!c.stopover || !this.isAirspaceClosed(c.stopover));
+                });
             }
 
             refreshContractsForLocation(locCode) {
@@ -1332,6 +1502,7 @@
                 }
                 this.company.cash -= 5000;
                 this.generateContractsForCount(8, this.playerLocation);
+                this.purgeClosedAirspaceContracts();
                 this.showToast(`Offres de contrats actualisées pour ${this.playerLocation} (-5 000 €) !`, "success");
                 this.renderAll();
             }
@@ -1369,6 +1540,7 @@
                     stats: { totalHours: 0, totalFlights: 0, totalEarned: 0, totalFuelUsed: 0, visitedHubs: [hubObj.code], noCancelStreak: 0, nightFlightsCount: 0 }
                 }];
 
+                this.ensureFIRCount();
                 this.generateInitialContracts();
                 this.playerRole = 'CEO';
                 await this.saveCompanyData();
@@ -1438,7 +1610,7 @@
                 const state = {
                     company: this.company, fleet: this.fleet, team: this.team,
                     activeContracts: this.activeContracts, availableContracts: this.availableContracts,
-                    activeLoans: this.activeLoans, lastUpdated: Date.now()
+                    activeLoans: this.activeLoans, activeRestrictedAirspaces: this.activeRestrictedAirspaces, lastUpdated: Date.now()
                 };
                 this._lastRemoteUpdate = state.lastUpdated;
                 try {
@@ -1503,6 +1675,10 @@
                 this.activeContracts = data.activeContracts || this.activeContracts;
                 this.availableContracts = data.availableContracts || this.availableContracts;
                 this.activeLoans = data.activeLoans || this.activeLoans;
+                if (data.activeRestrictedAirspaces) {
+                    this.activeRestrictedAirspaces = data.activeRestrictedAirspaces;
+                }
+                this.ensureFIRCount();
 
                 this.team.forEach(m => {
                     if (!m.stats) {
@@ -1638,6 +1814,12 @@
                 this.company.tickContractsCompleted = 0;
                 this.company.tickEarnedAmount = 0;
 
+                if (this.activeRestrictedAirspaces) {
+                    this.activeRestrictedAirspaces.forEach(z => z.ticksLeft--);
+                    this.activeRestrictedAirspaces = this.activeRestrictedAirspaces.filter(z => z.ticksLeft > 0);
+                }
+                this.ensureFIRCount();
+
                 let totalParkingRevenue = 0;
                 if (this.company.hubParkingLeases) {
                     for (let hCode in this.company.hubParkingLeases) {
@@ -1686,7 +1868,7 @@
                 if (totalParkingRevenue > 0) {
                     this.company.cash += totalParkingRevenue;
                     this.company.tickEarnedAmount = (this.company.tickEarnedAmount || 0) + totalParkingRevenue;
-                    this.showToast(`🅿️ Revenu des parkings parqués / loués perçu : +${this.formatMoney(totalParkingRevenue)}`, 'success');
+                    this.showToast(`🅿️ Revenu des parkings perçu : +${this.formatMoney(totalParkingRevenue)}`, 'success');
                 }
 
                 if (this.company.fuelHedgeActive) {
@@ -1710,6 +1892,8 @@
 
                 this.activeContracts = this.activeContracts.filter(c => c.ticksLeft > 0);
                 this.availableContracts = this.availableContracts.filter(c => c.ticksLeft > 0);
+
+                this.purgeClosedAirspaceContracts();
 
                 const missingCount = 20 - this.availableContracts.length;
                 if (missingCount > 0) this.generateContractsForCount(missingCount);
@@ -1828,17 +2012,130 @@
 
             switchTab(tabId) {
                 this.activeTab = tabId;
-                ['dashboard', 'fleet', 'ceo', 'cfo', 'clo', 'pilot'].forEach(t => {
-                    document.getElementById(`tab-${t}`).classList.toggle('hidden-tab', t !== tabId);
+                ['dashboard', 'fleet', 'ceo', 'cfo', 'clo', 'notam-map', 'pilot'].forEach(t => {
+                    const el = document.getElementById(`tab-${t}`);
+                    if (el) el.classList.toggle('hidden-tab', t !== tabId);
+                    
                     const navBtn = document.getElementById(`nav-${t}`);
-                    if (t === tabId) navBtn.className = "w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl border border-sky-500/50 bg-sky-600/20 text-sky-400 font-semibold text-sm transition cursor-pointer";
-                    else navBtn.className = "w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-sm transition cursor-pointer";
+                    if (navBtn) {
+                        if (t === tabId) navBtn.className = "w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl border border-sky-500/50 bg-sky-600/20 text-sky-400 font-semibold text-sm transition cursor-pointer";
+                        else navBtn.className = "w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-sm transition cursor-pointer";
+                    }
                 });
                 
                 if (tabId === 'clo') setTimeout(() => this.renderFuelChart(), 50);
+                if (tabId === 'notam-map') setTimeout(() => this.renderAirspaceMap(), 50);
                 if (tabId === 'pilot') this.renderPilotTrophiesAndPassport();
                 if (tabId === 'ceo') this.renderCEOParkingLeases();
                 this.renderAll();
+            }
+
+            toggleHubMarkersOnMap() {
+                this.showHubsOnMap = !this.showHubsOnMap;
+                const btn = document.getElementById('map-toggle-hubs-btn');
+                if (btn) {
+                    btn.className = this.showHubsOnMap 
+                        ? "bg-sky-600 text-white border border-sky-500 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer"
+                        : "bg-sky-900/40 hover:bg-sky-800/60 text-sky-300 border border-sky-700/60 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer";
+                    btn.innerHTML = this.showHubsOnMap ? '<i class="fa-solid fa-map-pin"></i> Masquer mes Hubs' : '<i class="fa-solid fa-map-pin"></i> Afficher / Masquer mes Hubs';
+                }
+                this.updateMapLayers();
+            }
+
+            renderAirspaceMap() {
+                if (!this.airspaceMapInstance) {
+                    this.airspaceMapInstance = L.map('airspaceMap', { zoomControl: true }).setView([48.8566, 12.3522], 4);
+                    
+                    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+                        maxZoom: 18
+                    }).addTo(this.airspaceMapInstance);
+                }
+
+                setTimeout(() => {
+                    if (this.airspaceMapInstance) this.airspaceMapInstance.invalidateSize();
+                }, 100);
+
+                this.updateMapLayers();
+                this.renderNotamList();
+            }
+
+            updateMapLayers() {
+                if (!this.airspaceMapInstance) return;
+
+                if (this.mapFeatureGroup) {
+                    this.airspaceMapInstance.removeLayer(this.mapFeatureGroup);
+                }
+                this.mapFeatureGroup = L.featureGroup().addTo(this.airspaceMapInstance);
+
+                if (this.activeRestrictedAirspaces) {
+                    this.activeRestrictedAirspaces.forEach(zone => {
+                        const circle = L.circle([zone.lat, zone.lon], {
+                            color: '#ef4444',
+                            fillColor: '#ef4444',
+                            fillOpacity: 0.45,
+                            radius: zone.radius || 400000
+                        });
+
+                        circle.bindPopup(`
+                            <div class="text-xs text-slate-900 font-sans p-1">
+                                <strong class="text-rose-700 uppercase font-black">🚨 NOTAM : ${zone.name}</strong><br>
+                                <b>Motif :</b> ${zone.reason}<br>
+                                <b>FIR impactée :</b> ${zone.firCode}<br>
+                                <b>Restant :</b> ${zone.ticksLeft} tick(s)
+                            </div>
+                        `);
+
+                        this.mapFeatureGroup.addLayer(circle);
+                    });
+                }
+
+                if (this.showHubsOnMap && this.company && this.company.hubs) {
+                    this.company.hubs.forEach(hCode => {
+                        const hub = this.hub100List.find(h => h.code === hCode);
+                        if (hub) {
+                            const marker = L.circleMarker([hub.lat, hub.lon], {
+                                radius: 8,
+                                color: '#38bdf8',
+                                fillColor: '#0284c7',
+                                fillOpacity: 0.95,
+                                weight: 2
+                            });
+                            marker.bindPopup(`
+                                <div class="text-xs text-slate-900 font-sans p-1">
+                                    <strong class="text-sky-700 uppercase font-black">📍 Hub ${hub.code}</strong><br>
+                                    <b>Ville :</b> ${hub.city} (${hub.country})<br>
+                                    <b>Cuves Kérosène :</b> ${(this.company.fuelReservesByHub[hub.code] || 0).toLocaleString()} Kg
+                                </div>
+                            `);
+                            this.mapFeatureGroup.addLayer(marker);
+                        }
+                    });
+                }
+            }
+
+            renderNotamList() {
+                const container = document.getElementById('notam-list-container');
+                if (!container) return;
+
+                if (!this.activeRestrictedAirspaces || this.activeRestrictedAirspaces.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-8 text-slate-500 text-xs">
+                            <i class="fa-solid fa-shield-check text-emerald-400 text-2xl mb-2 block"></i>
+                            Aucune restriction d'espace aérien en cours. Tous les couloirs IFR sont ouverts.
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = this.activeRestrictedAirspaces.map(z => `
+                    <div class="bg-rose-950/40 border border-rose-900/60 p-3 rounded-xl space-y-1">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-rose-300">${z.name} (${z.firCode})</span>
+                            <span class="text-[10px] bg-rose-900/80 text-rose-200 px-2 py-0.5 rounded-full font-mono font-bold">${z.ticksLeft} tick(s)</span>
+                        </div>
+                        <p class="text-[11px] text-slate-300">${z.reason}</p>
+                    </div>
+                `).join('');
             }
 
             renderBalanceSheet() {
@@ -2233,7 +2530,6 @@
                     const assignedContract = this.activeContracts.find(c => c.id === plane.assignedContractId);
                     const assignedPilotName = plane.assignedPilotName || 'Non assigné';
 
-                    // AFFICHAGE MIS À JOUR AVEC PASSAGERS ET CARGO DÈS QU'UN CONTRAT EST ASSIGNÉ
                     let contractInfoDisplay = '<span class="text-slate-500">Vol libre</span>';
                     if (assignedContract) {
                         contractInfoDisplay = `
@@ -2258,9 +2554,14 @@
                     }
 
                     const isFlightDisabled = plane.status === 'En maintenance' || isVIOverdue;
+                    
+                    const simbriefBtn = assignedContract 
+                        ? `<button onclick="app.openSimBriefForContract(${assignedContract.id}, ${plane.id})" class="bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition flex items-center space-x-1" title="Générer OFP SimBrief personnalisé avec évitement FIR"><i class="fa-solid fa-plane-tail"></i><span>SimBrief</span></button>`
+                        : '';
+
                     const flightBtn = plane.status === 'En vol'
                         ? `<button onclick="app.openDebriefModal(${plane.id})" class="bg-amber-600 hover:bg-amber-500 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold cursor-pointer">Atterrir (Tech Log)</button>`
-                        : `<button onclick="app.startFlight(${plane.id})" ${isFlightDisabled ? 'disabled' : ''} class="bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-500 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold cursor-pointer font-mono" title="${isVIOverdue ? 'INTERDICTION DE VOL (Vol au-delà des 27.5h)' : ''}">${isVIOverdue ? '🚫 Interdit de Vol' : 'Lancer Vol'}</button>`;
+                        : `<button onclick="app.startFlight(${plane.id})" ${isFlightDisabled ? 'disabled' : ''} class="bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-500 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold cursor-pointer font-mono" title="${isVIOverdue ? 'INTERDICTION DE VOL (Vol au-delà des 27.5h)' : ''}">${isVIOverdue ? '🚫 Interdit' : 'Lancer'}</button>`;
 
                     let maintBtnStyle = "bg-slate-900 text-slate-600 border border-slate-800 cursor-not-allowed";
                     if (canDoVI && plane.status === 'Parked') {
@@ -2269,7 +2570,7 @@
                             : "bg-sky-600 hover:bg-sky-500 text-white border border-sky-400 font-bold cursor-pointer";
                     }
 
-                    const maintBtn = `<button onclick="app.performMaintenance(${plane.id})" ${(!canDoVI || plane.status !== 'Parked') ? 'disabled' : ''} class="${maintBtnStyle} px-2.5 py-1.5 rounded-lg text-xs transition">${isNextGV ? 'GV (Requis)' : 'Visite (VI)'}</button>`;
+                    const maintBtn = `<button onclick="app.performMaintenance(${plane.id})" ${(!canDoVI || plane.status !== 'Parked') ? 'disabled' : ''} class="${maintBtnStyle} px-2.5 py-1.5 rounded-lg text-xs transition">${isNextGV ? 'GV' : 'VI'}</button>`;
                     const sellOrLeaseBtn = `<button onclick="app.sellOrTermLease(${plane.id})" class="bg-rose-950 hover:bg-rose-800 text-rose-300 border border-rose-800/60 px-2 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition" title="Revendre/Résilier"><i class="fa-solid fa-trash"></i></button>`;
 
                     let hrsColorClass = "text-emerald-400";
@@ -2308,7 +2609,7 @@
                                     <div>${contractInfoDisplay}</div>
                                 </div>
                             </td>
-                            <td class="py-3 px-3 text-right space-x-1.5">${maintBtn} ${flightBtn} ${sellOrLeaseBtn}</td>
+                            <td class="py-3 px-3 text-right space-x-1.5">${maintBtn} ${simbriefBtn} ${flightBtn} ${sellOrLeaseBtn}</td>
                         </tr>
                     `;
                 });
