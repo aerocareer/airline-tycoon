@@ -1625,14 +1625,30 @@
                 location.reload();
             }
 
-            async saveCompanyData() {
-                clearTimeout(this._saveTimer); this._saveTimer = null;
-                if (!this.companyCode || !window.db) { this._savePending = false; return; }
-                const state = {
+            snapshotState() {
+                return {
                     company: this.company, fleet: this.fleet, team: this.team,
                     activeContracts: this.activeContracts, availableContracts: this.availableContracts,
                     activeLoans: this.activeLoans, activeRestrictedAirspaces: this.activeRestrictedAirspaces
                 };
+            }
+
+            // Une seule sauvegarde à la fois ; si une demande arrive pendant ce temps, elle est rejouée ensuite
+            async saveCompanyData() {
+                clearTimeout(this._saveTimer); this._saveTimer = null;
+                if (!this.companyCode || !window.db) { this._savePending = false; return; }
+                if (this._saving) { this._saveAgain = true; return this._saving; }
+                this._saving = this._doSave().finally(() => { this._saving = null; });
+                await this._saving;
+                if (this._saveAgain) { this._saveAgain = false; await this.saveCompanyData(); }
+                this._savePending = !!this._saveTimer;
+            }
+
+            async _doSave() {
+                const state = this.snapshotState();
+                const json = JSON.stringify(state);
+                if (json === this._lastJson) return;   // rien n'a changé : pas d'écriture
+                this._own = this._own || new Set();
                 try {
                     const { doc, runTransaction } = window.FirebaseSDK;
                     const ref = doc(window.db, "companies", this.companyCode);
@@ -1641,19 +1657,23 @@
                         conflict = null;
                         const snap = await tx.get(ref);
                         const remote = snap.exists() ? snap.data() : null;
-                        if (remote && (remote.lastUpdated || 0) > (this._syncedVersion || 0)) { conflict = remote; return; }
-                        version = Math.max(Date.now(), (remote ? remote.lastUpdated || 0 : 0) + 1);
+                        const rv = remote ? (remote.lastUpdated || 0) : 0;
+                        // conflit seulement si l'écriture distante n'est ni connue ni faite par ce client
+                        if (remote && rv > (this._syncedVersion || 0) && !this._own.has(rv)) { conflict = remote; return; }
+                        version = Math.max(Date.now(), rv + 1);
+                        this._own.add(version);
                         tx.set(ref, { ...state, lastUpdated: version });
                     });
                     if (conflict) {
                         this.applyLoadedData(conflict);
+                        this._lastJson = JSON.stringify(this.snapshotState());
                         this.renderAll(true);
                         this.showToast("Un autre joueur a modifié la compagnie en même temps : données rechargées, refaites votre action.", "error");
                     } else {
-                        this._syncedVersion = version;
+                        this._syncedVersion = Math.max(this._syncedVersion || 0, version);
+                        this._lastJson = json;
                     }
                 } catch (e) { console.error("Erreur sauvegarde cloud:", e); }
-                this._savePending = !!this._saveTimer;
             }
 
             scheduleSave() {
@@ -1677,6 +1697,7 @@
                     data = snap.data();
                     if (!isNewer(data.company ? data.company[field] : undefined)) return;
                     won = true;
+                    (this._own = this._own || new Set()).add(ts);
                     tx.update(ref, { ['company.' + field]: value, lastUpdated: ts });
                 });
                 return { won, data, ts };
@@ -1690,7 +1711,7 @@
                     try {
                         if (this._saveTimer) await this.saveCompanyData();
                         const r = await this.claimShared(field, value, isNewer);
-                        if (r.data) this.applyLoadedData(r.data);
+                        if (r.data) { this.applyLoadedData(r.data); this._lastJson = JSON.stringify(this.snapshotState()); }
                         if (r.won) { this._syncedVersion = r.ts; this.company[field] = value; action(); }
                         else this.renderAll(true);
                     } catch (e) { console.error('Erreur synchro:', e); this['_retry_' + field] = Date.now() + 15000; }
@@ -1894,8 +1915,10 @@
                     if (!docSnap.exists()) return;
                     const remote = docSnap.data();
                     if ((remote.lastUpdated || 0) <= (this._syncedVersion || 0)) return;
-                    if (this._savePending) return;
+                    if (this._own && this._own.has(remote.lastUpdated)) return;
+                    if (this._savePending || this._saving) return;
                     this.applyLoadedData(remote);
+                    this._lastJson = JSON.stringify(this.snapshotState());
                     this.renderAll(true);
                 });
             }
