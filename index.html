@@ -389,6 +389,12 @@
                     </div>
                 </div>
 
+                <div class="inline-flex rounded-xl overflow-hidden border border-slate-700 text-xs font-bold">
+                    <button id="ctab-market" onclick="app.setContractsView('market')" class="px-4 py-2 cursor-pointer">Contrats</button>
+                    <button id="ctab-state" onclick="app.setContractsView('state')" class="px-4 py-2 cursor-pointer flex items-center space-x-2"><span>Mission d'État</span><span id="state-mission-dot" class="hidden w-2 h-2 rounded-full bg-amber-400"></span></button>
+                </div>
+
+                <div id="contracts-market-view">
                 <div class="glass-card rounded-2xl p-5 shadow-xl space-y-4">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                         <div class="flex items-center space-x-3">
@@ -419,6 +425,11 @@
                         <button onclick="app.resetContractLimits()" class="px-3 py-1.5 rounded-lg border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 font-bold transition cursor-pointer">Réinitialiser</button>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[70vh] overflow-y-auto pr-1" id="available-contracts-container"></div>
+                </div>
+                </div>
+
+                <div id="state-mission-view" class="hidden">
+                    <div id="state-mission-container" class="glass-card rounded-2xl p-5 shadow-xl space-y-4"></div>
                 </div>
             </div>
 
@@ -515,6 +526,18 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[500px] overflow-y-auto pr-1" id="hubs-grid-container"></div>
                     </div>
                 </div>
+
+                <!-- SECTION SUCCÈS DE LA COMPAGNIE -->
+                <div class="glass-card p-5 rounded-2xl shadow-xl space-y-4 border border-amber-500/20">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-800 pb-3">
+                        <div>
+                            <h3 class="text-lg font-bold text-white flex items-center space-x-2"><i class="fa-solid fa-trophy text-amber-400"></i><span>Succès de la compagnie</span></h3>
+                            <p class="text-xs text-slate-400">Objectifs collectifs, distincts des trophées personnels du carnet pilote. Récompense versée une seule fois dans la trésorerie.</p>
+                        </div>
+                        <span class="text-xs font-mono font-bold text-amber-400" id="company-achievements-summary"></span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 max-h-[600px] overflow-y-auto pr-1" id="company-achievements"></div>
+                </div>
             </div>
 
             <!-- TAB 4: BUREAU DU TRÉSORIER (CFO) -->
@@ -537,7 +560,48 @@
                             </div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6"><div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3"><div class="flex justify-between items-center border-b border-slate-800 pb-2"><span class="font-extrabold text-emerald-400 text-sm uppercase tracking-wider flex items-center space-x-2"><i class="fa-solid fa-circle-arrow-down text-emerald-400"></i><span>Gains</span></span></div><div class="space-y-2 text-xs font-mono"><div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Gain du jour (contrat) <span class="text-slate-500" id="cfo-contracts-n"></span></span><strong class="text-emerald-400" id="cfo-gain-contract">0 €</strong></div><div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Gain du jour (location)</span><strong class="text-emerald-400" id="cfo-gain-rental">0 €</strong></div></div></div><div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3"><div class="flex justify-between items-center border-b border-slate-800 pb-2"><span class="font-extrabold text-amber-400 text-sm uppercase tracking-wider flex items-center space-x-2"><i class="fa-solid fa-circle-arrow-up text-amber-400"></i><span>Dépenses</span></span></div><div class="space-y-2 text-xs font-mono"><div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Dettes totales</span><strong class="text-rose-400" id="cfo-debt-total">0 €</strong></div><div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Charges (leasing) / tick</span><strong class="text-amber-400" id="cfo-charge-leasing">0 €</strong></div><div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Charges salariales / tick</span><strong class="text-amber-400" id="cfo-charge-salaries">0 €</strong></div><div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Intérêts des emprunts / tick</span><strong class="text-amber-400" id="cfo-interest">0 €</strong></div><div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Dépenses mécanique (fuel, VI, ...)</span><strong class="text-amber-400" id="cfo-mech">0 €</strong></div></div></div><div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3"><div class="flex justify-between items-center border-b border-slate-800 pb-2"><span class="font-extrabold text-sky-400 text-sm uppercase tracking-wider flex items-center space-x-2"><i class="fa-solid fa-wallet text-sky-400"></i><span>Trésorerie</span></span></div><div class="space-y-2 text-xs font-mono"><div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Actuelle</span><strong class="text-emerald-400" id="cfo-cash-now">0 €</strong></div><div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Au prochain tick</span><strong class="text-sky-400" id="cfo-cash-next">0 €</strong></div></div><p class="text-[10px] text-slate-500 leading-relaxed">Prochain tick = trésorerie + loyers de parking attendus (<span id="cfo-rental-expected">0 €</span>) − salaires − leasing − mensualités d'emprunt (<span id="cfo-installments">0 €</span>, intérêts inclus). Les gains de contrats ne sont pas anticipés.</p></div></div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6"><div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3"><div class="flex justify-between items-center border-b border-slate-800 pb-2"><span class="font-extrabold text-emerald-400 text-sm uppercase tracking-wider flex items-center space-x-2"><i class="fa-solid fa-circle-arrow-down text-emerald-400"></i><span>Gains</span></span></div><div class="space-y-2 text-xs font-mono"><div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Gain du jour (contrat) <span class="text-slate-500" id="cfo-contracts-n"></span></span><strong class="text-emerald-400" id="cfo-gain-contract">0 €</strong></div><div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Gain du jour (location)</span><strong class="text-emerald-400" id="cfo-gain-rental">0 €</strong></div><div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Gain du jour (subvention)</span><strong class="text-emerald-400" id="cfo-gain-subsidy">0 €</strong></div><div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Gain du jour (épargne)</span><strong class="text-emerald-400" id="cfo-gain-savings">0 €</strong></div></div></div><div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3"><div class="flex justify-between items-center border-b border-slate-800 pb-2"><span class="font-extrabold text-amber-400 text-sm uppercase tracking-wider flex items-center space-x-2"><i class="fa-solid fa-circle-arrow-up text-amber-400"></i><span>Dépenses</span></span></div><div class="space-y-2 text-xs font-mono"><div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Dettes totales</span><strong class="text-rose-400" id="cfo-debt-total">0 €</strong></div><div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Charges (leasing) / tick</span><strong class="text-amber-400" id="cfo-charge-leasing">0 €</strong></div><div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Charges salariales / tick</span><strong class="text-amber-400" id="cfo-charge-salaries">0 €</strong></div><div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Intérêts des emprunts / tick</span><strong class="text-amber-400" id="cfo-interest">0 €</strong></div><div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Intérêts de découvert / tick</span><strong class="text-amber-400" id="cfo-overdraft">0 €</strong></div><div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Dépenses mécanique (fuel, VI, ...)</span><strong class="text-amber-400" id="cfo-mech">0 €</strong></div></div></div><div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3"><div class="flex justify-between items-center border-b border-slate-800 pb-2"><span class="font-extrabold text-sky-400 text-sm uppercase tracking-wider flex items-center space-x-2"><i class="fa-solid fa-wallet text-sky-400"></i><span>Trésorerie</span></span></div><div class="space-y-2 text-xs font-mono"><div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Actuelle</span><strong class="text-emerald-400" id="cfo-cash-now">0 €</strong></div><div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Au prochain tick</span><strong class="text-sky-400" id="cfo-cash-next">0 €</strong></div><div class="flex justify-between items-center py-1.5 border-b border-slate-900"><span>Épargne placée</span><strong class="text-sky-400" id="cfo-savings">0 €</strong></div></div><p class="text-[10px] text-slate-500 leading-relaxed">Prochain tick = trésorerie + loyers de parking attendus (<span id="cfo-rental-expected">0 €</span>) + subventions d'État (<span id="cfo-subsidy-expected">0 €</span>) − salaires − leasing − mensualités d'emprunt (<span id="cfo-installments">0 €</span>, intérêts inclus). Les gains de contrats ne sont pas anticipés.</p></div></div>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl shadow-xl space-y-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <h3 class="text-lg font-bold text-white flex items-center space-x-2"><i class="fa-solid fa-chart-line text-sky-400"></i><span>Courbe de trésorerie</span></h3>
+                        <div class="flex flex-wrap gap-2">
+                            <div class="inline-flex rounded-lg overflow-hidden border border-slate-700 text-[11px] font-bold"><button type="button" data-cash-range="10" onclick="app.setCashRange(10)" class="px-3 py-1.5 cursor-pointer">10 ticks</button><button type="button" data-cash-range="30" onclick="app.setCashRange(30)" class="px-3 py-1.5 cursor-pointer">30 ticks</button><button type="button" data-cash-range="90" onclick="app.setCashRange(90)" class="px-3 py-1.5 cursor-pointer">90 ticks</button><button type="button" data-cash-range="0" onclick="app.setCashRange(0)" class="px-3 py-1.5 cursor-pointer">Tout</button></div>
+                            <div class="inline-flex rounded-lg overflow-hidden border border-slate-700 text-[11px] font-bold"><button type="button" data-cash-view="cash" onclick="app.setCashView('cash')" class="px-3 py-1.5 cursor-pointer">Trésorerie</button><button type="button" data-cash-view="delta" onclick="app.setCashView('delta')" class="px-3 py-1.5 cursor-pointer">Variation / tick</button></div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs font-mono" id="cash-stats"></div>
+                    <div class="relative h-64">
+                        <canvas id="cashChart"></canvas>
+                        <div id="cash-chart-empty" class="hidden absolute inset-0 flex items-center justify-center text-xs text-slate-500 text-center px-6">Pas encore assez de données : la courbe se remplit à chaque tick.</div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl shadow-xl space-y-4">
+                    <h3 class="text-lg font-bold text-white flex items-center space-x-2"><i class="fa-solid fa-star text-amber-400"></i><span>Réputation & crédit</span></h3>
+                    <div id="reputation-card" class="space-y-3"></div>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl shadow-xl space-y-4">
+                    <div class="flex justify-between items-center gap-2"><h3 class="text-lg font-bold text-white flex items-center space-x-2"><i class="fa-solid fa-piggy-bank text-emerald-400"></i><span>Placements</span></h3><span id="savings-cap" class="text-[10px] font-mono text-slate-400"></span></div>
+                    <div id="savings-stats" class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs font-mono"></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 space-y-2">
+                            <div class="text-sm font-bold text-white">Livret (disponible à tout moment)</div>
+                            <div class="text-[11px] text-slate-400">0,1 % par tick, intérêts versés sur le livret. Prélevé automatiquement si la trésorerie devient négative.</div>
+                            <input id="livret-amount" type="number" min="0" step="1000" placeholder="Montant (€), vide = tout retirer" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 font-mono">
+                            <div class="flex gap-2"><button onclick="app.depositLivret()" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold cursor-pointer">Déposer</button><button onclick="app.withdrawLivret()" class="px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 hover:text-white text-xs font-bold cursor-pointer">Retirer</button></div>
+                        </div>
+                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 space-y-2">
+                            <div class="text-sm font-bold text-white">Dépôt à terme</div>
+                            <div class="text-[11px] text-slate-400">Capital bloqué, intérêts versés à l'échéance. Retrait anticipé possible, sans intérêts.</div>
+                            <select id="term-length" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 font-mono"><option value="5">5 ticks (+0,5 %)</option><option value="10" selected>10 ticks (+1,5 %)</option><option value="20">20 ticks (+4 %)</option></select>
+                            <input id="term-amount" type="number" min="0" step="1000" placeholder="Montant (€)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 font-mono">
+                            <button onclick="app.openTermDeposit()" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold cursor-pointer">Ouvrir le dépôt</button>
+                        </div>
+                    </div>
+                    <div id="savings-deposits" class="space-y-2"></div>
                 </div>
 
                 <div class="glass-card p-5 rounded-2xl shadow-xl space-y-4">
@@ -989,15 +1053,22 @@
             <h3 class="text-lg font-bold text-white">Souscrire un Emprunt Bancaire</h3>
             <div class="space-y-3">
                 <select id="loan-amount-select" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">
+                    <option value="250000">250 000 €</option>
                     <option value="500000">500 000 €</option>
+                    <option value="1000000">1 000 000 €</option>
                     <option value="2000000">2 000 000 €</option>
+                    <option value="3500000">3 500 000 €</option>
+                    <option value="5000000">5 000 000 €</option>
                     <option value="10000000">10 000 000 €</option>
+                    <option value="25000000">25 000 000 €</option>
+                    <option value="50000000">50 000 000 €</option>
                 </select>
                 <select id="loan-term-select" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">
                     <option value="5">Court terme — 5 Ticks / 5 Jours (5%)</option>
                     <option value="10" selected>Moyen terme — 10 Ticks / 10 Jours (12%)</option>
                     <option value="20">Long terme — 20 Ticks / 20 Jours (25%)</option>
                 </select>
+                <p id="loan-rep-note" class="text-[10px] text-slate-400 leading-relaxed"></p>
             </div>
             <div class="flex justify-end space-x-3 pt-2">
                 <button onclick="app.closeLoanModal()" class="bg-slate-800 text-slate-300 px-4 py-2 rounded-xl text-xs font-semibold">Annuler</button>
@@ -1102,28 +1173,28 @@
 
                 this.hub100List = [
                     { code: 'LFLB', city: 'Chambéry-Savoie', country: 'France', region: 'Europe', price: 2500000, cargoCap: 150, fuelCap: 80000, totalGates: 12, lat: 45.6414, lon: 5.8794 },
-                    { code: 'LFPG', city: 'Paris (CDG)', country: 'France', region: 'Europe', price: 25000000, cargoCap: 500, fuelCap: 200000, totalGates: 65, lat: 49.0097, lon: 2.5479 },
+                    { code: 'LFPG', capital: true, city: 'Paris (CDG)', country: 'France', region: 'Europe', price: 25000000, cargoCap: 500, fuelCap: 200000, totalGates: 65, lat: 49.0097, lon: 2.5479 },
                     { code: 'KJFK', city: 'New York (JFK)', country: 'USA', region: 'Amérique du Nord', price: 30000000, cargoCap: 800, fuelCap: 350000, totalGates: 80, lat: 40.6413, lon: -73.7781 },
                     { code: 'LFMN', city: 'Nice', country: 'France', region: 'Europe', price: 2200000, cargoCap: 200, fuelCap: 90000, totalGates: 18, lat: 43.6653, lon: 7.2150 },
                     { code: 'KMIA', city: 'Miami', country: 'USA', region: 'Amérique du Nord', price: 11500000, cargoCap: 800, fuelCap: 350000, totalGates: 50, lat: 25.7959, lon: -80.2870 },
                     { code: 'LFLD', city: 'Bourges', country: 'France', region: 'Europe', price: 1800000, cargoCap: 100, fuelCap: 50000, totalGates: 8, lat: 47.0561, lon: 2.3667 },
                     { code: 'RJAA', city: 'Tokyo (Narita)', country: 'Japon', region: 'Asie', price: 15000000, cargoCap: 900, fuelCap: 400000, totalGates: 70, lat: 35.7720, lon: 140.3929 },	
                     { code: 'OMDB', city: 'Dubai', country: 'Émirats arabes unis', region: 'Moyen-Orient', price: 18000000, cargoCap: 1200, fuelCap: 600000, totalGates: 90, lat: 25.2532, lon: 55.3657 },
-                    { code: 'EGLL', city: 'Londres (Heathrow)', country: 'Royaume-Uni', region: 'Europe', price: 16000000, cargoCap: 850, fuelCap: 380000, totalGates: 85, lat: 51.4700, lon: -0.4543 },
-                    { code: 'WSSS', city: 'Singapour', country: 'Singapour', region: 'Asie', price: 14000000, cargoCap: 750, fuelCap: 320000, totalGates: 75, lat: 1.3644, lon: 103.9915 },
+                    { code: 'EGLL', capital: true, city: 'Londres (Heathrow)', country: 'Royaume-Uni', region: 'Europe', price: 16000000, cargoCap: 850, fuelCap: 380000, totalGates: 85, lat: 51.4700, lon: -0.4543 },
+                    { code: 'WSSS', capital: true, city: 'Singapour', country: 'Singapour', region: 'Asie', price: 14000000, cargoCap: 750, fuelCap: 320000, totalGates: 75, lat: 1.3644, lon: 103.9915 },
                     { code: 'KLAX', city: 'Los Angeles', country: 'USA', region: 'Amérique du Nord', price: 15000000, cargoCap: 950, fuelCap: 410000, totalGates: 80, lat: 33.9416, lon: -118.4085 },
                     { code: 'RKSS', city: 'Séoul (Gimpo)', country: 'Corée du Sud', region: 'Asie', price: 8500000, cargoCap: 450, fuelCap: 220000, totalGates: 35, lat: 37.5586, lon: 126.7906 },
-                    { code: 'RKSI', city: 'Séoul (Incheon)', country: 'Corée du Sud', region: 'Asie', price: 22000000, cargoCap: 1100, fuelCap: 500000, totalGates: 75, lat: 37.4602, lon: 126.4407 },
+                    { code: 'RKSI', capital: true, city: 'Séoul (Incheon)', country: 'Corée du Sud', region: 'Asie', price: 22000000, cargoCap: 1100, fuelCap: 500000, totalGates: 75, lat: 37.4602, lon: 126.4407 },
                     { code: 'EDDF', city: 'Francfort', country: 'Allemagne', region: 'Europe', price: 20000000, cargoCap: 1000, fuelCap: 450000, totalGates: 80, lat: 50.0333, lon: 8.5706 },
-                    { code: 'EHAM', city: 'Amsterdam', country: 'Pays-Bas', region: 'Europe', price: 18500000, cargoCap: 850, fuelCap: 390000, totalGates: 78, lat: 52.3105, lon: 4.7683 },
-                    { code: 'RJTT', city: 'Tokyo (Haneda)', country: 'Japon', region: 'Asie', price: 24000000, cargoCap: 700, fuelCap: 420000, totalGates: 70, lat: 35.5494, lon: 139.7798 },
+                    { code: 'EHAM', capital: true, city: 'Amsterdam', country: 'Pays-Bas', region: 'Europe', price: 18500000, cargoCap: 850, fuelCap: 390000, totalGates: 78, lat: 52.3105, lon: 4.7683 },
+                    { code: 'RJTT', capital: true, city: 'Tokyo (Haneda)', country: 'Japon', region: 'Asie', price: 24000000, cargoCap: 700, fuelCap: 420000, totalGates: 70, lat: 35.5494, lon: 139.7798 },
                     { code: 'KORD', city: 'Chicago', country: 'USA', region: 'Amérique du Nord', price: 21000000, cargoCap: 900, fuelCap: 430000, totalGates: 82, lat: 41.9742, lon: -87.9073 },
                     { code: 'VHHH', city: 'Hong Kong', country: 'Chine', region: 'Asie', price: 23000000, cargoCap: 1250, fuelCap: 550000, totalGates: 85, lat: 22.3080, lon: 113.9185 },
                     { code: 'LFLL', city: 'Lyon', country: 'France', region: 'Europe', price: 4500000, cargoCap: 320, fuelCap: 140000, totalGates: 25, lat: 45.7256, lon: 5.0811 },
                     { code: 'LEBL', city: 'Barcelone', country: 'Espagne', region: 'Europe', price: 9500000, cargoCap: 400, fuelCap: 200000, totalGates: 40, lat: 41.2971, lon: 2.0785 },
                     { code: 'LSGG', city: 'Genève', country: 'Suisse', region: 'Europe', price: 8000000, cargoCap: 350, fuelCap: 180000, totalGates: 30, lat: 46.2381, lon: 6.1089 },
-                    { code: 'LJLJ', city: 'Ljubljana', country: 'Slovénie', region: 'Europe', price: 3200000, cargoCap: 220, fuelCap: 110000, totalGates: 15, lat: 46.2237, lon: 14.4576 },
-                    { code: 'VTBS', city: 'Bangkok', country: 'Thaïlande', region: 'Asie', price: 12000000, cargoCap: 650, fuelCap: 290000, totalGates: 60, lat: 13.6900, lon: 100.7501 },
+                    { code: 'LJLJ', capital: true, city: 'Ljubljana', country: 'Slovénie', region: 'Europe', price: 3200000, cargoCap: 220, fuelCap: 110000, totalGates: 15, lat: 46.2237, lon: 14.4576 },
+                    { code: 'VTBS', capital: true, city: 'Bangkok', country: 'Thaïlande', region: 'Asie', price: 12000000, cargoCap: 650, fuelCap: 290000, totalGates: 60, lat: 13.6900, lon: 100.7501 },
                     { code: 'RKPK', city: 'Busan', country: 'Corée du Sud', region: 'Asie', price: 5500000, cargoCap: 300, fuelCap: 150000, totalGates: 22, lat: 35.1795, lon: 128.9382 },
                     { code: 'CYYZ', city: 'Toronto', country: 'Canada', region: 'Amérique du Nord', price: 13000000, cargoCap: 600, fuelCap: 270000, totalGates: 55, lat: 43.6777, lon: -79.6248 },	
                     { code: 'LFRB', city: 'Brest', country: 'France', region: 'Europe', price: 1600000, cargoCap: 110, fuelCap: 55000, totalGates: 10, lat: 48.4489, lon: -4.4161 },
@@ -1131,16 +1202,71 @@
                     { code: 'MMCS', city: 'Ciudad Juárez', country: 'Mexique', region: 'Amérique du Nord', price: 2800000, cargoCap: 210, fuelCap: 95000, totalGates: 14, lat: 31.6361, lon: -106.4289 },
                     { code: 'RKPC', city: 'Jeju', country: 'Corée du Sud', region: 'Asie', price: 4000000, cargoCap: 250, fuelCap: 120000, totalGates: 20, lat: 33.5113, lon: 126.4930 },
                     { code: 'LOWI', city: 'Innsbruck', country: 'Autriche', region: 'Europe', price: 2100000, cargoCap: 130, fuelCap: 70000, totalGates: 12, lat: 47.2602, lon: 11.3440 },
-                    { code: 'LZIB', city: 'Bratislava', country: 'Slovaquie', region: 'Europe', price: 1900000, cargoCap: 120, fuelCap: 60000, totalGates: 10, lat: 48.17, lon: 17.21 },
+                    { code: 'LZIB', capital: true, city: 'Bratislava', country: 'Slovaquie', region: 'Europe', price: 1900000, cargoCap: 120, fuelCap: 60000, totalGates: 10, lat: 48.17, lon: 17.21 },
                     { code: 'EPKK', city: 'Cracovie', country: 'Pologne', region: 'Europe', price: 2300000, cargoCap: 160, fuelCap: 75000, totalGates: 16, lat: 50.0777, lon: 19.7848 },
-                    { code: 'LHBP', city: 'Budapest', country: 'Hongrie', region: 'Europe', price: 2800000, cargoCap: 190, fuelCap: 85000, totalGates: 20, lat: 47.4369, lon: 19.2556 },
-                    { code: 'LKPR', city: 'Prague', country: 'Tchéquie', region: 'Europe', price: 3000000, cargoCap: 200, fuelCap: 90000, totalGates: 22, lat: 50.1008, lon: 14.2600 },
-                    { code: 'LDZA', city: 'Zagreb', country: 'Croatie', region: 'Europe', price: 2100000, cargoCap: 140, fuelCap: 70000, totalGates: 14, lat: 45.7429, lon: 16.0688 },
-                    { code: 'LBSF', city: 'Sofia', country: 'Bulgarie', region: 'Europe', price: 2000000, cargoCap: 130, fuelCap: 65000, totalGates: 12, lat: 42.6966, lon: 23.4114 },
-                    { code: 'EVRA', city: 'Riga', country: 'Lettonie', region: 'Europe', price: 1700000, cargoCap: 110, fuelCap: 55000, totalGates: 10, lat: 56.9236, lon: 23.9711 },
-                    { code: 'EYVI', city: 'Vilnius', country: 'Lituanie', region: 'Europe', price: 1750000, cargoCap: 115, fuelCap: 58000, totalGates: 10, lat: 54.6341, lon: 25.2858 },
-                    { code: 'LYBE', city: 'Belgrade', country: 'Serbie', region: 'Europe', price: 2200000, cargoCap: 150, fuelCap: 72000, totalGates: 16, lat: 44.8184, lon: 20.3090 },
-                    { code: 'EETN', city: 'Tallinn', country: 'Estonie', region: 'Europe', price: 1850000, cargoCap: 125, fuelCap: 62000, totalGates: 12, lat: 59.4133, lon: 24.8328 }
+                    { code: 'LHBP', capital: true, city: 'Budapest', country: 'Hongrie', region: 'Europe', price: 2800000, cargoCap: 190, fuelCap: 85000, totalGates: 20, lat: 47.4369, lon: 19.2556 },
+                    { code: 'LKPR', capital: true, city: 'Prague', country: 'Tchéquie', region: 'Europe', price: 3000000, cargoCap: 200, fuelCap: 90000, totalGates: 22, lat: 50.1008, lon: 14.2600 },
+                    { code: 'LDZA', capital: true, city: 'Zagreb', country: 'Croatie', region: 'Europe', price: 2100000, cargoCap: 140, fuelCap: 70000, totalGates: 14, lat: 45.7429, lon: 16.0688 },
+                    { code: 'LBSF', capital: true, city: 'Sofia', country: 'Bulgarie', region: 'Europe', price: 2000000, cargoCap: 130, fuelCap: 65000, totalGates: 12, lat: 42.6966, lon: 23.4114 },
+                    { code: 'EVRA', capital: true, city: 'Riga', country: 'Lettonie', region: 'Europe', price: 1700000, cargoCap: 110, fuelCap: 55000, totalGates: 10, lat: 56.9236, lon: 23.9711 },
+                    { code: 'EYVI', capital: true, city: 'Vilnius', country: 'Lituanie', region: 'Europe', price: 1750000, cargoCap: 115, fuelCap: 58000, totalGates: 10, lat: 54.6341, lon: 25.2858 },
+                    { code: 'LYBE', capital: true, city: 'Belgrade', country: 'Serbie', region: 'Europe', price: 2200000, cargoCap: 150, fuelCap: 72000, totalGates: 16, lat: 44.8184, lon: 20.3090 },
+                    { code: 'EETN', capital: true, city: 'Tallinn', country: 'Estonie', region: 'Europe', price: 1850000, cargoCap: 125, fuelCap: 62000, totalGates: 12, lat: 59.4133, lon: 24.8328 },
+                    { code: 'LEMD', city: 'Madrid', country: 'Espagne', region: 'Europe', capital: true, price: 16000000, cargoCap: 800, fuelCap: 320000, totalGates: 78, lat: 40.4936, lon: -3.5668 },
+                    { code: 'LIRF', city: 'Rome (Fiumicino)', country: 'Italie', region: 'Europe', capital: true, price: 14000000, cargoCap: 700, fuelCap: 300000, totalGates: 72, lat: 41.8003, lon: 12.2389 },
+                    { code: 'EDDB', city: 'Berlin (Brandebourg)', country: 'Allemagne', region: 'Europe', capital: true, price: 11000000, cargoCap: 550, fuelCap: 240000, totalGates: 55, lat: 52.3667, lon: 13.5033 },
+                    { code: 'EBBR', city: 'Bruxelles', country: 'Belgique', region: 'Europe', capital: true, price: 8500000, cargoCap: 600, fuelCap: 200000, totalGates: 45, lat: 50.901, lon: 4.4844 },
+                    { code: 'LOWW', city: 'Vienne', country: 'Autriche', region: 'Europe', capital: true, price: 9000000, cargoCap: 480, fuelCap: 190000, totalGates: 45, lat: 48.1103, lon: 16.5697 },
+                    { code: 'EPWA', city: 'Varsovie', country: 'Pologne', region: 'Europe', capital: true, price: 6000000, cargoCap: 320, fuelCap: 130000, totalGates: 35, lat: 52.1657, lon: 20.9671 },
+                    { code: 'LPPT', city: 'Lisbonne', country: 'Portugal', region: 'Europe', capital: true, price: 7500000, cargoCap: 420, fuelCap: 150000, totalGates: 38, lat: 38.7742, lon: -9.1342 },
+                    { code: 'EIDW', city: 'Dublin', country: 'Irlande', region: 'Europe', capital: true, price: 8000000, cargoCap: 400, fuelCap: 160000, totalGates: 40, lat: 53.4213, lon: -6.2701 },
+                    { code: 'EKCH', city: 'Copenhague', country: 'Danemark', region: 'Europe', capital: true, price: 9000000, cargoCap: 480, fuelCap: 180000, totalGates: 45, lat: 55.618, lon: 12.6508 },
+                    { code: 'ENGM', city: 'Oslo', country: 'Norvège', region: 'Europe', capital: true, price: 7500000, cargoCap: 420, fuelCap: 150000, totalGates: 40, lat: 60.1939, lon: 11.1004 },
+                    { code: 'ESSA', city: 'Stockholm (Arlanda)', country: 'Suède', region: 'Europe', capital: true, price: 7500000, cargoCap: 430, fuelCap: 150000, totalGates: 38, lat: 59.6519, lon: 17.9186 },
+                    { code: 'EFHK', city: 'Helsinki', country: 'Finlande', region: 'Europe', capital: true, price: 6500000, cargoCap: 380, fuelCap: 140000, totalGates: 35, lat: 60.3172, lon: 24.9633 },
+                    { code: 'LGAV', city: 'Athènes', country: 'Grèce', region: 'Europe', capital: true, price: 7000000, cargoCap: 380, fuelCap: 140000, totalGates: 38, lat: 37.9364, lon: 23.9445 },
+                    { code: 'LROP', city: 'Bucarest', country: 'Roumanie', region: 'Europe', capital: true, price: 4500000, cargoCap: 260, fuelCap: 100000, totalGates: 26, lat: 44.5711, lon: 26.085 },
+                    { code: 'ELLX', city: 'Luxembourg', country: 'Luxembourg', region: 'Europe', capital: true, price: 5500000, cargoCap: 600, fuelCap: 120000, totalGates: 20, lat: 49.6233, lon: 6.2044 },
+                    { code: 'LTAC', city: 'Ankara', country: 'Turquie', region: 'Asie', capital: true, price: 3500000, cargoCap: 220, fuelCap: 90000, totalGates: 24, lat: 40.1281, lon: 32.9951 },
+                    { code: 'ZBAA', city: 'Pékin', country: 'Chine', region: 'Asie', capital: true, price: 18000000, cargoCap: 1000, fuelCap: 420000, totalGates: 90, lat: 40.0799, lon: 116.6031 },
+                    { code: 'VIDP', city: 'New Delhi', country: 'Inde', region: 'Asie', capital: true, price: 12000000, cargoCap: 750, fuelCap: 320000, totalGates: 75, lat: 28.5562, lon: 77.1 },
+                    { code: 'WMKK', city: 'Kuala Lumpur', country: 'Malaisie', region: 'Asie', capital: true, price: 11000000, cargoCap: 750, fuelCap: 300000, totalGates: 70, lat: 2.7456, lon: 101.7099 },
+                    { code: 'WIII', city: 'Jakarta', country: 'Indonésie', region: 'Asie', capital: true, price: 9500000, cargoCap: 600, fuelCap: 260000, totalGates: 60, lat: -6.1256, lon: 106.6559 },
+                    { code: 'RPLL', city: 'Manille', country: 'Philippines', region: 'Asie', capital: true, price: 6500000, cargoCap: 380, fuelCap: 160000, totalGates: 40, lat: 14.5086, lon: 121.0194 },
+                    { code: 'VVNB', city: 'Hanoï', country: 'Vietnam', region: 'Asie', capital: true, price: 5000000, cargoCap: 340, fuelCap: 140000, totalGates: 32, lat: 21.2212, lon: 105.8072 },
+                    { code: 'RCTP', city: 'Taipei (Taoyuan)', country: 'Taïwan', region: 'Asie', capital: true, price: 12000000, cargoCap: 800, fuelCap: 300000, totalGates: 65, lat: 25.0777, lon: 121.233 },
+                    { code: 'OMAA', city: 'Abu Dhabi', country: 'Émirats arabes unis', region: 'Moyen-Orient', capital: true, price: 13000000, cargoCap: 700, fuelCap: 320000, totalGates: 60, lat: 24.433, lon: 54.6511 },
+                    { code: 'OTHH', city: 'Doha', country: 'Qatar', region: 'Moyen-Orient', capital: true, price: 15000000, cargoCap: 900, fuelCap: 380000, totalGates: 70, lat: 25.2731, lon: 51.6081 },
+                    { code: 'LFBO', city: 'Toulouse', country: 'France', region: 'Europe', price: 3200000, cargoCap: 260, fuelCap: 100000, totalGates: 22, lat: 43.6291, lon: 1.3638 },
+                    { code: 'LFBD', city: 'Bordeaux', country: 'France', region: 'Europe', price: 2800000, cargoCap: 220, fuelCap: 90000, totalGates: 20, lat: 44.8283, lon: -0.7156 },
+                    { code: 'LFRS', city: 'Nantes', country: 'France', region: 'Europe', price: 2400000, cargoCap: 180, fuelCap: 80000, totalGates: 16, lat: 47.1532, lon: -1.6107 },
+                    { code: 'LFST', city: 'Strasbourg', country: 'France', region: 'Europe', price: 2200000, cargoCap: 170, fuelCap: 75000, totalGates: 15, lat: 48.5383, lon: 7.6282 },
+                    { code: 'LFLC', city: 'Clermont-Ferrand', country: 'France', region: 'Europe', price: 1500000, cargoCap: 100, fuelCap: 50000, totalGates: 8, lat: 45.7867, lon: 3.1692 },
+                    { code: 'LFML', city: 'Marseille', country: 'France', region: 'Europe', price: 5500000, cargoCap: 350, fuelCap: 140000, totalGates: 32, lat: 43.4393, lon: 5.2214 },
+                    { code: 'LFRN', city: 'Rennes', country: 'France', region: 'Europe', price: 1700000, cargoCap: 110, fuelCap: 55000, totalGates: 10, lat: 48.0695, lon: -1.7348 },
+                    { code: 'LFMT', city: 'Montpellier', country: 'France', region: 'Europe', price: 2000000, cargoCap: 150, fuelCap: 70000, totalGates: 14, lat: 43.5762, lon: 3.963 },
+                    { code: 'LFQQ', city: 'Lille', country: 'France', region: 'Europe', price: 2100000, cargoCap: 160, fuelCap: 70000, totalGates: 14, lat: 50.5619, lon: 3.0894 },
+                    { code: 'LFPO', city: 'Paris (Orly)', country: 'France', region: 'Europe', price: 6500000, cargoCap: 420, fuelCap: 180000, totalGates: 40, lat: 48.7233, lon: 2.3794 },
+                    { code: 'LSZH', city: 'Zurich', country: 'Suisse', region: 'Europe', price: 8500000, cargoCap: 500, fuelCap: 180000, totalGates: 45, lat: 47.4647, lon: 8.5492 },
+                    { code: 'EDDM', city: 'Munich', country: 'Allemagne', region: 'Europe', price: 9500000, cargoCap: 550, fuelCap: 200000, totalGates: 50, lat: 48.3538, lon: 11.7861 },
+                    { code: 'LIMC', city: 'Milan (Malpensa)', country: 'Italie', region: 'Europe', price: 6500000, cargoCap: 550, fuelCap: 170000, totalGates: 38, lat: 45.6306, lon: 8.7281 },
+                    { code: 'LIPZ', city: 'Venise', country: 'Italie', region: 'Europe', price: 3500000, cargoCap: 240, fuelCap: 95000, totalGates: 20, lat: 45.5053, lon: 12.3519 },
+                    { code: 'LEPA', city: 'Palma de Majorque', country: 'Espagne', region: 'Europe', price: 4500000, cargoCap: 260, fuelCap: 110000, totalGates: 28, lat: 39.5517, lon: 2.7388 },
+                    { code: 'LEMG', city: 'Malaga', country: 'Espagne', region: 'Europe', price: 3300000, cargoCap: 220, fuelCap: 90000, totalGates: 22, lat: 36.6749, lon: -4.4991 },
+                    { code: 'LPPR', city: 'Porto', country: 'Portugal', region: 'Europe', price: 3000000, cargoCap: 200, fuelCap: 85000, totalGates: 18, lat: 41.2481, lon: -8.6814 },
+                    { code: 'EGPH', city: 'Édimbourg', country: 'Royaume-Uni', region: 'Europe', price: 3600000, cargoCap: 240, fuelCap: 95000, totalGates: 20, lat: 55.95, lon: -3.3725 },
+                    { code: 'EGCC', city: 'Manchester', country: 'Royaume-Uni', region: 'Europe', price: 6000000, cargoCap: 420, fuelCap: 150000, totalGates: 35, lat: 53.3537, lon: -2.275 },
+                    { code: 'EBLG', city: 'Liège', country: 'Belgique', region: 'Europe', price: 2200000, cargoCap: 420, fuelCap: 90000, totalGates: 10, lat: 50.6374, lon: 5.4432 },
+                    { code: 'EDDK', city: 'Cologne/Bonn', country: 'Allemagne', region: 'Europe', price: 3800000, cargoCap: 520, fuelCap: 110000, totalGates: 15, lat: 50.8659, lon: 7.1427 },
+                    { code: 'LOWS', city: 'Salzbourg', country: 'Autriche', region: 'Europe', price: 1900000, cargoCap: 120, fuelCap: 60000, totalGates: 10, lat: 47.7933, lon: 13.0043 },
+                    { code: 'LIPE', city: 'Bologne', country: 'Italie', region: 'Europe', price: 2300000, cargoCap: 160, fuelCap: 70000, totalGates: 12, lat: 44.5354, lon: 11.2887 },
+                    { code: 'EDDH', city: 'Hambourg', country: 'Allemagne', region: 'Europe', price: 4200000, cargoCap: 260, fuelCap: 100000, totalGates: 26, lat: 53.6304, lon: 9.9882 },
+                    { code: 'VTCC', city: 'Chiang Mai', country: 'Thaïlande', region: 'Asie', price: 1900000, cargoCap: 130, fuelCap: 60000, totalGates: 12, lat: 18.7668, lon: 98.9626 },
+                    { code: 'RJBB', city: 'Osaka (Kansai)', country: 'Japon', region: 'Asie', price: 8000000, cargoCap: 520, fuelCap: 230000, totalGates: 45, lat: 34.4347, lon: 135.244 },
+                    { code: 'RJCC', city: 'Sapporo (New Chitose)', country: 'Japon', region: 'Asie', price: 3800000, cargoCap: 260, fuelCap: 110000, totalGates: 24, lat: 42.7752, lon: 141.6923 },
+                    { code: 'WADD', city: 'Bali (Denpasar)', country: 'Indonésie', region: 'Asie', price: 3600000, cargoCap: 240, fuelCap: 100000, totalGates: 22, lat: -8.7482, lon: 115.167 },
+                    { code: 'VVDN', city: 'Da Nang', country: 'Vietnam', region: 'Asie', price: 1700000, cargoCap: 120, fuelCap: 55000, totalGates: 10, lat: 16.0439, lon: 108.1994 },
+                    { code: 'VTSP', city: 'Phuket', country: 'Thaïlande', region: 'Asie', price: 2000000, cargoCap: 140, fuelCap: 60000, totalGates: 12, lat: 8.1132, lon: 98.3169 }
                 ];
 
                 this.fleet = [];
@@ -1793,6 +1919,7 @@
                 try { localStorage.setItem('aerocareer_theme', t); } catch (e) {}
                 const label = document.getElementById('theme-toggle-label');
                 if (label) label.innerText = t === 'noir' ? 'Noir & Orange' : 'Départs';
+                if (this.company && this.activeTab === 'cfo') this.renderCashChart();
             }
 
             toggleTheme() {
@@ -1818,6 +1945,514 @@
                 const diff = crossesMidnight ? on + 1440 - off : on - off;
                 document.getElementById('debrief-flight-hours').value = parseFloat((diff / 60).toFixed(2));
                 if (hint) hint.innerText = 'Calculée : ' + Math.floor(diff / 60) + ' h ' + String(diff % 60).padStart(2, '0') + ' min' + (crossesMidnight ? ' (passage à minuit)' : '');
+            }
+
+            setContractsView(view) {
+                this._contractsView = view === 'state' ? 'state' : 'market';
+                const st = this._contractsView === 'state';
+                document.getElementById('contracts-market-view')?.classList.toggle('hidden', st);
+                document.getElementById('state-mission-view')?.classList.toggle('hidden', !st);
+                [['ctab-market', !st], ['ctab-state', st]].forEach(([id, on]) => {
+                    const b = document.getElementById(id);
+                    if (b) b.className = 'px-4 py-2 cursor-pointer flex items-center space-x-2 ' + (on ? 'bg-sky-500 text-slate-950' : 'bg-slate-900 text-slate-400');
+                });
+                this.renderStateMission();
+            }
+
+            stateSubsidyGain() {
+                const amount = Math.min(4000, 1000 + 500 * (this.company.stateMissionsDone || 0));
+                return Math.max(0, Math.min(amount, 750000 - (this.company.stateSubsidy || 0)));
+            }
+
+            ensureStateMission() {
+                const c = this.company;
+                if (c.stateMission || (c.stateMissionNextTick || 0) > (c.tickCount || 0)) return;
+                if (this.isAirspaceClosed('LFPG')) return;
+                const maxRange = Math.max(0, ...this.aircraftCatalog.map(a => a.range || 0));
+                const origin = this.hub100List.find(h => h.code === 'LFPG');
+                if (!origin) return;
+                const dests = this.hub100List.filter(h => h.capital && h.code !== 'LFPG' && !this.isAirspaceClosed(h.code) && this.calculateDistance(origin.lat, origin.lon, h.lat, h.lon) <= maxRange);
+                if (dests.length === 0) return;
+                const d = dests[Math.floor(Math.random() * dests.length)];
+                const pax = 10 + 5 * Math.floor(Math.random() * 15);
+                const km = this.calculateDistance(origin.lat, origin.lon, d.lat, d.lon);
+                c.stateMission = { id: Date.now(), status: 'available', origin: 'LFPG', destination: d.code, destCity: d.city, minPax: pax, distanceKm: km };
+            }
+
+            renderStateMission() {
+                const m = this.company.stateMission;
+                const dot = document.getElementById('state-mission-dot');
+                if (dot) dot.classList.toggle('hidden', !(m && m.status === 'available'));
+                const box = document.getElementById('state-mission-container');
+                if (!box || this._contractsView !== 'state') return;
+                const c = this.company, fm = (v) => this.formatMoney(v);
+                const gain = this.stateSubsidyGain();
+                let html = `<div><h3 class="text-lg font-bold text-white flex items-center space-x-2"><i class="fa-solid fa-landmark text-amber-400"></i><span>Mission d'État</span></h3>
+                    <p class="text-xs text-slate-400 mt-1">Chaque mission réussie ajoute une subvention permanente, versée à chaque tick.</p></div>
+                    <div class="grid grid-cols-2 gap-3 text-xs font-mono">
+                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3"><div class="text-[10px] text-slate-400 uppercase">Subvention actuelle</div><div class="text-emerald-400 font-bold text-sm">${fm(c.stateSubsidy || 0)} / tick</div></div>
+                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3"><div class="text-[10px] text-slate-400 uppercase">Missions réussies</div><div class="text-white font-bold text-sm">${c.stateMissionsDone || 0}</div></div>
+                    </div>`;
+                if (!m) {
+                    html += `<p class="text-sm text-slate-400">Aucune mission pour le moment : une nouvelle apparaît au prochain tick.</p>`;
+                } else {
+                    const gainTxt = gain > 0 ? `+${fm(gain)} / tick` : `Plafond atteint : par plaisir d'aider`;
+                    html += `<div class="bg-slate-950 border border-amber-500/40 rounded-xl p-4 space-y-2">
+                        <div class="text-white font-bold">L'État doit transporter ${m.minPax} personnes de Paris CDG à ${this.esc(m.destCity)}</div>
+                        <div class="text-xs font-mono text-slate-300">${m.origin} ➔ ${this.esc(m.destination)} • ${m.distanceKm} km • ${m.minPax} pax • Subvention : <span class="text-emerald-400 font-bold">${gainTxt}</span></div>`;
+                    if (m.status === 'accepted') {
+                        const held = this.fleet.some(p => p.assignedContractId === m.contractId);
+                        html += `<div class="text-xs text-amber-400">Mission en cours${m.planeReg ? ' avec ' + this.esc(m.planeReg) : ''} : lancez le vol depuis le Parc Flotte.</div>` +
+                            (held ? '' : `<button onclick="app.cancelStateMission()" class="mt-1 px-3 py-1.5 rounded-lg border border-rose-800 text-rose-300 text-xs font-bold cursor-pointer">Annuler la mission</button>`);
+                    } else {
+                        const ok = this.fleet.filter(p => {
+                            const def = this.aircraftCatalog.find(a => a.name === p.name);
+                            return p.location === m.origin && p.status === 'Parked' && !p.assignedContractId && def && def.capacity >= m.minPax && def.range >= m.distanceKm;
+                        });
+                        if (ok.length === 0) {
+                            html += `<div class="text-xs text-amber-400">Aucun appareil adapté garé à Paris CDG (${m.origin}) : il faut au moins ${m.minPax} places et ${m.distanceKm} km d'autonomie. Déplacez-en un avec un vol libre.</div>`;
+                        } else {
+                            const sel = ok.some(p => String(p.id) === String(this._stateMissionPlane)) ? this._stateMissionPlane : ok[0].id;
+                            html += `<select id="state-mission-plane" onchange="app._stateMissionPlane=this.value" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200">` +
+                                ok.map(p => `<option value="${p.id}" ${String(p.id) === String(sel) ? 'selected' : ''}>${this.esc(p.registration)} (${this.esc(p.name)})</option>`).join('') + `</select>
+                                <button onclick="app.acceptStateMission()" class="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold cursor-pointer">Accepter la mission</button>`;
+                        }
+                        html += ` <button onclick="app.passStateMission()" class="px-3 py-2 rounded-lg border border-slate-700 text-slate-400 hover:text-white text-xs font-bold cursor-pointer">Passer</button>`;
+                    }
+                    html += `</div>`;
+                }
+                box.innerHTML = html;
+            }
+
+            acceptStateMission() {
+                const m = this.company.stateMission;
+                if (!m || m.status !== 'available') return;
+                const plane = this.fleet.find(p => String(p.id) === String(document.getElementById('state-mission-plane')?.value));
+                if (!plane || plane.location !== m.origin || plane.status !== 'Parked' || plane.assignedContractId) {
+                    this.showToast(`L'avion doit être garé et disponible à ${m.origin}.`, "error");
+                    return;
+                }
+                if ((plane.hoursSinceVI || 0) > 27.5) {
+                    this.showToast(`INTERDICTION DE VOL : ${plane.registration} doit passer la visite d'abord.`, "error");
+                    return;
+                }
+                const def = this.aircraftCatalog.find(a => a.name === plane.name);
+                if (!def || def.capacity < m.minPax || def.range < m.distanceKm) {
+                    this.showToast("Cet appareil ne remplit pas les critères (places ou autonomie).", "error");
+                    return;
+                }
+                const id = Date.now();
+                this.activeContracts.push({
+                    id, title: `Mission d'État (${m.origin} ➔ ${m.destination} • ${m.distanceKm} km)`, origin: m.origin, destination: m.destination,
+                    stopover: '', reward: 0, requiredType: "Mission d'État", minPax: m.minPax, minCargo: 0, distanceKm: m.distanceKm,
+                    ticksLeft: 999999, selectedPlaneId: '', isStateMission: true
+                });
+                plane.assignedContractId = id;
+                plane.assignedPilotName = this.playerName;
+                m.status = 'accepted'; m.contractId = id; m.planeReg = plane.registration;
+                this.showToast("Mission d'État acceptée !", "success");
+                this.renderAll();
+            }
+
+            passStateMission() {
+                if (!this.company.stateMission || this.company.stateMission.status !== 'available') return;
+                this.company.stateMission = null;
+                this.ensureStateMission();
+                this.renderAll();
+            }
+
+            cancelStateMission() {
+                const m = this.company.stateMission;
+                if (!m) return;
+                if (m.status === 'accepted') this.adjustReputation(-2);
+                this.activeContracts = this.activeContracts.filter(c => c.id !== m.contractId);
+                this.fleet.forEach(p => { if (p.assignedContractId === m.contractId) { p.assignedContractId = ''; p.assignedPilotName = ''; } });
+                this.company.stateMission = null;
+                this.ensureStateMission();
+                this.renderAll();
+            }
+
+            completeStateMission() {
+                const gain = this.stateSubsidyGain();
+                this.company.stateSubsidy = (this.company.stateSubsidy || 0) + gain;
+                this.company.stateMissionsDone = (this.company.stateMissionsDone || 0) + 1;
+                this.adjustReputation(0.5);
+                this.company.stateMission = null;
+                this.company.stateMissionNextTick = (this.company.tickCount || 0) + 1;
+                this.showToast(gain > 0 ? `Mission d'État réussie ! Subvention +${this.formatMoney(gain)} / tick (total ${this.formatMoney(this.company.stateSubsidy)}).` : "Mission d'État réussie, merci pour l'aide !", 'success');
+            }
+
+            recordCashPoint() {
+                const c = this.company;
+                if (!c.cashHistory) c.cashHistory = [];
+                const t = c.tickCount || 0, last = c.cashHistory[c.cashHistory.length - 1];
+                if (last && last.t === t) last.c = Math.round(c.cash); else c.cashHistory.push({ t, c: Math.round(c.cash) });
+                if (c.cashHistory.length > 400) c.cashHistory.splice(0, c.cashHistory.length - 400);
+            }
+
+            applyCashFilterUI() {
+                const range = this._cashRange === undefined ? 30 : this._cashRange, view = this._cashView || 'cash';
+                document.querySelectorAll('[data-cash-range]').forEach(b => {
+                    b.className = 'px-3 py-1.5 cursor-pointer ' + (Number(b.dataset.cashRange) === range ? 'bg-sky-500 text-slate-950' : 'bg-slate-900 text-slate-400');
+                });
+                document.querySelectorAll('[data-cash-view]').forEach(b => {
+                    b.className = 'px-3 py-1.5 cursor-pointer ' + (b.dataset.cashView === view ? 'bg-sky-500 text-slate-950' : 'bg-slate-900 text-slate-400');
+                });
+            }
+
+            setCashRange(n) { this._cashRange = n; this.applyCashFilterUI(); this.renderCashChart(); }
+            setCashView(v) { this._cashView = v; this.applyCashFilterUI(); this.renderCashChart(); }
+
+            renderCashChart() {
+                const canvas = document.getElementById('cashChart');
+                if (!canvas || typeof Chart === 'undefined' || !this.company) return;
+                const c = this.company, range = this._cashRange === undefined ? 30 : this._cashRange, view = this._cashView || 'cash';
+                let pts = (c.cashHistory || []).map(h => ({ l: 'T' + h.t, v: h.c }));
+                pts.push({ l: 'Actuel', v: Math.round(c.cash) });
+                if (range > 0) pts = pts.slice(-(range + 1));
+                const empty = document.getElementById('cash-chart-empty');
+                if (empty) empty.classList.toggle('hidden', pts.length >= 2);
+                canvas.style.visibility = pts.length >= 2 ? 'visible' : 'hidden';
+
+                const fm = (v) => this.formatMoney(v);
+                const cls = (v) => v >= 0 ? 'text-emerald-400' : 'text-rose-400';
+                const first = pts[0].v, lastV = pts[pts.length - 1].v, delta = lastV - first, n = Math.max(1, pts.length - 1);
+                const vals = pts.map(p => p.v);
+                const chip = (t, v, k = 'text-white') => `<div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5"><div class="text-[10px] text-slate-400 uppercase">${t}</div><div class="font-bold ${k}">${v}</div></div>`;
+                const stats = document.getElementById('cash-stats');
+                if (stats) stats.innerHTML = chip('Actuelle', fm(lastV)) + chip('Plus haut', fm(Math.max(...vals)), 'text-emerald-400') + chip('Plus bas', fm(Math.min(...vals)), 'text-rose-400')
+                    + chip('Variation', (delta >= 0 ? '+' : '') + fm(delta) + (first !== 0 ? ' (' + (delta >= 0 ? '+' : '') + (delta / Math.abs(first) * 100).toFixed(1) + ' %)' : ''), cls(delta))
+                    + chip('Moyenne / tick', (delta >= 0 ? '+' : '') + fm(Math.round(delta / n)), cls(delta));
+                if (pts.length < 2) return;
+
+                const cs = getComputedStyle(document.documentElement);
+                const rgb = (name) => 'rgb(' + cs.getPropertyValue('--' + name).trim() + ')';
+                const accent = rgb('sky-400'), muted = rgb('slate-400');
+                const type = view === 'delta' ? 'bar' : 'line';
+                let labels, data, colors;
+                if (type === 'bar') {
+                    labels = pts.slice(1).map(p => p.l);
+                    data = pts.slice(1).map((p, i) => p.v - pts[i].v);
+                    colors = data.map(v => v >= 0 ? '#34d399' : '#fb7185');
+                } else {
+                    labels = pts.map(p => p.l); data = vals; colors = accent;
+                }
+                if (this.cashChartInstance && this._cashChartType !== type) { this.cashChartInstance.destroy(); this.cashChartInstance = null; }
+                const ds = type === 'bar'
+                    ? { data, backgroundColor: colors, borderRadius: 3 }
+                    : { data, borderColor: accent, backgroundColor: accent.replace('rgb(', 'rgba(').replace(')', ', 0.12)'), borderWidth: 3, fill: true, tension: 0.25, pointRadius: pts.length > 40 ? 0 : 3, pointBackgroundColor: accent };
+                const abbr = (v) => Math.abs(v) >= 1e6 ? (v / 1e6).toFixed(1) + ' M€' : Math.abs(v) >= 1e3 ? Math.round(v / 1e3) + ' k€' : v + ' €';
+                if (this.cashChartInstance) {
+                    const ch = this.cashChartInstance;
+                    ch.data.labels = labels; ch.data.datasets[0] = ds;
+                    ch.options.scales.x.ticks.color = muted; ch.options.scales.y.ticks.color = muted;
+                    ch.update('none');
+                    return;
+                }
+                this._cashChartType = type;
+                this.cashChartInstance = new Chart(canvas.getContext('2d'), {
+                    type, data: { labels, datasets: [ds] },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, animation: false,
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => fm(ctx.parsed.y) } } },
+                        scales: {
+                            x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: muted, maxTicksLimit: 10, font: { family: 'JetBrains Mono', size: 10 } } },
+                            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: muted, callback: abbr, font: { family: 'JetBrains Mono', size: 10 } } }
+                        }
+                    }
+                });
+            }
+
+            ensureCoStats() {
+                const c = this.company;
+                if (!c.coStats) {
+                    const st = { flights: 0, hours: 0, countries: [], capitals: [], maxKm: 0, parkingTotal: 0, lastFineTick: c.tickCount || 0, cashUpStreak: 0 };
+                    (c.flightHistory || []).forEach(h => {
+                        st.flights++; st.hours += h.hours || 0;
+                        const codes = String(h.route || '').match(/[A-Z]{4}/g) || [];
+                        codes.forEach((code, i) => { if (i > 0) this.noteLanding(st, codes[i - 1], code); });
+                    });
+                    st.hours = Math.round(st.hours * 100) / 100;
+                    c.coStats = st;
+                }
+                return c.coStats;
+            }
+
+            noteLanding(st, from, to) {
+                const o = this.hub100List.find(h => h.code === from), d = this.hub100List.find(h => h.code === to);
+                if (!d) return;
+                if (!st.countries.includes(d.country)) st.countries.push(d.country);
+                if (d.capital && !st.capitals.includes(d.code)) st.capitals.push(d.code);
+                if (o) st.maxKm = Math.max(st.maxKm, Math.round(this.calculateDistance(o.lat, o.lon, d.lat, d.lon)));
+            }
+
+            trackCompanyFlight(from, to, hours) {
+                const st = this.ensureCoStats();
+                st.flights++;
+                st.hours = Math.round((st.hours + (hours || 0)) * 100) / 100;
+                this.noteLanding(st, from, to);
+            }
+
+            getCompanyAchievements() {
+                const c = this.company, st = this.ensureCoStats(), r = (cur, goal) => Math.min(1, cur / goal);
+                const hubs = c.hubs.map(code => this.hub100List.find(h => h.code === code)).filter(Boolean);
+                const nCountries = new Set(hubs.map(h => h.country)).size, nRegions = new Set(hubs.map(h => h.region)).size;
+                const types = new Set(this.aircraftCatalog.map(a => a.type));
+                const owned = new Set(this.fleet.map(pl => (this.aircraftCatalog.find(a => a.name === pl.name) || {}).type).filter(Boolean));
+                const typesOwned = [...types].filter(t => owned.has(t)).length;
+                const noFine = Math.max(0, (c.tickCount || 0) - (st.lastFineTick || 0));
+                const fm = (v) => this.formatMoney(v), M = (v) => (v / 1e6).toFixed(1) + ' M€';
+                const A = (id, title, desc, reward, cur, goal, txt) => ({ id, title, desc, reward, p: r(cur, goal), txt: txt || `${Math.min(Math.floor(cur), goal).toLocaleString()} / ${goal.toLocaleString()}` });
+                const missions = c.stateMissionsDone || 0;
+                return [
+                    A('a01', 'Routine', 'Enregistrer 200 vols', 75000, st.flights, 200),
+                    A('a02', 'Grande équipe', 'Équipe de 10 membres', 100000, this.team.length, 10),
+                    A('a03', 'Flotte régionale', 'Posséder 15 avions', 100000, this.fleet.length, 15),
+                    A('a04', 'Aguerris', '250 heures de vol cumulées', 125000, st.hours, 250),
+                    A('a05', 'Multi-bases', 'Posséder 5 hubs', 150000, hubs.length, 5),
+                    A('a06', 'Implantation internationale', 'Hubs dans 4 pays différents', 200000, nCountries, 4),
+                    A('a07', 'Globe-trotter', 'Atterrir dans 15 pays différents', 250000, st.countries.length, 15),
+                    A('a08', 'Bailleur', '500 000 € de loyers de parking encaissés', 250000, st.parkingTotal, 500000, `${fm(Math.min(st.parkingTotal, 500000))} / ${fm(500000)}`),
+                    A('a09', 'Trésor de guerre', 'Trésorerie à 10 M€', 300000, c.cash, 10e6, `${M(Math.max(0, Math.min(c.cash, 10e6)))} / 10.0 M€`),
+                    A('a10', 'Mondial', 'Hubs dans 3 régions différentes', 350000, nRegions, 3),
+                    A('a11', 'Cinq cents', 'Enregistrer 500 vols', 400000, st.flights, 500),
+                    A('a12', 'Serviteur de l\'État', 'Réussir 25 missions d\'État', 400000, missions, 25),
+                    A('a13', 'Collectionneur', 'Posséder un avion de chaque catégorie', 450000, typesOwned, types.size, `${typesOwned} / ${types.size}`),
+                    A('a14', 'Sans reproche', '50 ticks de suite sans amende de navigabilité', 500000, noFine, 50),
+                    A('a15', 'Marathon', 'Réussir un vol de plus de 8 000 km', 500000, st.maxKm, 8000, `${st.maxKm.toLocaleString()} / 8 000 km`),
+                    A('a16', 'En croissance', '30 ticks de suite avec une trésorerie en hausse', 550000, st.cashUpStreak || 0, 30),
+                    A('a17', 'Millier d\'heures', '1 000 heures de vol cumulées', 600000, st.hours, 1000),
+                    A('a18', 'Roi du parking', '2 M€ de loyers de parking encaissés', 600000, st.parkingTotal, 2e6, `${M(Math.min(st.parkingTotal, 2e6))} / 2.0 M€`),
+                    A('a19', 'Tour des capitales', 'Atterrir dans 20 capitales différentes', 650000, st.capitals.length, 20),
+                    A('a20', 'Allié de l\'État', 'Réussir 100 missions d\'État', 700000, missions, 100),
+                    A('a21', 'Grande flotte', 'Posséder 40 avions', 750000, this.fleet.length, 40),
+                    A('a22', 'Irréprochable', '100 ticks de suite sans amende de navigabilité', 800000, noFine, 100),
+                    A('a23', 'Mille vols', 'Enregistrer 1 000 vols', 850000, st.flights, 1000),
+                    A('a24', 'Vétérans du ciel', '2 500 heures de vol cumulées', 900000, st.hours, 2500),
+                    Object.assign(A('a25', 'Empire', '20 hubs, 40 avions et 50 M€ de trésorerie en même temps', 1000000, 0, 1), {
+                        p: Math.min(r(hubs.length, 20), r(this.fleet.length, 40), r(Math.max(0, c.cash), 50e6)),
+                        txt: `${hubs.length}/20 hubs • ${this.fleet.length}/40 avions • ${M(Math.max(0, c.cash))}/50 M€`
+                    })
+                ];
+            }
+
+            checkCompanyAchievements() {
+                const c = this.company;
+                if (!c || !this.team || !this.fleet) return;
+                if (!c.achievements) c.achievements = {};
+                this.getCompanyAchievements().forEach(a => {
+                    if (a.p >= 1 && c.achievements[a.id] === undefined) {
+                        c.achievements[a.id] = c.tickCount || 0;
+                        c.cash += a.reward;
+                        this.showToast(`🏆 Succès « ${a.title} » débloqué ! +${this.formatMoney(a.reward)}`, 'success');
+                    }
+                });
+            }
+
+            renderCompanyAchievements() {
+                const box = document.getElementById('company-achievements');
+                if (!box) return;
+                const done = this.company.achievements || {}, list = this.getCompanyAchievements();
+                const n = list.filter(a => done[a.id] !== undefined).length;
+                const sum = document.getElementById('company-achievements-summary');
+                if (sum) sum.innerText = `${n} / ${list.length} débloqués`;
+                box.innerHTML = list.map(a => {
+                    const ok = done[a.id] !== undefined, pct = Math.round(a.p * 100);
+                    return `<div class="bg-slate-950 border ${ok ? 'border-emerald-500/40' : 'border-slate-800'} rounded-xl p-3 space-y-2">
+                        <div class="flex justify-between items-start gap-2"><div><div class="text-sm font-bold ${ok ? 'text-emerald-400' : 'text-white'}">${ok ? '✓ ' : ''}${this.esc(a.title)}</div><div class="text-[11px] text-slate-400">${this.esc(a.desc)}</div></div>
+                        <div class="text-xs font-mono font-bold text-amber-400 whitespace-nowrap">+${this.formatMoney(a.reward)}</div></div>
+                        <div class="h-1.5 bg-slate-800 rounded-full overflow-hidden"><div class="h-full ${ok ? 'bg-emerald-500' : 'bg-sky-500'}" style="width:${ok ? 100 : pct}%"></div></div>
+                        <div class="text-[10px] font-mono text-slate-500">${ok ? 'Débloqué au tick ' + done[a.id] : this.esc(a.txt)}</div>
+                    </div>`;
+                }).join('');
+            }
+
+            getRepTiers() {
+                return [
+                    { min: 0, name: 'Disqualifiée', sv: 100000, od: 0, loan: 0, dr: 0, odRate: 0.02 },
+                    { min: 20, name: 'Fragile', sv: 100000, od: 0, loan: 250000, dr: 3, odRate: 0.02 },
+                    { min: 30, name: 'Surveillée', sv: 250000, od: 250000, loan: 500000, dr: 2, odRate: 0.02 },
+                    { min: 40, name: 'Moyenne', sv: 500000, od: 400000, loan: 1000000, dr: 1, odRate: 0.02 },
+                    { min: 50, name: 'Correcte', sv: 1000000, od: 750000, loan: 2000000, dr: 0, odRate: 0.01 },
+                    { min: 60, name: 'Fiable', sv: 2000000, od: 1250000, loan: 3500000, dr: 0, odRate: 0.01 },
+                    { min: 70, name: 'Solide', sv: 3000000, od: 2000000, loan: 5000000, dr: -2, odRate: 0.01 },
+                    { min: 80, name: 'Reconnue', sv: 5000000, od: 3500000, loan: 10000000, dr: -3, odRate: 0.01 },
+                    { min: 90, name: 'Excellente', sv: 8000000, od: 5000000, loan: 25000000, dr: -4, odRate: 0.005 },
+                    { min: 95, name: 'Prestigieuse', sv: 12000000, od: 8000000, loan: Infinity, dr: -5, odRate: 0.005 }
+                ];
+            }
+
+            getRepTier() {
+                const rep = typeof this.company.reputation === 'number' ? this.company.reputation : 50;
+                return this.getRepTiers().filter(t => rep >= t.min).pop();
+            }
+
+            adjustReputation(delta) {
+                const c = this.company, cur = typeof c.reputation === 'number' ? c.reputation : 50;
+                c.reputation = Math.max(0, Math.min(100, parseFloat((cur + delta).toFixed(1))));
+            }
+
+            canAffordOp(cost) { return this.company.cash + this.getRepTier().od >= cost; }
+
+            loanRate(ticks) {
+                const base = ticks === 5 ? 0.05 : (ticks === 10 ? 0.12 : 0.25);
+                return Math.max(0.01, base + this.getRepTier().dr / 100);
+            }
+
+            applyOverdraft() {
+                this.autoCoverFromLivret();
+                const c = this.company, t = this.getRepTier();
+                c.tickOverdraftInterest = 0;
+                if (c.cash >= 0) return;
+                const interest = Math.round(-c.cash * t.odRate);
+                c.cash -= interest;
+                c.tickOverdraftInterest = interest;
+                this.adjustReputation(-0.5);
+                if (c.cash < -t.od) {
+                    this.adjustReputation(-2);
+                    this.showToast(`⚠️ Découvert au-delà de la limite autorisée (${this.formatMoney(t.od)}) : −2,5 de réputation ce tick.`, 'error');
+                } else {
+                    this.showToast(`Découvert : ${this.formatMoney(interest)} d'intérêts prélevés.`, 'error');
+                }
+            }
+
+            refreshLoanModal() {
+                const t = this.getRepTier(), sel = document.getElementById('loan-amount-select');
+                if (!sel) return;
+                [...sel.options].forEach(o => { o.disabled = Number(o.value) > t.loan; });
+                if (sel.selectedOptions[0] && sel.selectedOptions[0].disabled) {
+                    const ok = [...sel.options].filter(o => !o.disabled);
+                    if (ok.length) sel.value = ok[ok.length - 1].value;
+                }
+                [[5, 'Court terme — 5 Ticks / 5 Jours'], [10, 'Moyen terme — 10 Ticks / 10 Jours'], [20, 'Long terme — 20 Ticks / 20 Jours']].forEach(([v, lab]) => {
+                    const o = document.querySelector(`#loan-term-select option[value="${v}"]`);
+                    if (o) o.textContent = `${lab} (${Math.round(this.loanRate(v) * 100)}%)`;
+                });
+                const note = document.getElementById('loan-rep-note');
+                if (note) note.innerText = `Réputation ${(this.company.reputation ?? 50).toFixed(1)} (${t.name}) : emprunt max ${t.loan === Infinity ? 'illimité' : (t.loan > 0 ? this.formatMoney(t.loan) : 'aucun')}, taux ${t.dr > 0 ? '+' : ''}${t.dr} pt (minimum 1 %).`;
+            }
+
+            renderReputationCard() {
+                const box = document.getElementById('reputation-card');
+                if (!box) return;
+                const rep = typeof this.company.reputation === 'number' ? this.company.reputation : 50;
+                const tiers = this.getRepTiers(), t = this.getRepTier(), next = tiers.find(x => x.min > rep), fm = (v) => this.formatMoney(v);
+                const loanTxt = (x) => x.loan === Infinity ? 'illimité' : (x.loan > 0 ? fm(x.loan) : 'aucun');
+                const pct = next ? Math.round((rep - t.min) / (next.min - t.min) * 100) : 100;
+                const chip = (l, v) => `<div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5"><div class="text-[10px] text-slate-400 uppercase">${l}</div><div class="font-bold text-white">${v}</div></div>`;
+                box.innerHTML = `<div class="flex justify-between items-end"><div><div class="text-2xl font-extrabold text-amber-400">${rep.toFixed(1)}</div><div class="text-xs text-slate-400">Palier « ${t.name} »</div></div>
+                    <div class="text-[11px] font-mono text-slate-400">${next ? `Prochain palier « ${next.name} » dans ${(next.min - rep).toFixed(1)} pt` : 'Palier maximum atteint'}</div></div>
+                    <div class="h-1.5 bg-slate-800 rounded-full overflow-hidden"><div class="h-full bg-amber-400" style="width:${pct}%"></div></div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs font-mono">${chip('Découvert autorisé', t.od > 0 ? fm(t.od) : 'aucun')}${chip('Intérêt découvert', (t.odRate * 100).toFixed(1) + ' % / tick')}${chip('Emprunt max', loanTxt(t))}${chip('Taux d\'emprunt', (t.dr > 0 ? '+' : '') + t.dr + ' pt')}</div>
+                    <div class="overflow-x-auto"><table class="w-full text-[11px] font-mono"><thead><tr class="text-slate-500 text-left uppercase"><th class="py-1">Réput.</th><th>Palier</th><th>Découvert</th><th>Emprunt max</th><th>Taux</th></tr></thead><tbody>` +
+                    tiers.map(x => `<tr class="${x === t ? 'bg-amber-400/10 text-amber-300 font-bold' : 'text-slate-400'}"><td class="py-1">${x.min}+</td><td>${x.name}</td><td>${x.od > 0 ? fm(x.od) : 'aucun'}</td><td>${loanTxt(x)}</td><td>${x.dr > 0 ? '+' : ''}${x.dr} pt</td></tr>`).join('') + `</tbody></table></div>
+                    <p class="text-[10px] text-slate-500">+0,5 par contrat réussi, +1 par mission d'État • −5 par amende de navigabilité, −2 par mission abandonnée, −0,5 par tick en découvert.</p>`;
+            }
+
+            ensureSavings() {
+                const c = this.company;
+                if (!c.savings) c.savings = { livret: 0, deposits: [] };
+                if (!c.savings.deposits) c.savings.deposits = [];
+                return c.savings;
+            }
+
+            savingsRoom() {
+                const sv = this.ensureSavings(), placed = sv.livret + sv.deposits.reduce((a, d) => a + d.amount, 0);
+                return { placed, cap: this.getRepTier().sv, room: Math.max(0, this.getRepTier().sv - placed) };
+            }
+
+            // renvoie un message d'erreur, ou '' si le placement est possible
+            checkPlacement(amount) {
+                if (!(amount > 0)) return 'Saisissez un montant valide.';
+                if (this.company.cash < amount) return 'Trésorerie insuffisante pour ce placement.';
+                const r = this.savingsRoom();
+                if (amount > r.room) return `Plafond de placements atteint pour votre réputation (${this.formatMoney(r.cap)}). Place restante : ${this.formatMoney(r.room)}.`;
+                return '';
+            }
+
+            depositLivret() {
+                const amount = parseInt(document.getElementById('livret-amount').value, 10);
+                const err = this.checkPlacement(amount);
+                if (err) { this.showToast(err, 'error'); return; }
+                this.company.cash -= amount;
+                this.ensureSavings().livret += amount;
+                document.getElementById('livret-amount').value = '';
+                this.showToast(`${this.formatMoney(amount)} déposés sur le livret.`, 'success');
+                this.renderAll();
+            }
+
+            withdrawLivret() {
+                const sv = this.ensureSavings(), raw = document.getElementById('livret-amount').value;
+                const amount = raw === '' ? sv.livret : parseInt(raw, 10);
+                if (!(amount > 0) || amount > sv.livret) { this.showToast('Montant invalide ou supérieur au solde du livret.', 'error'); return; }
+                sv.livret -= amount;
+                this.company.cash += amount;
+                document.getElementById('livret-amount').value = '';
+                this.showToast(`${this.formatMoney(amount)} retirés du livret.`, 'success');
+                this.renderAll();
+            }
+
+            openTermDeposit() {
+                const amount = parseInt(document.getElementById('term-amount').value, 10), ticks = parseInt(document.getElementById('term-length').value, 10);
+                const err = this.checkPlacement(amount);
+                if (err) { this.showToast(err, 'error'); return; }
+                const rate = ticks === 5 ? 0.005 : (ticks === 10 ? 0.015 : 0.04);
+                this.company.cash -= amount;
+                this.ensureSavings().deposits.push({ id: Date.now(), amount, totalTicks: ticks, ticksLeft: ticks, rate });
+                document.getElementById('term-amount').value = '';
+                this.showToast(`Dépôt à terme de ${this.formatMoney(amount)} ouvert pour ${ticks} ticks.`, 'success');
+                this.renderAll();
+            }
+
+            closeTermDeposit(id) {
+                const sv = this.ensureSavings(), d = sv.deposits.find(x => x.id === id);
+                if (!d) return;
+                sv.deposits = sv.deposits.filter(x => x.id !== id);
+                this.company.cash += d.amount;
+                this.showToast(`Dépôt clôturé avant l'échéance : capital de ${this.formatMoney(d.amount)} rendu, sans intérêts.`, 'success');
+                this.renderAll();
+            }
+
+            processSavings() {
+                const c = this.company, sv = this.ensureSavings();
+                let gain = 0;
+                const li = Math.round(sv.livret * 0.001);
+                if (li > 0) { sv.livret += li; gain += li; }
+                sv.deposits = sv.deposits.filter(d => {
+                    d.ticksLeft--;
+                    if (d.ticksLeft > 0) return true;
+                    const interest = Math.round(d.amount * d.rate);
+                    c.cash += d.amount + interest;
+                    gain += interest;
+                    this.showToast(`Dépôt à terme échu : +${this.formatMoney(d.amount + interest)} (dont ${this.formatMoney(interest)} d'intérêts).`, 'success');
+                    return false;
+                });
+                c.tickSavingsGain = gain;
+            }
+
+            autoCoverFromLivret() {
+                const c = this.company, sv = c && c.savings;
+                if (!sv || c.cash >= 0 || sv.livret <= 0) return;
+                const take = Math.min(-c.cash, sv.livret);
+                sv.livret -= take;
+                c.cash += take;
+                this.showToast(`Livret : ${this.formatMoney(take)} prélevés automatiquement pour couvrir un solde négatif.`, 'success');
+            }
+
+            renderSavingsCard() {
+                const stats = document.getElementById('savings-stats');
+                if (!stats) return;
+                const sv = this.ensureSavings(), r = this.savingsRoom(), fm = (v) => this.formatMoney(v);
+                const dep = sv.deposits.reduce((a, d) => a + d.amount, 0);
+                const chip = (l, v) => `<div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5"><div class="text-[10px] text-slate-400 uppercase">${l}</div><div class="font-bold text-white">${v}</div></div>`;
+                stats.innerHTML = chip('Livret', fm(sv.livret)) + chip('Dépôts à terme', fm(dep)) + chip('Total placé', fm(r.placed)) + chip('Place restante', fm(r.room));
+                const cap = document.getElementById('savings-cap');
+                if (cap) cap.innerText = `Plafond (réputation) : ${fm(r.cap)}`;
+                const list = document.getElementById('savings-deposits');
+                if (list) list.innerHTML = sv.deposits.map(d => `<div class="flex flex-wrap justify-between items-center gap-2 bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs font-mono">
+                    <span class="text-white">${fm(d.amount)} • ${d.totalTicks} ticks</span>
+                    <span class="text-slate-400">échéance dans ${d.ticksLeft} tick(s) • intérêts ${fm(Math.round(d.amount * d.rate))}</span>
+                    <button onclick="app.closeTermDeposit(${d.id})" class="px-2.5 py-1 rounded-lg border border-slate-700 text-slate-300 hover:text-white font-bold cursor-pointer">Retrait anticipé</button></div>`).join('');
             }
 
             trackMech(amount) {
@@ -1926,6 +2561,10 @@
             init() {
                 this.applyFuelUnitUI(true);
                 this.setTheme(document.documentElement.dataset.theme);
+                this.setContractsView('market');
+                this.ensureStateMission();
+                this.applyCashFilterUI();
+                if (!this.company.cashHistory || !this.company.cashHistory.length) this.recordCashPoint();
                 document.getElementById('header-player-name').innerText = this.playerName;
                 document.getElementById('header-player-role').innerText = this.playerRole;
                 document.getElementById('header-player-loc').innerText = this.playerLocation;
@@ -2068,6 +2707,10 @@
                 }
                 this.ensureFIRCount();
 
+                const stateSubsidy = this.company.stateSubsidy || 0;
+                this.company.tickSubsidyGain = stateSubsidy;
+                if (stateSubsidy > 0) this.company.cash += stateSubsidy;
+
                 let totalParkingRevenue = 0;
                 if (this.company.hubParkingLeases) {
                     for (let hCode in this.company.hubParkingLeases) {
@@ -2117,6 +2760,7 @@
                     this.company.cash += totalParkingRevenue;
                     this.company.tickEarnedAmount = (this.company.tickEarnedAmount || 0) + totalParkingRevenue;
                     this.company.tickParkingGain = (this.company.tickParkingGain || 0) + totalParkingRevenue;
+                    this.ensureCoStats().parkingTotal += totalParkingRevenue;
                     this.showToast(`🅿️ Revenu des parkings perçu : +${this.formatMoney(totalParkingRevenue)}`, 'success');
                 }
 
@@ -2142,6 +2786,14 @@
                 this.activeContracts = this.activeContracts.filter(c => c.ticksLeft > 0);
                 this.availableContracts = this.availableContracts.filter(c => c.ticksLeft > 0);
 
+                this.processSavings();
+                this.applyOverdraft();
+                {
+                    const st = this.ensureCoStats(), prev = (this.company.cashHistory || []).slice(-1)[0];
+                    if (prev && prev.t < this.company.tickCount) st.cashUpStreak = this.company.cash > prev.c ? (st.cashUpStreak || 0) + 1 : 0;
+                }
+                this.recordCashPoint();
+                this.ensureStateMission();
                 this.purgeClosedAirspaceContracts();
 
                 const missingCount = 20 - this.availableContracts.length;
@@ -2234,7 +2886,7 @@
                 let baseCost = isGV ? Math.round(acDef.price * 0.03) : Math.round(acDef.price * 0.008);
                 if (!isOwnedHub) baseCost = Math.round(baseCost * 1.30);
 
-                if (this.company.cash < baseCost) {
+                if (!this.canAffordOp(baseCost)) {
                     this.showToast(`Trésorerie insuffisante pour la maintenance (${this.formatMoney(baseCost)} requis) !`, "error");
                     return;
                 }
@@ -2414,14 +3066,19 @@
                 const leasing = this.fleet.reduce((a, p) => a + (p.isLeased ? (p.leaseFee || 0) : 0) + (p.isLOA ? (p.loaMonthlyFee || 0) : 0), 0);
                 const installments = this.activeLoans.reduce((a, l) => a + (l.installment || 0), 0);
                 const interest = this.activeLoans.reduce((a, l) => {
-                    const r = l.totalTicks === 5 ? 0.05 : (l.totalTicks === 10 ? 0.12 : 0.25);
+                    const r = l.rate !== undefined ? l.rate : (l.totalTicks === 5 ? 0.05 : (l.totalTicks === 10 ? 0.12 : 0.25));
                     return a + (l.installment || 0) * r / (1 + r);
                 }, 0);
                 const debt = this.activeLoans.reduce((a, l) => a + (l.remainingAmount || 0), 0);
                 let rentalExpected = 0;
                 Object.values(c.hubParkingLeases || {}).forEach(h => (h.activeContracts || []).forEach(k => { if (k.occupied) rentalExpected += k.ratePerTick || 0; }));
                 const gainContract = c.tickContractGain || 0, gainRental = c.tickParkingGain || 0, mech = c.tickMechSpend || 0;
-                const nextCash = c.cash + rentalExpected - salaries - leasing - installments;
+                const subsidy = c.stateSubsidy || 0, gainSubsidy = c.tickSubsidyGain || 0;
+                const sv = c.savings || { livret: 0, deposits: [] }, gainSavings = c.tickSavingsGain || 0;
+                const savedTotal = sv.livret + sv.deposits.reduce((a, d) => a + d.amount, 0);
+                const maturing = sv.deposits.filter(d => d.ticksLeft <= 1).reduce((a, d) => a + d.amount + Math.round(d.amount * d.rate), 0);
+                const odInterest = c.cash < 0 ? Math.round(-c.cash * this.getRepTier().odRate) : 0;
+                const nextCash = c.cash + rentalExpected + subsidy + maturing - odInterest - salaries - leasing - installments;
                 const fm = (v) => this.formatMoney(v);
                 const set = (id, txt) => { const el = document.getElementById(id); if (el) el.innerText = txt; };
 
@@ -2429,10 +3086,15 @@
                 set('cfo-contracts-n', '(' + (c.tickContractsCompleted || 0) + ')');
                 set('cfo-gain-contract', fm(gainContract));
                 set('cfo-gain-rental', fm(gainRental));
+                set('cfo-gain-subsidy', fm(gainSubsidy));
+                set('cfo-gain-savings', fm(gainSavings));
+                set('cfo-savings', fm(savedTotal));
+                set('cfo-subsidy-expected', fm(subsidy));
                 set('cfo-debt-total', fm(debt));
                 set('cfo-charge-leasing', fm(leasing));
                 set('cfo-charge-salaries', fm(salaries));
                 set('cfo-interest', fm(interest));
+                set('cfo-overdraft', fm(odInterest));
                 set('cfo-mech', fm(mech));
                 set('cfo-cash-now', fm(c.cash));
                 set('cfo-cash-next', fm(nextCash));
@@ -2441,7 +3103,7 @@
                 const nextEl = document.getElementById('cfo-cash-next');
                 if (nextEl) nextEl.className = nextCash < 0 ? 'text-rose-400' : 'text-sky-400';
 
-                set('dash-fin-gain', fm(gainContract + gainRental));
+                set('dash-fin-gain', fm(gainContract + gainRental + gainSubsidy + gainSavings));
                 set('dash-fin-charges', fm(salaries + leasing + installments));
                 set('dash-fin-mech', fm(mech));
                 set('dash-fin-next', fm(nextCash));
@@ -2688,11 +3350,12 @@
             }
 
             renderAll(skipSave = false) {
+                if (!skipSave) { this.autoCoverFromLivret(); this.checkCompanyAchievements(); }
                 document.getElementById('company-name-header').innerText = this.company.name;
                 document.getElementById('company-cash').innerText = this.formatMoney(this.company.cash);
                 
                 const repVal = typeof this.company.reputation === 'number' ? this.company.reputation : 50.0;
-                document.getElementById('company-rep').innerText = repVal.toFixed(1) + '%';
+                document.getElementById('company-rep').innerText = repVal.toFixed(1) + '% · ' + this.getRepTier().name;
                 
                 document.getElementById('company-tick').innerText = this.company.tickCount;
                 document.getElementById('header-player-loc').innerText = this.playerLocation;
@@ -2948,9 +3611,11 @@
                 this.renderHubs();
                 this.renderBalanceSheet();
                 this.renderFlightHistory();
+                this.renderStateMission();
+                if (this.activeTab === 'cfo') { this.renderCashChart(); this.renderReputationCard(); this.renderSavingsCard(); }
 
                 if (this.activeTab === 'pilot') this.renderPilotTrophiesAndPassport();
-                if (this.activeTab === 'ceo') this.renderCEOParkingLeases();
+                if (this.activeTab === 'ceo') { this.renderCEOParkingLeases(); this.renderCompanyAchievements(); }
 
                 const catalogContainer = document.getElementById('aircraft-catalog-container');
                 catalogContainer.innerHTML = '';
@@ -3242,12 +3907,7 @@
 
                 const acDef = this.aircraftCatalog.find(a => a.name === p.name);
                 const currentHubObj = this.hub100List.find(h => h.code === p.location);
-                if (acDef && (acDef.type === 'Moyen-Porteur' || acDef.type === 'Long-Courrier' || acDef.type === 'Cargo Lourd')) {
-                    if (currentHubObj && currentHubObj.cargoCap < 300) {
-                        this.showToast(`Impossible de faire décoller un gros porteur (${p.name}) depuis ${p.location} (Piste trop courte) !`, "error");
-                        return;
-                    }
-                }
+                // Aucune limite de décollage liée à l'aéroport (longueur de piste ignorée)
 
                 const contract = this.activeContracts.find(c => c.id === p.assignedContractId);
                 if (!contract) {
@@ -3365,7 +4025,7 @@
                         this.company.fuelReservesByHub[p.location] -= fuelToAdd;
                         this.showToast(`Avitaillement de ${fuelToAdd.toLocaleString()} Kg prélevé des cuves de ${p.location}.`, 'info');
                     } else {
-                        if (this.company.cash < cost) {
+                        if (!this.canAffordOp(cost)) {
                             this.showToast(`Trésorerie insuffisante pour régler l'avitaillement (${this.formatMoney(cost)}) !`, 'error');
                             return;
                         }
@@ -3510,12 +4170,15 @@
                 p.hoursSinceVI = newHrsVI;
 
                 if (newHrsVI > 27.5) {
+                    this.ensureCoStats().lastFineTick = this.company.tickCount || 0;
+                    this.adjustReputation(-5);
                     const fineAmount = 150000;
                     this.company.cash -= fineAmount;
                     this.trackMech(fineAmount);
                     this.showToast(`🚨 AMENDE SÉVÈRE DE NAVIGABILITÉ : Dépassement des 27.5h de VI sur ${p.registration} ! Amende de ${this.formatMoney(fineAmount)} prélevée et appareil immobilisé au sol !`, 'error');
                 }
 
+                this.trackCompanyFlight(p.location, targetDest, addedHours);
                 p.location = targetDest;
                 p.fuelOnBoard = fuelRemaining;
                 delete p.currentLegTarget;
@@ -3552,6 +4215,7 @@
                     } else {
                         earnedReward = contract.reward;
                         this.company.cash += earnedReward;
+                        if (contract.isStateMission) this.completeStateMission(contract);
                         this.company.tickContractsCompleted = (this.company.tickContractsCompleted || 0) + 1;
                         this.company.tickEarnedAmount = (this.company.tickEarnedAmount || 0) + earnedReward;
                         this.company.tickContractGain = (this.company.tickContractGain || 0) + earnedReward;
@@ -3561,7 +4225,7 @@
                         const oldRep = this.company.reputation || 50.0;
                         this.company.reputation = Math.min(100.0, parseFloat((oldRep + 0.5).toFixed(1)));
 
-                        this.showToast(`Vol Tech Log clôturé ! +${this.formatMoney(earnedReward)}`, 'success');
+                        if (!contract.isStateMission) this.showToast(`Vol Tech Log clôturé ! +${this.formatMoney(earnedReward)}`, 'success');
                         this.activeContracts = this.activeContracts.filter(c => c.id !== contract.id);
                         p.assignedContractId = '';
                         p.assignedPilotName = '';
@@ -3822,7 +4486,7 @@
 
             relocatePlayer() {
                 const dest = document.getElementById('pilot-relocate-select').value;
-                if (!dest || this.company.cash < 1500) {
+                if (!dest || !this.canAffordOp(1500)) {
                     this.showToast("Trésorerie insuffisante (1 500 € requis) ou destination invalide.", "error");
                     return;
                 }
@@ -3842,6 +4506,7 @@
             }
 
             openLoanModal() {
+                this.refreshLoanModal();
                 document.getElementById('loan-create-modal').classList.remove('hidden');
                 document.getElementById('loan-create-modal').classList.add('flex');
             }
@@ -3854,13 +4519,18 @@
             confirmLoan() {
                 const amount = parseInt(document.getElementById('loan-amount-select').value, 10);
                 const ticks = parseInt(document.getElementById('loan-term-select').value, 10);
-                let interestRate = ticks === 5 ? 0.05 : (ticks === 10 ? 0.12 : 0.25);
+                const tier = this.getRepTier();
+                if (amount > tier.loan) {
+                    this.showToast(`Votre réputation (${tier.name}) limite les emprunts à ${tier.loan > 0 ? this.formatMoney(tier.loan) : 'aucun'}.`, 'error');
+                    return;
+                }
+                const interestRate = this.loanRate(ticks);
                 const total = Math.round(amount * (1 + interestRate));
                 
                 this.company.cash += amount;
                 this.activeLoans.push({
                     id: Date.now(), title: `Emprunt ${this.formatMoney(amount)} (${ticks} Ticks / ${ticks} Jours)`,
-                    remainingAmount: total, installment: Math.round(total / ticks), ticksLeft: ticks, totalTicks: ticks
+                    remainingAmount: total, installment: Math.round(total / ticks), ticksLeft: ticks, totalTicks: ticks, rate: interestRate
                 });
 
                 this.closeLoanModal();
