@@ -78,6 +78,13 @@
         :root[data-theme="noir"] h1, :root[data-theme="noir"] h2, :root[data-theme="noir"] h3, :root[data-theme="noir"] h4 { font-weight: 900; }
         :root[data-theme] :is(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl) { border-radius: var(--rad); }
         :root[data-theme] :is(.bg-sky-500, .bg-sky-600, .bg-indigo-600) { color: #111; }
+        html, body { height: 100%; }
+        @supports (height: 100dvh) { body { height: 100dvh; } }
+        @media (max-width: 767px) {
+            main table { display: block; overflow-x: auto; max-width: 100%; }
+            [class*="fixed"][class*="inset-0"] > div:first-child { max-height: 92vh; overflow-y: auto; max-width: calc(100vw - 1.5rem) !important; }
+            input, select, textarea { font-size: 16px !important; }
+        }
         .hidden-tab { display: none !important; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: rgb(var(--slate-950)); }
@@ -171,8 +178,9 @@
     </div>
 
     <!-- TOP NAVIGATION HEADER -->
-    <header class="bg-slate-900/90 border-b border-slate-800/80 px-5 py-3 flex items-center justify-between shrink-0 select-none shadow-xl z-20 backdrop-blur-md">
+    <header class="bg-slate-900/90 border-b border-slate-800/80 px-3 md:px-5 py-2 md:py-3 flex flex-wrap items-center justify-between gap-2 shrink-0 select-none shadow-xl z-20 backdrop-blur-md">
         <div class="flex items-center space-x-4">
+            <button onclick="app.toggleNav()" id="nav-toggle" aria-label="Menu" class="md:hidden px-3 py-2 rounded-lg border border-slate-700 text-slate-300 cursor-pointer"><i class="fa-solid fa-bars"></i></button>
             <div class="flex items-center space-x-3">
                 <div class="bg-gradient-to-tr from-sky-600 to-indigo-600 text-white p-2.5 rounded-xl shadow-lg shadow-sky-950/50">
                     <i class="fa-solid fa-plane-departure text-xl"></i>
@@ -182,7 +190,7 @@
                         <span id="company-name-header">AeroCareer Airlines</span>
                         <span class="text-[10px] bg-sky-500/10 text-sky-400 border border-sky-500/20 px-2 py-0.5 rounded-full uppercase font-mono tracking-wider font-semibold">Cloud Sync</span>
                     </h1>
-                    <div class="flex items-center space-x-2 text-xs text-slate-400 mt-0.5">
+                    <div class="flex flex-wrap items-center gap-x-2 text-xs text-slate-400 mt-0.5">
                         <span class="text-sky-400 font-medium">Joueur : <strong class="text-white" id="header-player-name">Ben</strong> (<span id="header-player-role" class="text-amber-400 font-bold">CEO</span>)</span>
                         <span>•</span>
                         <span>Position : <strong class="text-emerald-400 font-mono" id="header-player-loc">LFLB</strong></span>
@@ -193,8 +201,8 @@
             </div>
         </div>
 
-        <div class="flex items-center space-x-4 text-sm">
-            <button onclick="app.toggleTheme()" title="Changer de style" class="flex items-center space-x-2 px-3 py-1.5 rounded-xl border border-slate-700 text-slate-300 hover:text-white hover:border-sky-500 text-xs font-bold transition cursor-pointer"><i class="fa-solid fa-palette text-sky-400"></i><span id="theme-toggle-label">Départs</span></button>
+        <div class="flex flex-wrap items-center justify-end gap-2 md:gap-4 text-sm">
+            <button onclick="app.toggleTheme()" title="Changer de style" class="flex items-center space-x-2 px-3 py-1.5 rounded-xl border border-slate-700 text-slate-300 hover:text-white hover:border-sky-500 text-xs font-bold transition cursor-pointer"><i class="fa-solid fa-palette text-sky-400"></i><span id="theme-toggle-label" class="hidden sm:inline">Départs</span></button>
             <div class="bg-slate-950/90 px-3.5 py-1.5 rounded-xl border border-slate-800 flex items-center space-x-3 shadow-inner">
                 <div class="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
                     <i class="fa-solid fa-wallet text-xs"></i>
@@ -217,7 +225,7 @@
 
             <div class="bg-slate-950/90 px-4 py-1.5 rounded-xl border border-slate-800 flex items-center space-x-4 shadow-inner">
                 <div>
-                    <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Cycle Simulation (Minuit / 24h)</div>
+                    <div class="hidden sm:block text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Cycle Simulation (Minuit / 24h)</div>
                     <div class="font-bold text-sky-400 flex items-center space-x-2 font-mono text-xs">
                         <i class="fa-solid fa-clock text-sky-400"></i>
                         <span>Tick #<span id="company-tick">1</span></span>
@@ -229,7 +237,7 @@
 
             <button onclick="app.logout()" title="Changer de profil ou de compagnie" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer flex items-center space-x-1.5">
                 <i class="fa-solid fa-right-from-bracket"></i>
-                <span>Quitter</span>
+                <span class="hidden sm:inline">Quitter</span>
             </button>
         </div>
     </header>
@@ -269,7 +277,7 @@
 
     <!-- MAIN WORKSPACE LAYOUT -->
     <div class="flex-1 flex overflow-hidden">
-        <nav class="w-64 bg-slate-900/90 border-r border-slate-800 flex flex-col justify-between shrink-0 select-none p-3 space-y-1">
+        <nav id="main-nav" class="fixed inset-y-0 left-0 z-40 w-64 -translate-x-full transition-transform duration-200 md:static md:z-auto md:translate-x-0 overflow-y-auto bg-slate-900 md:bg-slate-900/90 border-r border-slate-800 flex flex-col justify-between shrink-0 select-none p-3 space-y-1">
             <div class="space-y-1">
                 <div class="px-3 py-2 text-[10px] uppercase font-bold text-slate-500 tracking-wider">Navigation Principale</div>
                 <button onclick="app.switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl border border-sky-500/50 bg-sky-600/20 text-sky-400 font-semibold text-sm transition cursor-pointer">
@@ -277,6 +285,9 @@
                 </button>
                 <button onclick="app.switchTab('contracts')" id="nav-contracts" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-sm transition cursor-pointer">
                     <i class="fa-solid fa-file-contract w-5 text-center"></i><span>Contrats</span>
+                </button>
+                <button onclick="app.switchTab('market')" id="nav-market" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-sm transition cursor-pointer">
+                    <i class="fa-solid fa-chart-column w-5 text-center"></i><span>Marchés</span>
                 </button>
                 <button onclick="app.switchTab('fleet')" id="nav-fleet" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-sm transition cursor-pointer">
                     <i class="fa-solid fa-plane w-5 text-center"></i><span>Parc Flotte</span>
@@ -302,9 +313,10 @@
                 <div class="flex justify-between"><span>Unité Carburant:</span> <span class="text-sky-400 font-mono">Kilogramme (Kg)</span></div>
             </div>
         </nav>
+        <div id="nav-backdrop" onclick="app.closeNav()" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden"></div>
 
-        <main class="flex-1 bg-slate-950 overflow-y-auto p-6 relative">
-            <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-2 max-w-sm pointer-events-none"></div>
+        <main class="flex-1 min-w-0 bg-slate-950 overflow-y-auto p-3 md:p-6 relative">
+            <div id="toast-container" class="fixed bottom-3 right-3 left-3 md:left-auto md:bottom-6 md:right-6 z-50 space-y-2 md:max-w-sm pointer-events-none"></div>
 
             <!-- TAB 1: DASHBOARD -->
             <div id="tab-dashboard" class="space-y-6">
@@ -338,6 +350,11 @@
                     </div>
                 </div>
 
+                <div class="glass-card rounded-2xl p-4 shadow-xl space-y-3">
+                    <div class="flex justify-between items-center"><h3 class="text-base font-bold text-white flex items-center space-x-2"><i class="fa-solid fa-bell text-amber-400"></i><span>À surveiller</span></h3><span id="dash-alerts-count" class="text-[11px] font-mono text-slate-400"></span></div>
+                    <div id="dash-alerts" class="grid grid-cols-1 lg:grid-cols-2 gap-2"></div>
+                </div>
+
                 <div onclick="app.switchTab('cfo')" title="Voir le bilan complet" class="glass-card rounded-2xl px-4 py-3 cursor-pointer border border-transparent hover:border-emerald-500/40 transition grid grid-cols-2 md:grid-cols-4 gap-3 font-mono">
                     <div><div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Gains du jour</div><div class="text-sm font-bold text-emerald-400" id="dash-fin-gain">0 €</div></div>
                     <div><div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Charges / tick</div><div class="text-sm font-bold text-amber-400" id="dash-fin-charges">0 €</div></div>
@@ -355,6 +372,17 @@
                         <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Corps des Commandants & Pilotes (<span id="pilots-list-count">0</span>)</h4>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="pilots-grid-container"></div>
                     </div>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl shadow-xl space-y-3">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <h3 class="text-lg font-bold text-white flex items-center space-x-2"><i class="fa-solid fa-clipboard-list text-sky-400"></i><span>Journal de la compagnie</span></h3>
+                        <div class="flex flex-wrap gap-2 items-center">
+                            <select id="log-player" onchange="app.renderEventLog()" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-slate-200"></select>
+                            <div class="inline-flex rounded-lg overflow-hidden border border-slate-700 text-[11px] font-bold"><button type="button" data-log-cat="all" onclick="app.setLogCat('all')" class="px-2.5 py-1 cursor-pointer">Tout</button><button type="button" data-log-cat="vol" onclick="app.setLogCat('vol')" class="px-2.5 py-1 cursor-pointer">Vols & flotte</button><button type="button" data-log-cat="marche" onclick="app.setLogCat('marche')" class="px-2.5 py-1 cursor-pointer">Marché</button><button type="button" data-log-cat="finance" onclick="app.setLogCat('finance')" class="px-2.5 py-1 cursor-pointer">Finances</button></div>
+                        </div>
+                    </div>
+                    <div id="event-log" class="space-y-1 max-h-72 overflow-y-auto pr-1 text-xs"></div>
                 </div>
 
                 <div class="glass-card p-5 rounded-2xl shadow-xl space-y-4">
@@ -422,6 +450,10 @@
                             <input id="contract-max-pax" type="number" min="0" step="1" inputmode="numeric" placeholder="Illimité" oninput="app.setContractLimit('pax', this.value)" class="w-36 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-200 font-mono"></label>
                         <label class="space-y-1"><span class="block text-[10px] uppercase tracking-wider text-slate-400 font-semibold">📦 Fret max (tonnes)</span>
                             <input id="contract-max-cargo" type="number" min="0" step="0.1" inputmode="decimal" placeholder="Illimité" oninput="app.setContractLimit('cargo', this.value)" class="w-36 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-200 font-mono"></label>
+                        <label class="space-y-1"><span class="block text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Trier par</span>
+                            <select id="contract-sort" onchange="app.setContractSort(this.value)" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200 font-mono">
+                                <option value="default">Ordre du marché</option><option value="reward">Prime la plus haute</option><option value="perkm">Prime par km (≈ par heure)</option><option value="dist_asc">Distance croissante</option><option value="dist_desc">Distance décroissante</option><option value="expiry">Expire bientôt</option></select></label>
+                        <label class="flex items-center gap-2 pb-1.5 text-slate-300 cursor-pointer"><input id="contract-compat" type="checkbox" onchange="app.setContractCompat(this.checked)"><span>Compatibles avec un avion garé</span></label>
                         <button onclick="app.resetContractLimits()" class="px-3 py-1.5 rounded-lg border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 font-bold transition cursor-pointer">Réinitialiser</button>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[70vh] overflow-y-auto pr-1" id="available-contracts-container"></div>
@@ -430,6 +462,95 @@
 
                 <div id="state-mission-view" class="hidden">
                     <div id="state-mission-container" class="glass-card rounded-2xl p-5 shadow-xl space-y-4"></div>
+                </div>
+            </div>
+
+            <!-- TAB: MARCHÉS -->
+            <div id="tab-market" class="space-y-6 hidden-tab">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-white tracking-tight">Salle des Marchés</h2>
+                    <p class="text-sm text-slate-400">Achetez dans vos hubs (stockage) ou directement à bord dans un aéroport non possédé, vendez là où le prix est le plus haut. Les prix évoluent chaque heure, comme le kérosène.</p>
+                </div>
+                <div id="market-goods" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3"></div>
+                <div class="glass-card p-5 rounded-2xl shadow-xl space-y-4">
+                    <h3 id="market-detail-title" class="text-lg font-bold text-white"></h3>
+                    <div class="relative h-56"><canvas id="marketChart"></canvas></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 space-y-2"><div class="text-[10px] uppercase font-bold text-emerald-400">Acheter : les 2 pays les moins chers</div><div id="market-rank-buy" class="space-y-1 text-xs font-mono"></div></div>
+                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 space-y-2"><div class="text-[10px] uppercase font-bold text-amber-400">Vendre : les 3 pays qui paient le plus</div><div id="market-rank-sell" class="space-y-1 text-xs font-mono"></div></div>
+                    </div>
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 space-y-2">
+                        <div class="text-[10px] uppercase font-bold text-slate-400">Consulter le prix dans un pays</div>
+                        <select id="market-country-select" onchange="app.renderMarketConsult()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 font-mono"></select>
+                        <div id="market-consult-result" class="text-xs font-mono text-slate-300"></div>
+                    </div>
+                    <div class="bg-slate-950 border border-sky-800/40 rounded-xl p-3 space-y-2">
+                        <div class="text-[10px] uppercase font-bold text-sky-400">Acheter / vendre dans un de mes hubs</div>
+                        <select id="market-hub-select" onchange="app.renderMarketTradeInfo()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 font-mono"></select>
+                        <div id="market-trade-info" class="text-xs font-mono text-slate-300"></div>
+                        <input id="market-qty" type="number" min="0" max="50" step="0.5" placeholder="Quantité en tonnes (50 max par transaction)" oninput="app.renderMarketTradeInfo()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 font-mono">
+                        <div class="flex gap-2"><button onclick="app.requestMarketTrade('buy')" class="px-4 py-2 rounded-lg text-white text-xs font-bold cursor-pointer bg-emerald-600 hover:bg-emerald-500">Acheter</button><button onclick="app.requestMarketTrade('sell')" class="px-4 py-2 rounded-lg text-white text-xs font-bold cursor-pointer bg-amber-600 hover:bg-amber-500">Vendre</button></div>
+                    </div>
+                </div>
+                <div class="glass-card p-5 rounded-2xl shadow-xl space-y-3">
+                    <h3 class="text-lg font-bold text-white flex items-center space-x-2"><i class="fa-solid fa-bell text-amber-400"></i><span>Alertes de prix</span></h3>
+                    <p class="text-[10px] text-slate-500">Basées sur le prix moyen mondial, vérifié chaque heure. Visibles par toute la compagnie dans « À surveiller ».</p>
+                    <div class="flex flex-wrap gap-2 items-center text-xs">
+                        <select id="ma-good" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200 font-mono"></select>
+                        <select id="ma-dir" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200 font-mono"><option value="below">passe sous</option><option value="above">passe au-dessus de</option></select>
+                        <input id="ma-price" type="number" min="0" step="0.01" placeholder="€/kg" class="w-24 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200 font-mono">
+                        <button onclick="app.addMarketAlert()" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold cursor-pointer">Ajouter</button>
+                    </div>
+                    <div id="ma-list" class="space-y-1.5"></div>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl shadow-xl space-y-3">
+                    <h3 class="text-lg font-bold text-white">Stock des hubs <span class="text-xs font-normal text-slate-400">(partagé par la compagnie)</span></h3>
+                    <div id="market-stock" class="overflow-x-auto"></div>
+                </div>
+            </div>
+
+            <div id="reg-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[90] hidden items-center justify-center p-4">
+                <div class="glass-card rounded-2xl p-5 w-full max-w-sm space-y-3 border border-slate-700">
+                    <h3 class="text-lg font-bold text-white flex items-center space-x-2"><i class="fa-solid fa-pen text-sky-400"></i><span>Changer l'immatriculation</span></h3>
+                    <div id="reg-modal-plane" class="text-xs font-mono text-slate-400"></div>
+                    <input id="reg-input" type="text" maxlength="7" autocomplete="off" placeholder="Ex : F-GKXJ" onkeydown="if (event.key === 'Enter') app.confirmRename()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 font-mono uppercase focus:outline-none focus:border-sky-500">
+                    <p class="text-[10px] text-slate-500">3 à 7 caractères : lettres et chiffres, avec un tiret possible (F-GKXJ, N123AB). Elle doit être unique dans la flotte. Les anciens vols gardent l'ancienne immatriculation dans l'historique.</p>
+                    <div class="flex justify-end gap-2"><button onclick="app.closeRenameModal()" class="px-3 py-2 rounded-lg border border-slate-700 text-slate-300 text-xs font-bold cursor-pointer">Annuler</button><button onclick="app.confirmRename()" class="px-3 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold cursor-pointer">Valider</button></div>
+                </div>
+            </div>
+
+            <div id="confirm-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[95] hidden items-center justify-center p-4">
+                <div class="glass-card rounded-2xl p-5 w-full max-w-sm space-y-4 border border-slate-700">
+                    <h3 id="cf-title" class="text-lg font-bold text-white"></h3>
+                    <p id="cf-text" class="text-sm text-slate-300"></p>
+                    <div class="flex justify-end gap-3"><button onclick="app.closeConfirm()" class="px-4 py-2 rounded-lg border border-slate-700 text-slate-300 text-xs font-bold cursor-pointer">Annuler</button><button id="cf-ok" onclick="app.runConfirm()" class="px-4 py-2 rounded-lg bg-sky-600 text-white text-xs font-bold cursor-pointer">Confirmer</button></div>
+                </div>
+            </div>
+
+            <div id="loadout-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[85] hidden items-center justify-center p-4">
+                <div class="glass-card rounded-2xl p-5 w-full max-w-md space-y-4 border border-slate-700 max-h-[90vh] overflow-y-auto">
+                    <h3 class="text-lg font-bold text-white flex items-center space-x-2"><i class="fa-solid fa-boxes-packing text-sky-400"></i><span>Chargement & plan de vol</span></h3>
+                    <div id="loadout-summary" class="text-xs font-mono text-slate-300 space-y-1"></div>
+                    <div class="space-y-1.5">
+                        <div class="text-[10px] uppercase font-bold text-slate-400">Cargaison de marché (depuis le stock du hub de départ)</div>
+                        <div id="loadout-market" class="space-y-1.5 text-[11px]"></div>
+                    </div>
+                    <div id="loadout-total" class="text-xs font-mono text-slate-300 bg-slate-950 border border-slate-800 rounded-xl p-2.5"></div>
+                    <div id="loadout-buy" class="hidden text-xs font-mono bg-slate-950 border border-amber-500/30 rounded-xl p-2.5 space-y-1"></div>
+                    <div class="flex flex-wrap justify-end gap-2">
+                        <button onclick="app.closeLoadoutModal()" class="px-3 py-2 rounded-lg border border-slate-700 text-slate-300 text-xs font-bold cursor-pointer">Annuler</button>
+                        <button onclick="app.openSimBriefFromLoadout()" class="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold cursor-pointer flex items-center space-x-1.5"><i class="fa-solid fa-route"></i><span>Ouvrir SimBrief</span></button>
+                        <button onclick="app.continueFromLoadout()" class="px-3 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold cursor-pointer">Continuer vers le briefing</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="market-confirm-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[90] hidden items-center justify-center p-4">
+                <div class="glass-card rounded-2xl p-5 w-full max-w-sm space-y-4 border border-slate-700">
+                    <h3 id="mc-title" class="text-lg font-bold text-white"></h3>
+                    <div id="mc-lines" class="space-y-2 text-sm font-mono"></div>
+                    <div class="flex justify-end gap-3"><button onclick="app.closeMarketConfirm()" class="px-4 py-2 rounded-lg border border-slate-700 text-slate-300 text-xs font-bold cursor-pointer">Annuler</button><button onclick="app.confirmMarketTrade()" class="px-4 py-2 rounded-lg text-white text-xs font-bold cursor-pointer bg-sky-600 hover:bg-sky-500">Confirmer</button></div>
                 </div>
             </div>
 
@@ -460,6 +581,11 @@
                             <tbody class="divide-y divide-slate-800/60" id="fleet-table-body"></tbody>
                         </table>
                     </div>
+                </div>
+                <div class="glass-card p-5 rounded-2xl shadow-xl space-y-3">
+                    <h3 class="text-lg font-bold text-white flex items-center space-x-2"><i class="fa-solid fa-scale-balanced text-emerald-400"></i><span>Rentabilité par avion</span></h3>
+                    <p class="text-[10px] text-slate-500">Suivi depuis cette mise à jour : revenus des vols moins carburant, maintenance et amendes, leasing. Le prix d'achat n'est pas amorti.</p>
+                    <div class="overflow-x-auto"><table id="profit-table" class="w-full text-[11px] font-mono"></table></div>
                 </div>
             </div>
 
@@ -578,6 +704,8 @@
                     </div>
                 </div>
 
+                <div id="rescue-card" class="hidden glass-card p-5 rounded-2xl shadow-xl space-y-3 border border-rose-500/40"></div>
+
                 <div class="glass-card p-5 rounded-2xl shadow-xl space-y-4">
                     <h3 class="text-lg font-bold text-white flex items-center space-x-2"><i class="fa-solid fa-star text-amber-400"></i><span>Réputation & crédit</span></h3>
                     <div id="reputation-card" class="space-y-3"></div>
@@ -608,6 +736,11 @@
                     <h3 class="text-lg font-bold text-white flex items-center space-x-2">
                         <i class="fa-solid fa-plane-circle-check text-sky-400"></i><span>Catalogue Appareils (Trié par prix d'achat croissant)</span>
                     </h3>
+                    <div class="flex flex-wrap items-center gap-2 text-xs bg-slate-950 border border-slate-800 rounded-xl p-3">
+                        <span class="text-slate-400 font-semibold uppercase text-[10px]">Livrer à</span>
+                        <select id="delivery-hub-select" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200 font-mono"></select>
+                        <span class="text-[10px] text-slate-500">S'applique à l'achat, au leasing et à la LOA.</span>
+                    </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[520px] overflow-y-auto pr-1" id="aircraft-catalog-container"></div>
                 </div>
 
@@ -966,6 +1099,7 @@
                         <label class="block text-[9px] text-slate-400">Appoint d'Huile Moteur (Optionnel in L) :</label>
                         <input type="number" id="debrief-oil-added" value="0" step="0.5" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-slate-200 font-mono">
                     </div>
+                    <div id="debrief-market" class="space-y-1.5 text-[11px]"></div>
                     <div class="pt-1">
                         <label class="flex items-center space-x-2 cursor-pointer text-sky-400 font-bold">
                             <input type="checkbox" id="debrief-is-stopover" class="w-4 h-4 accent-sky-500 rounded cursor-pointer">
@@ -1339,58 +1473,81 @@
             }
 
             // INTÉGRATION MISE À JOUR DE SIMBRIEF VIA /options/custom
-            openSimBriefForContract(contractId, planeId) {
-                const contract = this.activeContracts.find(c => c.id === contractId) || this.availableContracts.find(c => c.id === contractId);
-                const plane = this.fleet.find(p => p.id == planeId);
-
-                if (!contract) {
-                    this.showToast("Contrat introuvable !", "error");
-                    return;
-                }
-
-                const orig = contract.origin;
-                const dest = contract.stopover ? contract.stopover : contract.destination;
-                
-                // Récupération du type OACI exact depuis le catalogue si disponible, ou fallback
+            openSimBriefFlight(plane, orig, dest, pax, cargoTons) {
                 const acDef = plane ? this.aircraftCatalog.find(a => a.name === plane.name) : null;
                 const type = acDef ? (acDef.typeICAO || 'C172') : 'C172';
                 const reg = plane ? plane.registration.replace('-', '') : 'FABCD';
-                const pax = contract.minPax || 0;
-                const cargoTons = contract.minCargo || 0;
-
-                // Collecte des codes FIR des espaces aériens actifs pour transmission
-                let activeFirsArray = [];
-                if (this.activeRestrictedAirspaces && this.activeRestrictedAirspaces.length > 0) {
-                    this.activeRestrictedAirspaces.forEach(zone => {
-                        if (zone.firCode) {
-                            zone.firCode.split(',').forEach(code => {
-                                if (!activeFirsArray.includes(code.trim())) activeFirsArray.push(code.trim());
-                            });
-                        }
-                    });
-                }
-
+                const activeFirsArray = [];
+                (this.activeRestrictedAirspaces || []).forEach(zone => {
+                    if (zone.firCode) zone.firCode.split(',').forEach(code => { if (!activeFirsArray.includes(code.trim())) activeFirsArray.push(code.trim()); });
+                });
                 const params = new URLSearchParams({
                     airline: (this.company.name || "AERO").replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 3),
                     fltnum: Math.floor(Math.random() * 8999 + 1000).toString(),
-                    type: type,
-                    orig: orig,
-                    dest: dest,
-                    reg: reg,
-                    pax: pax.toString(),
-                    cargo: cargoTons.toString(),
+                    type, orig, dest, reg,
+                    pax: String(pax || 0),
+                    cargo: String(cargoTons || 0),
                     units: "KGS"
                 });
-
-                if (activeFirsArray.length > 0) {
-                    params.append("avoid_fir", activeFirsArray.join(","));
-                }
-
-                const simbriefCustomUrl = `https://dispatch.simbrief.com/options/custom?${params.toString()}`;
-                window.open(simbriefCustomUrl, '_blank');
+                if (activeFirsArray.length > 0) params.append("avoid_fir", activeFirsArray.join(","));
+                window.open(`https://dispatch.simbrief.com/options/custom?${params.toString()}`, '_blank');
             }
 
-            saveSessionToHistory(pName, cCode, cName) {
+            // Étape 1 du départ : chargement + plan SimBrief, puis briefing
+            openPreflightModal(planeId, targetDest) {
+                const p = this.fleet.find(item => item.id === planeId);
+                if (!p) return;
+                this._loadout = { planeId, targetDest };
+                this.renderPreflightMarket(p);
+                this.updateLoadoutTotal();
+                const m = document.getElementById('loadout-modal');
+                m.classList.remove('hidden'); m.classList.add('flex');
+            }
+
+            closeLoadoutModal() {
+                const m = document.getElementById('loadout-modal');
+                m.classList.add('hidden'); m.classList.remove('flex');
+                this._loadout = null;
+            }
+
+            updateLoadoutTotal() {
+                const l = this._loadout, p = l && this.fleet.find(x => x.id === l.planeId);
+                if (!p) return;
+                const contract = this.activeContracts.find(c => c.id === p.assignedContractId), f = this.planeCargoFree(p);
+                let loaded = 0;
+                this.getMarketGoods().forEach(g => { const el = document.getElementById('pm-load-' + g.id); if (el) loaded += Math.max(0, parseFloat(el.value) || 0); });
+                const bp = this.readBuyPlan(p), buyBox = document.getElementById('loadout-buy');
+                const total = f.contract + f.aboard + loaded + bp.tons;
+                if (buyBox) {
+                    buyBox.classList.toggle('hidden', !(bp.tons > 0));
+                    if (bp.tons > 0) buyBox.innerHTML = '<div class="text-[10px] uppercase font-bold text-amber-400">Achat sur place (débité au décollage)</div>' + bp.lines.map(l => `<div class="text-slate-300">${this.esc(l)}</div>`).join('') + `<div class="text-slate-300">Frais d'achat (2,5 %) : ${this.formatMoney(bp.fee)}</div><div class="text-white font-bold border-t border-slate-700 pt-1">Total : ${this.formatMoney(bp.total)}</div>`;
+                }
+                document.getElementById('loadout-summary').innerHTML = `<div class="text-white font-bold">${this.esc(p.registration)} (${this.esc(p.name)}) : ${this.esc(p.location)} ➔ ${this.esc(l.targetDest)}</div><div>Passagers : ${contract ? (contract.minPax || 0) : 0} • Fret du contrat : ${f.contract} t</div>`;
+                document.getElementById('loadout-total').innerHTML = `Fret total transmis à SimBrief : <span class="font-bold ${total > f.cap ? 'text-rose-400' : 'text-sky-300'}">${total.toFixed(2)} t</span> <span class="text-slate-500">(capacité ${f.cap} t)</span>`;
+            }
+
+            openSimBriefFromLoadout() {
+                const l = this._loadout, p = l && this.fleet.find(x => x.id === l.planeId);
+                if (!p) return;
+                const loads = this.planPreflightCargo(p);
+                if (loads === null) return;
+                const contract = this.activeContracts.find(c => c.id === p.assignedContractId), f = this.planeCargoFree(p);
+                const total = f.contract + f.aboard + Object.values(loads).reduce((a, b) => a + b, 0) + (this._buyPlan ? this._buyPlan.tons : 0);
+                this.openSimBriefFlight(p, p.location, l.targetDest, contract ? (contract.minPax || 0) : 0, Math.round(total * 100) / 100);
+            }
+
+            continueFromLoadout() {
+                const l = this._loadout, p = l && this.fleet.find(x => x.id === l.planeId);
+                if (!p) return;
+if (this.planPreflightCargo(p) === null) return;
+                const { planeId, targetDest } = l, bp = this._buyPlan;
+                const go = () => { this.closeLoadoutModal(); this.openBriefingModal(planeId, targetDest); };
+                if (bp && bp.total > 0) {
+                    this.askConfirm(`Achat à ${p.location}`, bp.lines.join('\n') + `\nFrais d'achat (2,5 %) : ${this.formatMoney(bp.fee)}\nTotal : ${this.formatMoney(bp.total)}\n\nLe montant sera débité au décollage.`, go, false);
+                } else go();
+            }
+
+                        saveSessionToHistory(pName, cCode, cName) {
                 let savedList = JSON.parse(localStorage.getItem('aerocareer_saved_sessions') || '[]');
                 const existingIndex = savedList.findIndex(s => s.code === cCode && s.playerName === pName);
                 const sessionObj = { playerName: pName, code: cCode, companyName: cName, lastUsed: Date.now() };
@@ -1838,7 +1995,7 @@
                         if (this._saveTimer) await this.saveCompanyData();
                         const r = await this.claimShared(field, value, isNewer);
                         if (r.data) { this.applyLoadedData(r.data); this._lastJson = JSON.stringify(this.snapshotState()); }
-                        if (r.won) { this._syncedVersion = r.ts; this.company[field] = value; action(); }
+                        if (r.won) { this._syncedVersion = r.ts; this.company[field] = value; this._logActor = 'Système'; try { action(); } finally { this._logActor = null; } }
                         else this.renderAll(true);
                     } catch (e) { console.error('Erreur synchro:', e); this['_retry_' + field] = Date.now() + 15000; }
                     finally { this[busy] = false; }
@@ -1863,6 +2020,9 @@
             resetContractLimits() {
                 this.contractMaxPax = null;
                 this.contractMaxCargo = null;
+                this._contractSort = 'default'; this._contractCompat = false;
+                const cs = document.getElementById('contract-sort'), cc = document.getElementById('contract-compat');
+                if (cs) cs.value = 'default'; if (cc) cc.checked = false;
                 ['contract-max-pax', 'contract-max-cargo'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
                 this.renderContractsMarket();
             }
@@ -2061,7 +2221,7 @@
                 this.renderAll();
             }
 
-            cancelStateMission() {
+            doCancelStateMission() {
                 const m = this.company.stateMission;
                 if (!m) return;
                 if (m.status === 'accepted') this.adjustReputation(-2);
@@ -2303,7 +2463,7 @@
                 this.autoCoverFromLivret();
                 const c = this.company, t = this.getRepTier();
                 c.tickOverdraftInterest = 0;
-                if (c.cash >= 0) return;
+                if (c.cash >= 0) { c.overLimitTicks = 0; return; }
                 const interest = Math.round(-c.cash * t.odRate);
                 c.cash -= interest;
                 c.tickOverdraftInterest = interest;
@@ -2314,6 +2474,7 @@
                 } else {
                     this.showToast(`Découvert : ${this.formatMoney(interest)} d'intérêts prélevés.`, 'error');
                 }
+                this.updateInsolvency();
             }
 
             refreshLoanModal() {
@@ -2404,7 +2565,7 @@
                 this.renderAll();
             }
 
-            closeTermDeposit(id) {
+            doCloseTermDeposit(id) {
                 const sv = this.ensureSavings(), d = sv.deposits.find(x => x.id === id);
                 if (!d) return;
                 sv.deposits = sv.deposits.filter(x => x.id !== id);
@@ -2455,11 +2616,679 @@
                     <button onclick="app.closeTermDeposit(${d.id})" class="px-2.5 py-1 rounded-lg border border-slate-700 text-slate-300 hover:text-white font-bold cursor-pointer">Retrait anticipé</button></div>`).join('');
             }
 
+            // ================= SALLE DES MARCHÉS =================
+            getMarketGoods() {
+                return [
+                    { id: 'food', name: 'Nourriture', icon: 'fa-bowl-food', base: 3 },
+                    { id: 'wine', name: 'Vins & spiritueux', icon: 'fa-wine-bottle', base: 15 },
+                    { id: 'parts', name: 'Pièces mécaniques', icon: 'fa-gears', base: 20 },
+                    { id: 'elec', name: 'Électronique', icon: 'fa-microchip', base: 60 },
+                    { id: 'pharma', name: 'Médicaments', icon: 'fa-pills', base: 110 },
+                    { id: 'luxe', name: 'Produits de luxe', icon: 'fa-gem', base: 250 }
+                ];
+            }
+
+            nextMarketIdx(v) { return Math.min(1.5, Math.max(0.7, v + (1 - v) * 0.12 + (Math.random() - 0.5) * 0.08)); }
+
+            ensureMarket() {
+                const c = this.company;
+                if (!c.market) c.market = { idx: {}, impact: {} };
+                if (!c.marketStock) c.marketStock = {};
+                this.getMarketGoods().forEach(g => {
+                    if (!c.market.idx[g.id] || !c.market.idx[g.id].length) {
+                        let v = 1; const arr = [];
+                        for (let i = 0; i < 24; i++) { v = this.nextMarketIdx(v); arr.push(v); }
+                        c.market.idx[g.id] = arr;
+                    }
+                });
+                return c.market;
+            }
+
+            updateMarketPrices() {
+                const m = this.ensureMarket();
+                this.getMarketGoods().forEach(g => {
+                    const h = m.idx[g.id];
+                    h.push(this.nextMarketIdx(h[h.length - 1]));
+                    if (h.length > 72) h.splice(0, h.length - 72);
+                });
+                Object.keys(m.impact).forEach(k => {
+                    m.impact[k] = 1 + (m.impact[k] - 1) * 0.85;
+                    if (Math.abs(m.impact[k] - 1) < 0.002) delete m.impact[k];
+                });
+                this.checkMarketAlerts();
+            }
+
+            marketCountryFactor(goodId, country) {
+                let h = 0; const str = goodId + '|' + country;
+                for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) % 100003;
+                return ((h % 501) / 500 - 0.5) * 0.5;
+            }
+
+            marketPrice(goodId, country) {
+                const m = this.ensureMarket(), g = this.getMarketGoods().find(x => x.id === goodId), h = m.idx[goodId];
+                return Math.round(g.base * h[h.length - 1] * (1 + this.marketCountryFactor(goodId, country)) * (m.impact[goodId + '|' + country] || 1) * 100) / 100;
+            }
+
+            marketCountries() { return [...new Set(this.hub100List.map(h => h.country))].sort((a, b) => a.localeCompare(b, 'fr')); }
+            marketOwnedCountries() { return new Set(this.company.hubs.map(code => (this.hub100List.find(h => h.code === code) || {}).country).filter(Boolean)); }
+            marketKg(v) { return v.toFixed(2).replace('.', ',') + ' €/kg'; }
+            hubStockTotal(code) { return Object.values(this.company.marketStock[code] || {}).reduce((a, b) => a + b, 0); }
+
+            applyMarketImpact(goodId, country, delta) {
+                const m = this.ensureMarket(), k = goodId + '|' + country;
+                m.impact[k] = Math.max(0.7, Math.min(1.4, (m.impact[k] || 1) * (1 + delta)));
+            }
+
+            selectMarketGood(id) { this._marketGood = id; this.renderMarket(); }
+
+            fillSelect(id, items) {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const sig = items.map(i => i.v).join('|');
+                if (el.dataset.sig === sig) return;
+                const prev = el.value;
+                el.innerHTML = items.map(i => `<option value="${this.esc(i.v)}">${this.esc(i.t)}</option>`).join('');
+                el.dataset.sig = sig;
+                if (items.some(i => i.v === prev)) el.value = prev;
+            }
+
+            renderMarket() {
+                const m = this.ensureMarket(), goods = this.getMarketGoods();
+                if (!this._marketGood) this._marketGood = 'elec';
+                const g = goods.find(x => x.id === this._marketGood) || goods[0], kg = (v) => this.marketKg(v);
+                document.getElementById('market-goods').innerHTML = goods.map(x => {
+                    const h = m.idx[x.id], now = x.base * h[h.length - 1], prev = x.base * (h.length > 1 ? h[h.length - 2] : h[h.length - 1]), d = (now / prev - 1) * 100;
+                    return `<button onclick="app.selectMarketGood('${x.id}')" class="text-left bg-slate-950 border ${x.id === g.id ? 'border-sky-500' : 'border-slate-800'} rounded-xl p-3 space-y-1 cursor-pointer hover:border-sky-500/60 transition">
+                        <div class="flex items-center space-x-2 text-xs text-slate-300"><i class="fa-solid ${x.icon} text-sky-400"></i><span class="font-bold">${x.name}</span></div>
+                        <div class="font-mono font-bold text-white text-sm">${kg(now)}</div>
+                        <div class="font-mono text-[10px] ${d >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${d >= 0 ? '+' : ''}${d.toFixed(1)} % / h</div></button>`;
+                }).join('');
+                document.getElementById('market-detail-title').innerText = g.name + ' : prix moyen par kilo';
+
+                const h = m.idx[g.id].slice(-24), labels = h.map((_, i) => i === h.length - 1 ? 'Maint.' : '-' + (h.length - 1 - i) + 'h'), data = h.map(v => Math.round(g.base * v * 100) / 100);
+                const cs = getComputedStyle(document.documentElement), accent = 'rgb(' + cs.getPropertyValue('--sky-400').trim() + ')', muted = 'rgb(' + cs.getPropertyValue('--slate-400').trim() + ')';
+                const canvas = document.getElementById('marketChart');
+                if (canvas && typeof Chart !== 'undefined') {
+                    const ds = { data, borderColor: accent, backgroundColor: accent.replace('rgb(', 'rgba(').replace(')', ', 0.12)'), borderWidth: 3, fill: true, tension: 0.3, pointRadius: 2 };
+                    if (this.marketChartInstance) {
+                        const ch = this.marketChartInstance;
+                        ch.data.labels = labels; ch.data.datasets[0] = ds;
+                        ch.options.scales.x.ticks.color = muted; ch.options.scales.y.ticks.color = muted;
+                        ch.update('none');
+                    } else {
+                        this.marketChartInstance = new Chart(canvas.getContext('2d'), {
+                            type: 'line', data: { labels, datasets: [ds] },
+                            options: { responsive: true, maintainAspectRatio: false, animation: false,
+                                plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => kg(ctx.parsed.y) } } },
+                                scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: muted, maxTicksLimit: 8, font: { family: 'JetBrains Mono', size: 10 } } },
+                                          y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: muted, font: { family: 'JetBrains Mono', size: 10 } } } } }
+                        });
+                    }
+                }
+
+                const owned = this.marketOwnedCountries(), countries = this.marketCountries();
+                const ranked = countries.map(c => ({ c, p: this.marketPrice(g.id, c) })).sort((a, b) => a.p - b.p);
+                const row = (r) => `<div class="flex justify-between"><span class="text-slate-200">${this.esc(r.c)}${owned.has(r.c) ? ' <span class="text-[9px] text-sky-400 border border-sky-700 rounded px-1">hub</span>' : ''}</span><span class="font-bold text-white">${kg(r.p)}</span></div>`;
+                document.getElementById('market-rank-buy').innerHTML = ranked.slice(0, 2).map(row).join('');
+                document.getElementById('market-rank-sell').innerHTML = ranked.slice(-3).reverse().map(row).join('');
+                this.fillSelect('market-country-select', countries.map(c => ({ v: c, t: c })));
+                this.fillSelect('market-hub-select', this.company.hubs.map(code => { const hb = this.hub100List.find(x => x.code === code) || {}; return { v: code, t: `${code} — ${hb.city || ''} (${hb.country || ''})` }; }));
+                this.renderMarketAlerts();
+                this.renderMarketConsult();
+                this.renderMarketTradeInfo();
+                const rows = this.company.hubs.map(code => { const hb = this.hub100List.find(x => x.code === code) || {}, st = this.company.marketStock[code] || {};
+                    return `<tr class="border-t border-slate-800"><td class="py-1.5 pr-3 text-sky-400 font-bold">${code}</td><td class="pr-3">${this.hubStockTotal(code).toFixed(1)} / ${hb.cargoCap || 0} t</td>` + goods.map(x => `<td class="pr-3 text-slate-300">${(st[x.id] || 0).toFixed(1)}</td>`).join('') + '</tr>'; }).join('');
+                document.getElementById('market-stock').innerHTML = `<table class="w-full text-[11px] font-mono"><thead><tr class="text-slate-500 text-left uppercase"><th class="py-1">Hub</th><th>Total</th>${goods.map(x => `<th>${x.name.split(' ')[0]}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>`;
+            }
+
+            renderMarketConsult() {
+                const sel = document.getElementById('market-country-select'), out = document.getElementById('market-consult-result');
+                if (!sel || !out || !sel.value) return;
+                const p = this.marketPrice(this._marketGood || 'elec', sel.value);
+                out.innerText = `${sel.value} : achat ${this.marketKg(p * 1.025)} • vente ${this.marketKg(p * 0.975)} (frais de 2,5 % inclus)`;
+            }
+
+            renderMarketTradeInfo() {
+                const hubSel = document.getElementById('market-hub-select'), out = document.getElementById('market-trade-info');
+                if (!hubSel || !out || !hubSel.value) { if (out) out.innerText = 'Aucun hub possédé.'; return; }
+                const hb = this.hub100List.find(x => x.code === hubSel.value) || {}, gid = this._marketGood || 'elec';
+                const p = this.marketPrice(gid, hb.country), have = (this.company.marketStock[hb.code] || {})[gid] || 0, room = Math.max(0, (hb.cargoCap || 0) - this.hubStockTotal(hb.code));
+                out.innerText = `Prix à ${hb.code} (${hb.country}) : ${this.marketKg(p)} • stock ici : ${have.toFixed(1)} t • place libre : ${room.toFixed(1)} t`;
+            }
+
+            requestMarketTrade(kind) {
+                if (kind === 'buy' && this.blockIfDefault()) return;
+                const g = this.getMarketGoods().find(x => x.id === this._marketGood), code = document.getElementById('market-hub-select').value;
+                const qty = Math.round(parseFloat(document.getElementById('market-qty').value) * 10) / 10, hb = this.hub100List.find(x => x.code === code);
+                if (!g || !hb || !this.company.hubs.includes(code)) { this.showToast('Choisissez un de vos hubs.', 'error'); return; }
+                if (!(qty > 0) || qty > 50) { this.showToast('Quantité invalide (0 à 50 tonnes par transaction).', 'error'); return; }
+                const price = this.marketPrice(g.id, hb.country), value = Math.round(price * 1000 * qty), fee = Math.round(value * 0.025), fm = (v) => this.formatMoney(v);
+                if (kind === 'buy') {
+                    const total = value + fee;
+                    if (this.company.cash < total) { this.showToast('Trésorerie insuffisante pour cet achat.', 'error'); return; }
+                    if (this.hubStockTotal(code) + qty > (hb.cargoCap || 0)) { this.showToast(`Capacité de stockage de ${code} dépassée.`, 'error'); return; }
+                    this._pendingTrade = { kind, goodId: g.id, code, country: hb.country, qty, value, fee, total };
+                    this.openMarketConfirm(`Achat à ${code}`, [[`${qty} t de ${g.name}`, fm(value)], ["Frais d'achat (2,5 %)", fm(fee)], ['Total', fm(total)]]);
+                } else {
+                    if (((this.company.marketStock[code] || {})[g.id] || 0) < qty) { this.showToast(`Stock insuffisant à ${code}.`, 'error'); return; }
+                    const net = value - fee;
+                    this._pendingTrade = { kind, goodId: g.id, code, country: hb.country, qty, value, fee, total: net };
+                    this.openMarketConfirm(`Vente à ${code}`, [[`${qty} t de ${g.name}`, fm(value)], ['Frais de vente (2,5 %)', '−' + fm(fee)], ['Net encaissé', fm(net)]]);
+                }
+            }
+
+            openMarketConfirm(title, lines) {
+                document.getElementById('mc-title').innerText = title;
+                document.getElementById('mc-lines').innerHTML = lines.map((l, i) => `<div class="flex justify-between ${i === lines.length - 1 ? 'font-bold text-white border-t border-slate-700 pt-2' : 'text-slate-300'}"><span>${this.esc(l[0])}</span><span>${this.esc(l[1])}</span></div>`).join('');
+                const m = document.getElementById('market-confirm-modal');
+                m.classList.remove('hidden'); m.classList.add('flex');
+            }
+
+            closeMarketConfirm() {
+                const m = document.getElementById('market-confirm-modal');
+                m.classList.add('hidden'); m.classList.remove('flex');
+                this._pendingTrade = null;
+            }
+
+            confirmMarketTrade() {
+                const t = this._pendingTrade;
+                if (!t) return;
+                const st = this.company.marketStock[t.code] || (this.company.marketStock[t.code] = {}), g = this.getMarketGoods().find(x => x.id === t.goodId);
+                if (t.kind === 'buy') {
+                    if (this.company.cash < t.total) { this.showToast('Trésorerie insuffisante.', 'error'); this.closeMarketConfirm(); return; }
+                    this.company.cash -= t.total;
+                    st[t.goodId] = Math.round(((st[t.goodId] || 0) + t.qty) * 10) / 10;
+                    this.applyMarketImpact(t.goodId, t.country, 0.0015 * t.qty);
+                    this.showToast(`${t.qty} t de ${g.name} achetées (${this.formatMoney(t.total)}), stockées à ${t.code}.`, 'success');
+                } else {
+                    if ((st[t.goodId] || 0) < t.qty) { this.showToast('Stock insuffisant.', 'error'); this.closeMarketConfirm(); return; }
+                    st[t.goodId] = Math.round(((st[t.goodId] || 0) - t.qty) * 10) / 10;
+                    this.company.cash += t.total;
+                    this.applyMarketImpact(t.goodId, t.country, -0.0015 * t.qty);
+                    this.showToast(`${t.qty} t de ${g.name} vendues : +${this.formatMoney(t.total)}.`, 'success');
+                }
+                document.getElementById('market-qty').value = '';
+                this.closeMarketConfirm();
+                this.renderAll();
+            }
+
+            // ---- Cargaison à bord : départ
+            planeCargoFree(p) {
+                const def = this.aircraftCatalog.find(a => a.name === p.name) || {}, contract = this.activeContracts.find(c => c.id === p.assignedContractId);
+                const aboard = Object.values(p.marketCargo || {}).reduce((a, b) => a + b, 0);
+                return { cap: def.cargo || 0, contract: contract ? (contract.minCargo || 0) : 0, aboard, free: (def.cargo || 0) - (contract ? (contract.minCargo || 0) : 0) - aboard };
+            }
+
+            renderPreflightMarket(p) {
+                const box = document.getElementById('loadout-market');
+                if (!box) return;
+                const f = this.planeCargoFree(p), stock = this.company.hubs.includes(p.location) ? (this.company.marketStock[p.location] || {}) : {}, goods = this.getMarketGoods();
+                const rows = goods.filter(g => (stock[g.id] || 0) > 0 || (p.marketCargo || {})[g.id] > 0);
+                let html = `<div class="text-slate-400">Capacité de fret ${f.cap} t • contrat ${f.contract} t • déjà à bord ${f.aboard.toFixed(1)} t • <span class="text-sky-300">libre ${Math.max(0, f.free).toFixed(1)} t</span></div>`;
+                html += rows.length ? rows.map(g => `<div class="flex justify-between items-center gap-2"><span class="text-slate-200">${g.name} <span class="text-slate-500">(stock ${(stock[g.id] || 0).toFixed(1)} t • à bord ${((p.marketCargo || {})[g.id] || 0).toFixed(1)} t)</span></span><input type="number" id="pm-load-${g.id}" min="0" max="${stock[g.id] || 0}" step="0.1" value="0" oninput="app.updateLoadoutTotal()" class="w-20 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200 font-mono text-right"></div>`).join('') : `<div class="text-slate-500">${this.company.hubs.includes(p.location) ? 'Aucune marchandise en stock à ' + this.esc(p.location) + '.' : ''}</div>`;
+                if (!this.company.hubs.includes(p.location)) {
+                    const hb = this.hub100List.find(x => x.code === p.location);
+                    html += `<div class="pt-2 mt-1 border-t border-slate-800 text-[10px] uppercase font-bold text-amber-400">Acheter sur place à ${this.esc(p.location)} (hub non possédé : chargement direct à bord, pas de stockage)</div>`;
+                    html += hb ? goods.map(g => `<div class="flex justify-between items-center gap-2"><span class="text-slate-200">${g.name} <span class="text-slate-500">(${this.marketKg(this.marketPrice(g.id, hb.country) * 1.025)} frais inclus)</span></span><input type="number" id="pm-buy-${g.id}" min="0" max="50" step="0.1" value="0" oninput="app.updateLoadoutTotal()" class="w-20 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200 font-mono text-right"></div>`).join('') : '<div class="text-slate-500">Aéroport inconnu du marché.</div>';
+                }
+                box.innerHTML = html;
+            }
+
+            readBuyPlan(p) {
+                const out = { buys: {}, tons: 0, value: 0, fee: 0, total: 0, lines: [] };
+                if (this.company.hubs.includes(p.location)) return out;
+                const hb = this.hub100List.find(x => x.code === p.location);
+                if (!hb) return out;
+                this.getMarketGoods().forEach(g => {
+                    const el = document.getElementById('pm-buy-' + g.id), t = el ? Math.round(Math.max(0, parseFloat(el.value) || 0) * 10) / 10 : 0;
+                    if (t <= 0) return;
+                    const v = Math.round(this.marketPrice(g.id, hb.country) * 1000 * t);
+                    out.buys[g.id] = t; out.tons += t; out.value += v; out.lines.push(`${t} t de ${g.name} : ${this.formatMoney(v)}`);
+                });
+                out.fee = Math.round(out.value * 0.025);
+                out.total = out.value + out.fee;
+                return out;
+            }
+
+            planPreflightCargo(p) {
+                const stock = this.company.marketStock[p.location] || {}, loads = {};
+                let total = 0;
+                for (const g of this.getMarketGoods()) {
+                    const el = document.getElementById('pm-load-' + g.id), t = el ? Math.round((parseFloat(el.value) || 0) * 10) / 10 : 0;
+                    if (t <= 0) continue;
+                    if (t > (stock[g.id] || 0) + 1e-9) { this.showToast(`Stock insuffisant de ${g.name} à ${p.location}.`, 'error'); return null; }
+                    loads[g.id] = t; total += t;
+                }
+const bp = this.readBuyPlan(p);
+                if (Object.values(bp.buys).some(t => t > 50)) { this.showToast('50 tonnes maximum par marchandise et par achat.', 'error'); return null; }
+                if (total + bp.tons > Math.max(0, this.planeCargoFree(p).free) + 1e-9) { this.showToast('Cargaison supérieure à la capacité de fret disponible.', 'error'); return null; }
+                if (bp.total > this.company.cash) { this.showToast(`Trésorerie insuffisante pour acheter la cargaison (${this.formatMoney(bp.total)}).`, 'error'); return null; }
+                if (bp.total > 0 && this.blockIfDefault()) return null;
+                this._buyPlan = bp;
+                return loads;
+            }
+
+            commitPreflightCargo(p, loads) {
+                const stock = this.company.marketStock[p.location] || {};
+                Object.keys(loads).forEach(id => {
+                    stock[id] = Math.round(((stock[id] || 0) - loads[id]) * 10) / 10;
+                    p.marketCargo = p.marketCargo || {};
+                    p.marketCargo[id] = Math.round(((p.marketCargo[id] || 0) + loads[id]) * 10) / 10;
+                });
+                const bp = this._buyPlan;
+                this._buyPlan = null;
+                if (bp && bp.tons > 0) {
+                    const hb = this.hub100List.find(x => x.code === p.location);
+                    this.company.cash -= bp.total;
+                    p.marketCargo = p.marketCargo || {};
+                    Object.keys(bp.buys).forEach(id => {
+                        p.marketCargo[id] = Math.round(((p.marketCargo[id] || 0) + bp.buys[id]) * 10) / 10;
+                        if (hb) this.applyMarketImpact(id, hb.country, 0.0015 * bp.buys[id]);
+                    });
+                    this.showToast(`${bp.tons.toFixed(1)} t achetées à ${p.location} et chargées à bord (${this.formatMoney(bp.total)}, frais compris).`, 'info');
+                }
+            }
+
+            // ---- Cargaison à bord : arrivée
+            renderDebriefMarket(p) {
+                const box = document.getElementById('debrief-market');
+                if (!box) return;
+                const cargo = p.marketCargo || {}, goods = this.getMarketGoods().filter(g => cargo[g.id] > 0);
+                if (!goods.length) { box.innerHTML = ''; return; }
+                const own = this.company.hubs.includes(p.currentLegTarget);
+                box.innerHTML = `<div class="text-[10px] uppercase font-bold text-amber-400">Cargaison de marché à l'arrivée (${this.esc(p.currentLegTarget || '')})</div>` + goods.map(g => `<div class="flex justify-between items-center gap-2"><span class="text-slate-200">${cargo[g.id]} t de ${g.name}</span><select id="dm-act-${g.id}" onchange="app.updateDebriefMarketEstimate()" class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200"><option value="keep">Garder à bord</option><option value="sell">Vendre ici</option>${own ? '<option value="stock">Stocker au hub</option>' : ''}</select></div>`).join('') + '<div id="dm-estimate" class="text-[10px] font-mono text-slate-400"></div>';
+                this.updateDebriefMarketEstimate();
+            }
+
+            updateDebriefMarketEstimate() {
+                const p = this.fleet.find(x => x.id === this.landingPlaneId), out = document.getElementById('dm-estimate');
+                if (!p || !out) return;
+                const hb = this.hub100List.find(x => x.code === p.currentLegTarget);
+                let net = 0, text = [];
+                Object.keys(p.marketCargo || {}).forEach(id => {
+                    const sel = document.getElementById('dm-act-' + id);
+                    if (!sel || sel.value !== 'sell' || !hb) return;
+                    const value = Math.round(this.marketPrice(id, hb.country) * 1000 * p.marketCargo[id]), fee = Math.round(value * 0.025);
+                    net += value - fee; text.push(`${p.marketCargo[id]} t : ${this.formatMoney(value)} − frais ${this.formatMoney(fee)}`);
+                });
+                out.innerText = text.length ? 'Vente : ' + text.join(' • ') + ' → net ' + this.formatMoney(net) : '';
+            }
+
+            applyLandingCargo(p, dest) {
+                const cargo = p.marketCargo;
+                if (!cargo || !Object.keys(cargo).length) return;
+                const hb = this.hub100List.find(x => x.code === dest), own = this.company.hubs.includes(dest);
+                Object.keys(cargo).forEach(id => {
+                    const sel = document.getElementById('dm-act-' + id), act = sel ? sel.value : 'keep', t = cargo[id], g = this.getMarketGoods().find(x => x.id === id);
+                    if (act === 'sell' && hb) {
+                        const value = Math.round(this.marketPrice(id, hb.country) * 1000 * t), fee = Math.round(value * 0.025);
+                        this.company.cash += value - fee;
+                        this.applyMarketImpact(id, hb.country, -0.0015 * t);
+                        this.showToast(`${t} t de ${g.name} vendues à ${dest} : +${this.formatMoney(value - fee)} (frais ${this.formatMoney(fee)}).`, 'success');
+                        delete cargo[id];
+                    } else if (act === 'stock' && own) {
+                        if (this.hubStockTotal(dest) + t > (hb.cargoCap || 0)) { this.showToast(`Stock de ${dest} plein : ${g.name} reste à bord.`, 'error'); return; }
+                        const st = this.company.marketStock[dest] || (this.company.marketStock[dest] = {});
+                        st[id] = Math.round(((st[id] || 0) + t) * 10) / 10;
+                        this.showToast(`${t} t de ${g.name} stockées à ${dest}.`, 'success');
+                        delete cargo[id];
+                    }
+                });
+                if (!Object.keys(cargo).length) delete p.marketCargo;
+            }
+
+            renameRegistration(planeId) {
+                const p = this.fleet.find(x => x.id === planeId);
+                if (!p) return;
+                if (p.status === 'En vol') { this.showToast("Impossible de changer l'immatriculation d'un avion en vol.", 'error'); return; }
+                this._renamePlaneId = planeId;
+                document.getElementById('reg-modal-plane').innerText = `${p.registration} (${p.name})`;
+                const input = document.getElementById('reg-input');
+                input.value = p.registration;
+                const m = document.getElementById('reg-modal');
+                m.classList.remove('hidden'); m.classList.add('flex');
+                input.focus(); input.select();
+            }
+
+            closeRenameModal() {
+                const m = document.getElementById('reg-modal');
+                m.classList.add('hidden'); m.classList.remove('flex');
+                this._renamePlaneId = null;
+            }
+
+            confirmRename() {
+                const p = this.fleet.find(x => x.id === this._renamePlaneId);
+                if (!p) { this.closeRenameModal(); return; }
+                const reg = document.getElementById('reg-input').value.trim().toUpperCase();
+                if (!/^[A-Z0-9]+(-[A-Z0-9]+)?$/.test(reg) || reg.length < 3 || reg.length > 7) {
+                    this.showToast("Immatriculation invalide : 3 à 7 caractères, lettres et chiffres, tiret possible.", 'error');
+                    return;
+                }
+                if (this.fleet.some(x => x.id !== p.id && x.registration === reg)) {
+                    this.showToast(`L'immatriculation ${reg} est déjà utilisée dans la flotte.`, 'error');
+                    return;
+                }
+                const old = p.registration;
+                p.registration = reg;
+                const m = this.company.stateMission;
+                if (m && m.contractId && m.contractId === p.assignedContractId) m.planeReg = reg;
+                this.closeRenameModal();
+                this.showToast(`Immatriculation changée : ${old} → ${reg}.`, 'success');
+                this.renderAll();
+            }
+
+            classifyEvent(text) {
+                if (/\d t de |marchandise|Cargaison|Stock de |Stock insuffisant/i.test(text)) return 'marche';
+                if (/Décollage|atterri|Vol |vol |Mission|mission|contrat|Contrat|Tech Log|Maintenance|maintenance|Inspection|mmatriculation|avion|Avion|Appareil|hub|Hub/.test(text)) return 'vol';
+                if (/€|emprunt|Emprunt|Livret|livret|Dépôt|dépôt|ubvention|Succès|ntérêts|écouvert|AMENDE/.test(text)) return 'finance';
+                return 'autre';
+            }
+
+            logEvent(message, type) {
+                const c = this.company;
+                if (!c || !message) return;
+                if (type === 'error' && !/^(🚨|⚠️)/.test(message)) return;
+                const text = String(message).replace(/^[\u{1F300}-\u{1FAFF}\u2600-\u27BF\uFE0F\s]+/u, '').slice(0, 220);
+                if (!c.eventLog) c.eventLog = [];
+                const who = this._logActor || this.playerName || '?', last = c.eventLog[0];
+                if (last && last.text === text && last.who === who && Date.now() - last.t < 2000) return;
+                c.eventLog.unshift({ t: Date.now(), tick: c.tickCount || 0, who, cat: this.classifyEvent(text), text });
+                if (c.eventLog.length > 200) c.eventLog.length = 200;
+            }
+
+            applyLogUI() {
+                const cat = this._logCat || 'all';
+                document.querySelectorAll('[data-log-cat]').forEach(b => {
+                    b.className = 'px-2.5 py-1 cursor-pointer ' + (b.dataset.logCat === cat ? 'bg-sky-500 text-slate-950' : 'bg-slate-900 text-slate-400');
+                });
+            }
+
+            setLogCat(cat) { this._logCat = cat; this.applyLogUI(); this.renderEventLog(); }
+
+            renderEventLog() {
+                const box = document.getElementById('event-log');
+                if (!box) return;
+                const log = (this.company && this.company.eventLog) || [], cat = this._logCat || 'all';
+                this.fillSelect('log-player', [{ v: 'all', t: 'Tous les joueurs' }, ...[...new Set(log.map(e => e.who))].sort().map(a => ({ v: a, t: a }))]);
+                const who = document.getElementById('log-player').value || 'all';
+                const rows = log.filter(e => (who === 'all' || e.who === who) && (cat === 'all' || e.cat === cat)).slice(0, 80);
+                box.innerHTML = rows.length ? rows.map(e => `<div class="flex gap-2 py-1 border-b border-slate-900">
+                    <span class="text-slate-500 font-mono shrink-0">${new Date(e.t).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>
+                    <span class="text-sky-400 font-bold shrink-0">${this.esc(e.who)}</span>
+                    <span class="text-slate-300">${this.esc(e.text)}</span></div>`).join('') : '<div class="text-slate-500 py-2">Aucun événement pour le moment.</div>';
+            }
+
+            toggleNav() {
+                const nav = document.getElementById('main-nav'), bd = document.getElementById('nav-backdrop');
+                if (!nav) return;
+                const open = nav.classList.contains('-translate-x-full');
+                nav.classList.toggle('-translate-x-full', !open);
+                if (bd) bd.classList.toggle('hidden', !open);
+            }
+
+            closeNav() {
+                const nav = document.getElementById('main-nav'), bd = document.getElementById('nav-backdrop');
+                if (nav) nav.classList.add('-translate-x-full');
+                if (bd) bd.classList.add('hidden');
+            }
+
+            // ================= ALERTES, CONFIRMATIONS, RENTABILITÉ, ALERTES DE PRIX =================
+            askConfirm(title, text, fn, danger) {
+                document.getElementById('cf-title').innerText = title;
+                const cfText = document.getElementById('cf-text');
+                cfText.innerText = text; cfText.style.whiteSpace = 'pre-line';
+                const ok = document.getElementById('cf-ok');
+                ok.className = 'px-4 py-2 rounded-lg text-white text-xs font-bold cursor-pointer ' + (danger ? 'bg-rose-700 hover:bg-rose-600' : 'bg-sky-600 hover:bg-sky-500');
+                this._confirmFn = fn;
+                const m = document.getElementById('confirm-modal');
+                m.classList.remove('hidden'); m.classList.add('flex');
+            }
+
+            closeConfirm() {
+                const m = document.getElementById('confirm-modal');
+                m.classList.add('hidden'); m.classList.remove('flex');
+                this._confirmFn = null;
+            }
+
+            runConfirm() {
+                const fn = this._confirmFn;
+                this.closeConfirm();
+                if (fn) fn();
+            }
+
+            sellOrTermLease(planeId) {
+                const p = this.fleet.find(x => x.id === planeId);
+                if (!p) return;
+                if (p.status === 'En vol' || p.status === 'En maintenance') { this.doSellOrTermLease(planeId); return; }
+                const label = `${p.registration} (${p.name})`;
+                if (p.isLeased || p.isLOA) {
+                    this.askConfirm('Résilier le contrat ?', `${label} quittera la flotte. Aucun remboursement, et l'avion ne pourra pas être récupéré.`, () => this.doSellOrTermLease(planeId), true);
+                } else {
+                    this.askConfirm('Revendre cet avion ?', `${label} sera revendu pour ${this.formatMoney(this.calculateResaleValue(p))}. Action irréversible.`, () => this.doSellOrTermLease(planeId), true);
+                }
+            }
+
+            exerciseLOAOption(planeId) {
+                const p = this.fleet.find(x => x.id === planeId);
+                if (!p || !p.isLOA) return;
+                this.askConfirm("Acheter l'avion (lever l'option) ?", `${p.registration} (${p.name}) sera acheté ${this.formatMoney(p.residualValue)} et deviendra la propriété de la compagnie. Plus de mensualités ensuite.`, () => this.doExerciseLOAOption(planeId), false);
+            }
+
+            closeTermDeposit(id) {
+                const d = this.ensureSavings().deposits.find(x => x.id === id);
+                if (!d) return;
+                this.askConfirm('Retrait anticipé ?', `Le capital de ${this.formatMoney(d.amount)} sera rendu, mais les ${this.formatMoney(Math.round(d.amount * d.rate))} d'intérêts prévus seront perdus.`, () => this.doCloseTermDeposit(id), true);
+            }
+
+            cancelStateMission() {
+                const m = this.company.stateMission;
+                if (!m) return;
+                if (m.status === 'accepted') this.askConfirm('Annuler la mission ?', "Annuler une mission acceptée coûte 2 points de réputation.", () => this.doCancelStateMission(), true);
+                else this.doCancelStateMission();
+            }
+
+            // ---- Alertes du tableau de bord
+            marketAvgPrice(goodId) {
+                const g = this.getMarketGoods().find(x => x.id === goodId), h = this.ensureMarket().idx[goodId];
+                return g && h ? g.base * h[h.length - 1] : 0;
+            }
+
+            marketAlertMet(a) {
+                const v = this.marketAvgPrice(a.goodId);
+                return a.dir === 'below' ? v <= a.price : v >= a.price;
+            }
+
+            renderAlerts() {
+                const box = document.getElementById('dash-alerts');
+                if (!box) return;
+                const c = this.company, fm = (v) => this.formatMoney(v), items = [];
+                const add = (lvl, text, tab) => items.push({ lvl, text, tab });
+                this.fleet.forEach(p => {
+                    const h = p.hoursSinceVI || 0;
+                    if (p.status === 'En maintenance') return;
+                    if (h > 27.5) add('danger', `${p.registration} : ${h.toFixed(1)} h depuis la dernière visite, vol interdit tant que la visite n'est pas faite.`, 'fleet');
+                    else if (h >= 25) add('danger', `${p.registration} : ${h.toFixed(1)} h depuis la dernière visite (amende de 150 000 € au-delà de 27,5 h).`, 'fleet');
+                    else if (h >= 22.5) add('warn', `${p.registration} : visite possible (${h.toFixed(1)} h sur 25).`, 'fleet');
+                });
+                (c.hubs || []).forEach(code => {
+                    const hb = this.hub100List.find(x => x.code === code);
+                    if (!hb) return;
+                    const stock = (c.fuelReservesByHub || {})[code] || 0;
+                    if (stock < hb.fuelCap * 0.15) add('warn', `Cuves de ${code} presque vides : ${Math.round(stock).toLocaleString()} Kg sur ${hb.fuelCap.toLocaleString()}.`, 'clo');
+                });
+                this.activeContracts.forEach(k => {
+                    if (!k.isStateMission && k.ticksLeft <= 2) add(k.ticksLeft <= 1 ? 'danger' : 'warn', `Contrat « ${k.title} » : expire dans ${k.ticksLeft} tick(s).`, 'contracts');
+                });
+                if ((c.overLimitTicks || 0) >= 1) add('danger', `Défaut de paiement : ${c.overLimitTicks}/10 ticks au-delà de la limite du découvert, faillite dans ${Math.max(0, 10 - c.overLimitTicks)} tick(s).`, 'cfo');
+                if (c.cash < 0) add('danger', `Trésorerie négative (${fm(c.cash)}) : intérêts de découvert à chaque tick.`, 'cfo');
+                else if (typeof this._nextCash === 'number' && this._nextCash < 0) add('warn', `Trésorerie prévue au prochain tick : ${fm(this._nextCash)}. Pensez au livret ou à un emprunt.`, 'cfo');
+                const inst = this.activeLoans.reduce((a, l) => a + (l.installment || 0), 0);
+                if (inst > 0) add('info', `Mensualités d'emprunt au prochain tick : ${fm(inst)}.`, 'cfo');
+                this.fleet.forEach(p => {
+                    if (p.isLOA && p.loaTicksRemaining > 0 && p.loaTicksRemaining <= 2) add(this.company.cash < p.residualValue ? 'warn' : 'info', `LOA de ${p.registration} : fin dans ${p.loaTicksRemaining} tick(s), option d'achat ${fm(p.residualValue)}${this.company.cash < p.residualValue ? ' (trésorerie insuffisante : l\'avion sera restitué)' : ' (levée automatique)'}.`, 'fleet');
+                });
+                ((c.savings && c.savings.deposits) || []).forEach(d => { if (d.ticksLeft <= 1) add('info', `Dépôt à terme de ${fm(d.amount)} : échéance au prochain tick (+${fm(Math.round(d.amount * d.rate))}).`, 'cfo'); });
+                (c.marketAlerts || []).forEach(a => {
+                    if (!this.marketAlertMet(a)) return;
+                    const g = this.getMarketGoods().find(x => x.id === a.goodId);
+                    add('info', `Marché : ${g.name} ${a.dir === 'below' ? 'est passé sous' : 'est passé au-dessus de'} ${this.marketKg(a.price)} (actuel ${this.marketKg(this.marketAvgPrice(a.goodId))}) • alerte de ${a.who}.`, 'market');
+                });
+                if (c.stateMission && c.stateMission.status === 'available') add('info', `Mission d'État disponible : Paris CDG ➔ ${c.stateMission.destCity}.`, 'contracts');
+                const order = { danger: 0, warn: 1, info: 2 }, cls = { danger: 'border-rose-500/40 text-rose-300', warn: 'border-amber-500/40 text-amber-300', info: 'border-sky-500/30 text-sky-300' }, ico = { danger: 'fa-circle-exclamation', warn: 'fa-triangle-exclamation', info: 'fa-circle-info' };
+                items.sort((a, b) => order[a.lvl] - order[b.lvl]);
+                const nd = items.filter(i => i.lvl !== 'info').length;
+                const cnt = document.getElementById('dash-alerts-count');
+                if (cnt) cnt.innerText = items.length ? `${items.length} (${nd} important${nd > 1 ? 'es' : 'e'})` : '';
+                box.innerHTML = items.length ? items.map(i => `<div onclick="app.switchTab('${i.tab}')" class="flex items-start gap-2 bg-slate-950 border ${cls[i.lvl]} rounded-lg px-3 py-2 text-xs cursor-pointer hover:bg-slate-900 transition"><i class="fa-solid ${ico[i.lvl]} mt-0.5"></i><span class="text-slate-200">${this.esc(i.text)}</span></div>`).join('') : '<div class="text-xs text-emerald-400">Rien à signaler pour le moment.</div>';
+            }
+
+            // ---- Livraison des avions
+            renderDeliveryHubSelect() {
+                this.fillSelect('delivery-hub-select', [{ v: 'auto', t: 'Auto (hub du pilote)' }, ...this.company.hubs.map(code => { const hb = this.hub100List.find(x => x.code === code) || {}; return { v: code, t: `${code} — ${hb.city || ''}` }; })]);
+            }
+
+            // ---- Contrats : tri et filtre de compatibilité
+            setContractSort(v) { this._contractSort = v; this.renderContractsMarket(); }
+            setContractCompat(on) { this._contractCompat = !!on; this.renderContractsMarket(); }
+
+            // ---- Rentabilité par avion
+            planeStat(p) {
+                if (!p.stats) p.stats = { flights: 0, hours: 0, revenue: 0, fuel: 0, maint: 0, fixed: 0 };
+                return p.stats;
+            }
+
+            renderProfitability() {
+                const box = document.getElementById('profit-table');
+                if (!box) return;
+                const fm = (v) => this.formatMoney(v), zero = { flights: 0, hours: 0, revenue: 0, fuel: 0, maint: 0, fixed: 0 };
+                const rows = this.fleet.map(p => { const s = p.stats || zero, cost = s.fuel + s.maint + s.fixed; return { p, s, cost, net: s.revenue - cost }; }).sort((a, b) => b.net - a.net);
+                if (!rows.length) { box.innerHTML = '<tbody><tr><td class="py-3 text-slate-500">Aucun avion.</td></tr></tbody>'; return; }
+                const tot = rows.reduce((a, r) => ({ flights: a.flights + r.s.flights, hours: a.hours + r.s.hours, revenue: a.revenue + r.s.revenue, fuel: a.fuel + r.s.fuel, maint: a.maint + r.s.maint, fixed: a.fixed + r.s.fixed, net: a.net + r.net }), { flights: 0, hours: 0, revenue: 0, fuel: 0, maint: 0, fixed: 0, net: 0 });
+                const line = (name, s, net, cls) => `<tr class="border-t border-slate-800 ${cls || ''}"><td class="py-1.5 pr-3">${name}</td><td class="pr-3">${s.flights}</td><td class="pr-3">${s.hours.toFixed(1)}</td><td class="pr-3 text-emerald-400">${fm(s.revenue)}</td><td class="pr-3">${fm(s.fuel)}</td><td class="pr-3">${fm(s.maint)}</td><td class="pr-3">${fm(s.fixed)}</td><td class="pr-3 font-bold ${net >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${net >= 0 ? '+' : ''}${fm(net)}</td><td class="${net >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${s.hours > 0 ? fm(Math.round(net / s.hours)) : '-'}</td></tr>`;
+                box.innerHTML = `<thead><tr class="text-slate-500 text-left uppercase"><th class="py-1">Avion</th><th>Vols</th><th>Heures</th><th>Revenus</th><th>Carburant</th><th>Maint.</th><th>Leasing</th><th>Net</th><th>Net / h</th></tr></thead><tbody>` +
+                    rows.map(r => line(`<span class="text-white font-bold">${this.esc(r.p.registration)}</span> <span class="text-slate-500">${this.esc(r.p.name)}</span>`, r.s, r.net)).join('') + line('<span class="font-bold text-white">Total flotte</span>', tot, tot.net, 'bg-slate-900/60') + '</tbody>';
+            }
+
+            // ---- Alertes de prix du marché
+            addMarketAlert() {
+                const goodId = document.getElementById('ma-good').value, dir = document.getElementById('ma-dir').value;
+                const price = parseFloat(String(document.getElementById('ma-price').value).replace(',', '.'));
+                if (!(price > 0)) { this.showToast('Saisissez un prix en €/kg.', 'error'); return; }
+                const c = this.company;
+                if (!c.marketAlerts) c.marketAlerts = [];
+                if (c.marketAlerts.length >= 10) { this.showToast('10 alertes maximum.', 'error'); return; }
+                c.marketAlerts.push({ id: Date.now(), goodId, dir, price: Math.round(price * 100) / 100, who: this.playerName, fired: false });
+                document.getElementById('ma-price').value = '';
+                this.showToast('Alerte de prix ajoutée.', 'success');
+                this.renderAll();
+            }
+
+            removeMarketAlert(id) {
+                this.company.marketAlerts = (this.company.marketAlerts || []).filter(a => a.id !== id);
+                this.renderAll();
+            }
+
+            checkMarketAlerts() {
+                (this.company.marketAlerts || []).forEach(a => {
+                    const met = this.marketAlertMet(a);
+                    if (met && !a.fired) {
+                        a.fired = true;
+                        const g = this.getMarketGoods().find(x => x.id === a.goodId);
+                        this.showToast(`🔔 Marché : ${g.name} ${a.dir === 'below' ? 'sous' : 'au-dessus de'} ${this.marketKg(a.price)} (actuel ${this.marketKg(this.marketAvgPrice(a.goodId))}).`, 'info');
+                    } else if (!met) a.fired = false;
+                });
+            }
+
+            renderMarketAlerts() {
+                const list = document.getElementById('ma-list');
+                if (!list) return;
+                this.fillSelect('ma-good', this.getMarketGoods().map(g => ({ v: g.id, t: g.name })));
+                const al = this.company.marketAlerts || [];
+                list.innerHTML = al.length ? al.map(a => { const g = this.getMarketGoods().find(x => x.id === a.goodId), met = this.marketAlertMet(a);
+                    return `<div class="flex flex-wrap justify-between items-center gap-2 bg-slate-950 border ${met ? 'border-emerald-500/40' : 'border-slate-800'} rounded-lg px-3 py-1.5 text-xs font-mono"><span class="text-slate-200">${g.name} ${a.dir === 'below' ? '≤' : '≥'} ${this.marketKg(a.price)} <span class="text-slate-500">(actuel ${this.marketKg(this.marketAvgPrice(a.goodId))} • ${this.esc(a.who)})</span>${met ? ' <span class="text-emerald-400 font-bold">atteinte</span>' : ''}</span><button onclick="app.removeMarketAlert(${a.id})" class="text-slate-400 hover:text-rose-400 cursor-pointer"><i class="fa-solid fa-trash"></i></button></div>`; }).join('') : '<div class="text-xs text-slate-500">Aucune alerte.</div>';
+            }
+
+            // ================= DÉFAUT DE PAIEMENT & FAILLITE =================
+            isInDefault() { return (this.company.overLimitTicks || 0) >= 3; }
+
+            blockIfDefault() {
+                if (!this.isInDefault()) return false;
+                this.showToast("Défaut de paiement : achats bloqués tant que la trésorerie n'est pas revenue dans la limite du découvert.", 'error');
+                return true;
+            }
+
+            updateInsolvency() {
+                const c = this.company, lim = this.getRepTier().od;
+                c.overLimitTicks = c.cash < -lim ? (c.overLimitTicks || 0) + 1 : 0;
+                const n = c.overLimitTicks;
+                if (n === 0) return;
+                if (n >= 10) {
+                    if (!c.lastChanceUsed) this.grantEmergencyAid(true);
+                    else this.declareBankruptcy();
+                    return;
+                }
+                if (n === 3) this.showToast("⚠️ Défaut de paiement : les achats (avions, hubs, leasings, marchandises) sont bloqués. Vendez des avions ou demandez l'aide d'urgence.", 'error');
+                else this.showToast(`⚠️ Défaut de paiement : tick ${n}/10 au-delà de la limite, faillite dans ${10 - n} tick(s).`, 'error');
+            }
+
+            requestEmergencyAid() {
+                if (this.company.lastChanceUsed) return;
+                this.askConfirm("Demander l'aide d'urgence ?", "Un prêt de 10 000 000 € est versé tout de suite, à 15 % d'intérêts sur 30 ticks. Votre réputation est ramenée à 20 au maximum. Utilisable une seule fois.", () => this.grantEmergencyAid(false), true);
+            }
+
+            grantEmergencyAid(auto) {
+                const c = this.company;
+                if (c.lastChanceUsed) return;
+                c.lastChanceUsed = true;
+                c.cash += 10000000;
+                const total = Math.round(10000000 * 1.15);
+                this.activeLoans.push({ id: Date.now(), title: "Aide d'urgence 10 000 000 € (30 Ticks)", remainingAmount: total, installment: Math.round(total / 30), ticksLeft: 30, totalTicks: 30, rate: 0.15 });
+                c.reputation = Math.min(typeof c.reputation === 'number' ? c.reputation : 50, 20);
+                c.overLimitTicks = 0;
+                this.showToast(`🚨 ${auto ? 'Dernière chance accordée automatiquement' : "Aide d'urgence accordée"} : +10 000 000 €, réputation ramenée à ${c.reputation.toFixed(1)}. Plus aucune aide ensuite : la prochaine faillite sera définitive.`, 'info');
+                if (!auto) this.renderAll();
+            }
+
+            declareBankruptcy() {
+                if (this.fleet.some(p => p.status === 'En vol')) return;
+                const c = this.company, start = c.hubs[0], hb = this.hub100List.find(h => h.code === start), n = (c.bankruptcies || 0) + 1;
+                Object.assign(c, {
+                    cash: 4000000, reputation: 30, hubs: [start], fuelReservesByHub: { [start]: Math.round(((hb && hb.fuelCap) || 80000) / 2) },
+                    hubParkingLeases: {}, fuelHedgeActive: false, fuelHedgeTicksLeft: 0, stateSubsidy: 0, stateMission: null, stateMissionNextTick: 0,
+                    savings: { livret: 0, deposits: [] }, marketStock: {}, overLimitTicks: 0, lastChanceUsed: false, tickOverdraftInterest: 0,
+                    tickContractGain: 0, tickParkingGain: 0, tickSubsidyGain: 0, tickMechSpend: 0, tickSavingsGain: 0, cashHistory: [], bankruptcies: n
+                });
+                this.fleet = []; this.activeContracts = []; this.activeLoans = []; this.availableContracts = [];
+                this.team.forEach(m => { m.location = start; });
+                this.playerLocation = start;
+                this.generateInitialContracts();
+                this.showToast(`🚨 FAILLITE n°${n} : la compagnie repart de zéro au hub de ${start} avec 4 000 000 € (flotte, hubs, dettes et placements effacés ; équipe, historique et succès conservés).`, 'error');
+            }
+
+            renderRescueCard() {
+                const box = document.getElementById('rescue-card');
+                if (!box) return;
+                const c = this.company, n = c.overLimitTicks || 0;
+                box.classList.toggle('hidden', n <= 0);
+                if (n <= 0) return;
+                const fm = (v) => this.formatMoney(v), gap = Math.max(0, -c.cash - this.getRepTier().od);
+                const planes = this.fleet.map(p => ({ p, v: (p.isLeased || p.isLOA) ? null : this.calculateResaleValue(p) })).sort((a, b) => (b.v || 0) - (a.v || 0));
+                const busy = (p) => p.status === 'En vol' || p.status === 'En maintenance';
+                box.innerHTML = `<h3 class="text-lg font-bold text-rose-300 flex items-center space-x-2"><i class="fa-solid fa-triangle-exclamation"></i><span>${n >= 3 ? 'Défaut de paiement' : 'Découvert au-delà de la limite'}</span></h3>
+                    <div class="text-xs font-mono text-slate-300">${n} / 10 ticks au-delà de la limite • faillite dans ${Math.max(0, 10 - n)} tick(s) • il manque ${fm(gap)} pour revenir dans la limite${n >= 3 ? ' • <span class="text-rose-300 font-bold">achats bloqués</span>' : ''}</div>
+                    <div class="h-1.5 bg-slate-800 rounded-full overflow-hidden"><div class="h-full bg-rose-500" style="width:${Math.min(100, n * 10)}%"></div></div>
+                    ${c.lastChanceUsed ? '<div class="text-xs text-slate-400">Aide d\'urgence déjà utilisée : la prochaine faillite est définitive (remise à zéro).</div>' : '<button onclick="app.requestEmergencyAid()" class="px-3 py-2 rounded-lg bg-rose-700 hover:bg-rose-600 text-white text-xs font-bold cursor-pointer">Demander l\'aide d\'urgence (10 M€ à 15 %, réputation à 20)</button>'}
+                    <div class="text-[10px] uppercase font-bold text-slate-400 pt-1">Vendre ou résilier pour revenir dans la limite (au choix des joueurs)</div>
+                    <div class="space-y-1.5">${planes.length ? planes.map(x => `<div class="flex flex-wrap justify-between items-center gap-2 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs font-mono"><span class="text-slate-200">${this.esc(x.p.registration)} <span class="text-slate-500">${this.esc(x.p.name)} • ${this.esc(x.p.location)}${busy(x.p) ? ' • ' + this.esc(x.p.status) : ''}</span></span><span class="flex items-center gap-2"><span class="${x.v === null ? 'text-slate-500' : 'text-emerald-400'}">${x.v === null ? 'leasing/LOA : économise les mensualités' : '+' + fm(x.v)}</span>${busy(x.p) ? '' : `<button onclick="app.sellOrTermLease(${x.p.id})" class="px-2.5 py-1 rounded-lg border border-slate-700 text-slate-300 hover:text-white font-bold cursor-pointer">${x.v === null ? 'Résilier' : 'Vendre'}</button>`}</span></div>`).join('') : '<div class="text-xs text-slate-500">Aucun avion à vendre.</div>'}</div>`;
+            }
+
             trackMech(amount) {
                 this.company.tickMechSpend = (this.company.tickMechSpend || 0) + amount;
             }
 
             getDeliveryHub() {
+                const sel = document.getElementById('delivery-hub-select'), chosen = sel ? sel.value : '';
+                if (chosen && this.company.hubs.includes(chosen)) return chosen;
                 return this.company.hubs.includes(this.playerLocation) ? this.playerLocation : this.company.hubs[0];
             }
 
@@ -2559,10 +3388,13 @@
             }
 
             init() {
+                if (!this._navResizeBound) { this._navResizeBound = true; window.addEventListener('resize', () => { if (window.innerWidth >= 768) this.closeNav(); }); }
                 this.applyFuelUnitUI(true);
                 this.setTheme(document.documentElement.dataset.theme);
                 this.setContractsView('market');
                 this.ensureStateMission();
+                this.ensureMarket();
+                this.applyLogUI();
                 this.applyCashFilterUI();
                 if (!this.company.cashHistory || !this.company.cashHistory.length) this.recordCashPoint();
                 document.getElementById('header-player-name').innerText = this.playerName;
@@ -2590,7 +3422,7 @@
                     this.runShared('lastTickDate', currentDateStr, rv => !rv || Date.parse(currentDateStr) > Date.parse(rv), () => this.advanceTick());
                 }
                 if ((this.company.lastHourlyUpdateHour || 0) < hourStamp) {
-                    this.runShared('lastHourlyUpdateHour', hourStamp, rv => !rv || hourStamp > rv, () => this.updateHourlyFuelPrice());
+                    this.runShared('lastHourlyUpdateHour', hourStamp, rv => !rv || hourStamp > rv, () => { this.updateHourlyFuelPrice(); this.updateMarketPrices(); });
                 }
 
                 let needReRender = false;
@@ -2680,6 +3512,7 @@
                     if (plane.isLOA && plane.loaTicksRemaining > 0) {
                         plane.loaTicksRemaining--;
                         loaFeesTotal += plane.loaMonthlyFee;
+                        this.planeStat(plane).fixed += plane.loaMonthlyFee;
 
                         if (plane.loaTicksRemaining <= 0) {
                             // Fin de contrat LOA : restitution ou bascule auto si pas assez de cash
@@ -2801,6 +3634,7 @@
 
                 const totalSalaries = this.team.reduce((acc, m) => acc + m.salary, 0);
                 const totalLeaseFees = this.fleet.reduce((acc, p) => acc + (p.isLeased ? p.leaseFee : 0), 0);
+                this.fleet.forEach(pl => { if (pl.isLeased) this.planeStat(pl).fixed += pl.leaseFee || 0; });
                 const totalExpenses = totalSalaries + totalLeaseFees + loaFeesTotal;
 
                 this.company.cash -= totalExpenses;
@@ -2821,7 +3655,7 @@
                 return Math.round(base * depreciationFactor);
             }
 
-            sellOrTermLease(planeId) {
+            doSellOrTermLease(planeId) {
                 const idx = this.fleet.findIndex(p => p.id === planeId);
                 if (idx < 0) return;
                 const plane = this.fleet[idx];
@@ -2844,7 +3678,7 @@
             }
 
             // LEVER L'OPTION D'ACHAT D'UN AVION EN LOA PAR ANTICIPATION
-            exerciseLOAOption(planeId) {
+            doExerciseLOAOption(planeId) {
                 const plane = this.fleet.find(p => p.id === planeId);
                 if (!plane || !plane.isLOA) return;
 
@@ -2859,7 +3693,7 @@
                 delete plane.loaTicksRemaining;
                 delete plane.residualValue;
 
-                this.showToast(`🎉 Option d'achat levée avec succès pour ${plane.registration} ! Il appartient désormais entièrement à votre compagnie.`, "success");
+                this.showToast(`🎉 Option levée : ${plane.registration} est acheté ! Il appartient désormais entièrement à votre compagnie.`, "success");
                 this.renderAll();
             }
 
@@ -2896,6 +3730,7 @@
 
                 this.company.cash -= baseCost;
                 this.trackMech(baseCost);
+                this.planeStat(plane).maint += baseCost;
                 plane.status = 'En maintenance';
                 plane.hoursSinceVI = 0;
                 plane.repairTimeRemaining = repairHours;
@@ -2916,6 +3751,7 @@
             }
 
             showToast(message, type = 'info') {
+                this.logEvent(message, type);
                 const container = document.getElementById('toast-container');
                 const bgClass = type === 'error' ? 'bg-rose-950/90 border-rose-800 text-rose-100' : (type === 'success' ? 'bg-emerald-950/90 border-emerald-800 text-emerald-100' : 'bg-slate-900/90 border-slate-700 text-slate-100');
                 const iconClass = type === 'error' ? 'fa-circle-exclamation text-rose-400' : (type === 'success' ? 'fa-circle-check text-emerald-400' : 'fa-circle-info text-sky-400');
@@ -2933,8 +3769,9 @@
             }
 
             switchTab(tabId) {
+                this.closeNav();
                 this.activeTab = tabId;
-                ['dashboard', 'contracts', 'fleet', 'ceo', 'cfo', 'clo', 'notam-map', 'pilot'].forEach(t => {
+                ['dashboard', 'contracts', 'market', 'fleet', 'ceo', 'cfo', 'clo', 'notam-map', 'pilot'].forEach(t => {
                     const el = document.getElementById(`tab-${t}`);
                     if (el) el.classList.toggle('hidden-tab', t !== tabId);
                     
@@ -3097,6 +3934,7 @@
                 set('cfo-overdraft', fm(odInterest));
                 set('cfo-mech', fm(mech));
                 set('cfo-cash-now', fm(c.cash));
+                this._nextCash = nextCash;
                 set('cfo-cash-next', fm(nextCash));
                 set('cfo-rental-expected', fm(rentalExpected));
                 set('cfo-installments', fm(installments));
@@ -3290,7 +4128,14 @@
                 const maxPax = this.contractMaxPax, maxCargo = this.contractMaxCargo;
                 if (maxPax !== null && maxPax !== undefined) displayedContracts = displayedContracts.filter(c => (c.minPax || 0) <= maxPax);
                 if (maxCargo !== null && maxCargo !== undefined) displayedContracts = displayedContracts.filter(c => (c.minCargo || 0) <= maxCargo);
-                const limitsActive = (maxPax !== null && maxPax !== undefined) || (maxCargo !== null && maxCargo !== undefined);
+                if (this._contractCompat) {
+                    const parked = this.fleet.filter(p => p.status === 'Parked').map(p => this.aircraftCatalog.find(a => a.name === p.name)).filter(Boolean);
+                    displayedContracts = displayedContracts.filter(k => parked.some(a => a.capacity >= (k.minPax || 0) && a.cargo >= (k.minCargo || 0) && a.range >= (k.distanceKm || 0)));
+                }
+                const sk = this._contractSort || 'default', dist = (k) => k.distanceKm || 0;
+                const sorters = { reward: (a, b) => b.reward - a.reward, perkm: (a, b) => (b.reward / Math.max(1, dist(b))) - (a.reward / Math.max(1, dist(a))), dist_asc: (a, b) => dist(a) - dist(b), dist_desc: (a, b) => dist(b) - dist(a), expiry: (a, b) => a.ticksLeft - b.ticksLeft };
+                if (sorters[sk]) displayedContracts = displayedContracts.slice().sort(sorters[sk]);
+                const limitsActive = (maxPax !== null && maxPax !== undefined) || (maxCargo !== null && maxCargo !== undefined) || !!this._contractCompat;
 
                 document.getElementById('available-contracts-badge').innerText = displayedContracts.length + ' contrat(s)';
                 const contractsContainer = document.getElementById('available-contracts-container');
@@ -3514,9 +4359,7 @@
 
                     const isFlightDisabled = plane.status === 'En maintenance' || isVIOverdue;
                     
-                    const simbriefBtn = assignedContract 
-                        ? `<button onclick="app.openSimBriefForContract(${assignedContract.id}, ${plane.id})" class="bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition flex items-center space-x-1" title="Générer OFP SimBrief personnalisé avec évitement FIR"><i class="fa-solid fa-plane-tail"></i><span>SimBrief</span></button>`
-                        : '';
+                    const simbriefBtn = '';
 
                     const flightBtn = plane.status === 'En vol'
                         ? `<button onclick="app.openDebriefModal(${plane.id})" class="bg-amber-600 hover:bg-amber-500 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold cursor-pointer">Atterrir (Tech Log)</button>`
@@ -3539,7 +4382,7 @@
                         badgeTypeHTML = '<span class="text-[9px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-1.5 py-0.5 rounded uppercase font-mono font-bold">Leasing</span>';
                     } else if (plane.isLOA) {
                         badgeTypeHTML = `<span class="text-[9px] bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-1.5 py-0.5 rounded uppercase font-mono font-bold">LOA (${plane.loaTicksRemaining} ticks restants)</span>`;
-                        loaOptionBtn = `<button onclick="app.exerciseLOAOption(${plane.id})" class="bg-indigo-600 hover:bg-indigo-500 text-white px-2 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition" title="Lever l'option d'achat (${this.formatMoney(plane.residualValue)})">Lever Option (${this.formatMoney(plane.residualValue)})</button>`;
+                        loaOptionBtn = `<button onclick="app.exerciseLOAOption(${plane.id})" class="bg-indigo-600 hover:bg-indigo-500 text-white px-2 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition" title="Lever l'option d'achat = acheter l'avion pour ${this.formatMoney(plane.residualValue)}">Acheter l'avion (${this.formatMoney(plane.residualValue)})</button>`;
                     }
 
                     let hrsColorClass = "text-emerald-400";
@@ -3550,7 +4393,8 @@
                         <tr class="hover:bg-slate-900/40 transition">
                             <td class="py-3 px-3">
                                 <div class="font-bold text-white flex items-center space-x-2">
-                                    <span>${plane.registration}</span>
+                                    <span>${this.esc(plane.registration)}</span>
+                                    <button onclick="app.renameRegistration(${plane.id})" title="Changer l'immatriculation" class="text-slate-500 hover:text-sky-400 cursor-pointer text-[11px]"><i class="fa-solid fa-pen"></i></button>
                                     ${badgeTypeHTML}
                                 </div>
                                 <div class="text-xs text-sky-400">${plane.name}</div>
@@ -3612,7 +4456,13 @@
                 this.renderBalanceSheet();
                 this.renderFlightHistory();
                 this.renderStateMission();
+                this.renderAlerts();
+                this.renderRescueCard();
+                this.renderDeliveryHubSelect();
+                this.renderProfitability();
                 if (this.activeTab === 'cfo') { this.renderCashChart(); this.renderReputationCard(); this.renderSavingsCard(); }
+                if (this.activeTab === 'market') this.renderMarket();
+                if (this.activeTab === 'dashboard') this.renderEventLog();
 
                 if (this.activeTab === 'pilot') this.renderPilotTrophiesAndPassport();
                 if (this.activeTab === 'ceo') { this.renderCEOParkingLeases(); this.renderCompanyAchievements(); }
@@ -3949,7 +4799,7 @@
                 this.openPreflightModal(planeId, targetDest);
             }
 
-            openPreflightModal(planeId, targetDest) {
+            openBriefingModal(planeId, targetDest) {
                 const p = this.fleet.find(item => item.id === planeId);
                 if (!p) return;
 
@@ -4018,11 +4868,14 @@
                 const fuelToAdd = this.readFuelKg('preflight-fuel-to-add');
                 const effectivePrice = this.getEffectiveFuelPrice(p.location);
                 const cost = Math.round(fuelToAdd * effectivePrice);
+                const cargoPlan = this.planPreflightCargo(p);
+                if (cargoPlan === null) return;
 
                 if (fuelToAdd > 0) {
                     const currentHubStock = this.company.fuelReservesByHub[p.location] || 0;
                     if (currentHubStock >= fuelToAdd) {
                         this.company.fuelReservesByHub[p.location] -= fuelToAdd;
+                        this.planeStat(p).fuel += cost;
                         this.showToast(`Avitaillement de ${fuelToAdd.toLocaleString()} Kg prélevé des cuves de ${p.location}.`, 'info');
                     } else {
                         if (!this.canAffordOp(cost)) {
@@ -4031,10 +4884,12 @@
                         }
                         this.company.cash -= cost;
                         this.trackMech(cost);
+                        this.planeStat(p).fuel += cost;
                         this.showToast(`Avitaillement de ${fuelToAdd.toLocaleString()} Kg réglé au FBO (-${this.formatMoney(cost)}).`, 'info');
                     }
                 }
 
+                this.commitPreflightCargo(p, cargoPlan);
                 p.fuelOnBoard = (p.fuelOnBoard || 0) + fuelToAdd;
                 p.status = 'En vol';
                 p.currentLegTarget = targetDest;
@@ -4052,6 +4907,7 @@
 
                 document.getElementById('debrief-plane-reg').innerText = p.registration;
                 document.getElementById('debrief-fob-depart-display').innerText = this.fmtFuel(p.fuelOnBoard || 0);
+                this.renderDebriefMarket(p);
 
                 const estimatedRemaining = Math.max(0, (p.fuelOnBoard || 1000) - 800);
                 document.getElementById('debrief-fuel-remaining').value = this.kgToUnit(estimatedRemaining);
@@ -4175,6 +5031,7 @@
                     const fineAmount = 150000;
                     this.company.cash -= fineAmount;
                     this.trackMech(fineAmount);
+                    this.planeStat(p).maint += fineAmount;
                     this.showToast(`🚨 AMENDE SÉVÈRE DE NAVIGABILITÉ : Dépassement des 27.5h de VI sur ${p.registration} ! Amende de ${this.formatMoney(fineAmount)} prélevée et appareil immobilisé au sol !`, 'error');
                 }
 
@@ -4182,6 +5039,7 @@
                 p.location = targetDest;
                 p.fuelOnBoard = fuelRemaining;
                 delete p.currentLegTarget;
+                this.applyLandingCargo(p, targetDest);
 
                 const myMember = this.team.find(m => m.name === this.playerName);
                 if (myMember) {
@@ -4244,6 +5102,7 @@
                     planeReg: p.registration, planeName: p.name, route: routeTitle,
                     hours: addedHours, fuelUsed: fuelUsed, reward: earnedReward
                 });
+                { const st = this.planeStat(p); st.flights++; st.hours += addedHours; st.revenue += earnedReward; }
 
                 if (!p.melItems) p.melItems = [];
                 let maxRepairHours = 0;
@@ -4360,6 +5219,7 @@
             }
 
             buyHub(code) {
+                if (this.blockIfDefault()) return;
                 const hub = this.hub100List.find(h => h.code === code);
                 if (!hub || this.company.hubs.includes(code)) return;
                 if (this.company.cash < hub.price) {
@@ -4375,6 +5235,7 @@
             }
 
             buyAircraft(acName) {
+                if (this.blockIfDefault()) return;
                 const ac = this.aircraftCatalog.find(a => a.name === acName);
                 if (!ac) return;
                 if (this.company.hubs.length === 0) {
@@ -4399,6 +5260,7 @@
             }
 
             leaseAircraft(acName) {
+                if (this.blockIfDefault()) return;
                 const ac = this.aircraftCatalog.find(a => a.name === acName);
                 if (!ac || !ac.allowLease) return;
                 if (this.company.hubs.length === 0) {
@@ -4425,6 +5287,7 @@
 
             // SOUSCRIRE UN LEASING AVEC OPTION D'ACHAT (LOA)
             leaseAircraftLOA(acName) {
+                if (this.blockIfDefault()) return;
                 const ac = this.aircraftCatalog.find(a => a.name === acName);
                 if (!ac || !ac.allowLease) return;
                 if (this.company.hubs.length === 0) {
